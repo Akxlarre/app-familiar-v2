@@ -1,0 +1,4 @@
+{
+  "type": "module",
+  "//": "Todos los scripts de esta carpeta son ESM. Sin esta declaración Node los reparsea con un warning (MODULE_TYPELESS_PACKAGE_JSON) en cada corrida. Se declara acá, con alcance de carpeta, en vez de en el package.json raíz, para no cambiar el tipo de módulo del proyecto Angular."
+}

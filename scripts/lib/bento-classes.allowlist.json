@@ -1,0 +1,48 @@
+{
+  "_comment": "Superficie aprobada del sistema bento. Es un FRENO contra el sprawl: agregar una clase .bento-* a _bento-grid.scss sin sumarla acá hace fallar ARCH-21. Actualizar SOLO tras verificar que la clase nueva no se resuelve con una existente ni con los data-attributes de placement (data-col-span / data-row-span / data-col-start).",
+  "_criterio": "El bento describe FORMAS, no contenidos. Una clase nombrada por la sección de la app que la usa (bento-activity-lg, bento-alerts-lg, bento-invoices…) es una señal de que falta usar data-attributes o una proporción existente. Para dos paneles 50/50 a la misma altura: dos .bento-feature, o data-col-span=\"6\" en cada celda.",
+  "_grupos": {
+    "contenedor": "bento-grid y sus modificadores de comportamiento",
+    "proporciones": "forma de la celda + alias numéricos legacy (NxM)",
+    "app-like": "fill-screen y la celda que llena — ver visual-system.md",
+    "componentes": "card y media, elementos internos de una celda"
+  },
+  "classes": [
+    "bento-grid",
+    "bento-grid--four-equal",
+    "bento-grid--hero-fit",
+    "bento-grid--rows-fit",
+    "bento-grid--wizard",
+
+    "bento-square",
+    "bento-wide",
+    "bento-tall",
+    "bento-feature",
+    "bento-hero",
+    "bento-banner",
+
+    "bento-1x1",
+    "bento-2x1",
+    "bento-2x2",
+    "bento-3x1",
+    "bento-3x2",
+    "bento-4x1",
+
+    "bento-grid--fill-screen",
+    "bento-grid--fill-screen-2",
+    "bento-grid--fill-screen-kpi",
+    "bento-fill",
+
+    "bento-card",
+    "bento-card--flush",
+    "bento-card__body",
+    "bento-card__body--bottom",
+    "bento-card__body--center",
+    "bento-card__body--spread",
+
+    "bento-media",
+    "bento-media--top",
+    "bento-media--left",
+    "bento-media--center"
+  ]
+}

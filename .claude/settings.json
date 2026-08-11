@@ -1,0 +1,102 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/sdd/spec-gate.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/pre-write-guard.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/harness-gate.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/sdd/plan-injector.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/bash-guard.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/spec-diff-check.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/discovery-tracker.js"
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/write-tracker.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/scripts/post-edit.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/failure-tracker.js"
+          }
+        ]
+      }
+    ],
+    "PostCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/compact-recovery.js"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node .claude/hooks/sdd/hotfix-autoclose.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/sync-check.js"
+          },
+          {
+            "type": "command",
+            "command": "node .claude/hooks/context-guardian.js"
+          }
+        ]
+      }
+    ]
+  }
+}

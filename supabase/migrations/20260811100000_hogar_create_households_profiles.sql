@@ -1,3 +1,11 @@
+-- spec:
+--   tables_added: [households, profiles]
+--   columns_added: [id, nombre, invite_code, timezone, household_id, display_name, avatar_url]
+--   functions_added: [get_my_household_id, belongs_to_household, handle_new_user, create_household, join_household_by_code]
+--   breaking: false
+--   description: "Raíz del sistema: hogares, perfiles y los predicados de los que cuelga todo el RLS."
+-- /spec
+
 -- =============================================================================
 -- HOGAR — raíz de todo el sistema
 --

@@ -1,3 +1,10 @@
+-- spec:
+--   tables_added: [cuentas, detalle_credito, categorias_gasto, movimientos, alias_comercio, compras_en_cuotas]
+--   columns_added: [monto, tipo, fecha, comercio, captura_id, compra_cuotas_id, numero_cuota, patron]
+--   breaking: false
+--   description: "Cuentas y movimientos, con alias_comercio para que categorizar se aprenda una sola vez."
+-- /spec
+
 -- =============================================================================
 -- DINERO — cuentas, movimientos y lo que los categoriza solo
 --

@@ -1,3 +1,11 @@
+-- spec:
+--   tables_added: [integraciones_email, parsers_email, capturas]
+--   columns_added: [origen, origen_ref, payload, interpretado, estado, motivo, intentos]
+--   views_added: [mis_integraciones_email]
+--   breaking: false
+--   description: "El espinazo: todo lo que produce datos sin tipeo, con una sola bandeja de revisión."
+-- /spec
+
 -- =============================================================================
 -- CAPTURA — el espinazo del producto
 --
