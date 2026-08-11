@@ -13,18 +13,19 @@
 | Componente | Usado en |
 |------------|----------|
 | `app-alert-card` | `shared/components/error-state` |
-| `app-badge` | `layout` |
+| `app-badge` | `layout`, `shared/components/section-hero` |
 | `app-empty-state` | `features/bandeja` |
 | `app-error-state` | `features/bandeja` |
-| `app-icon` | `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card` |
-| `app-kpi-card` | `features/bandeja`, `features/dashboard` |
-| `app-skeleton-block` | `features/bandeja`, `shared/components/kpi-card` |
+| `app-icon` | `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card`, `shared/components/section-hero`, `shared/components/tabs` |
+| `app-kpi-card` | `features/dashboard` |
+| `app-section-hero` | `features/bandeja` |
+| `app-skeleton-block` | `features/bandeja`, `shared/components/kpi-card`, `shared/components/section-hero` |
 
 ## Directivas → Consumidores
 
 | Directiva | Usada en |
 |-----------|---------|
-| `[appAnimateIn]` | `features/dashboard` |
+| `[appAnimateIn]` | `features/dashboard`, `shared/components/section-hero` |
 | `[appBentoGridLayout]` | `features/bandeja`, `features/dashboard` |
 | `[appBentoReveal]` | `features/bandeja`, `features/dashboard` |
 | `[appCardHover]` | `features/dashboard`, `layout` |
@@ -42,7 +43,7 @@
 | Service | Inyectado en |
 |---------|-------------|
 | `BreadcrumbService` | `layout` |
-| `GsapAnimationsService` | `features/dashboard`, `layout`, `shared/components/drawer`, `shared/components/kpi-card` |
+| `GsapAnimationsService` | `features/dashboard`, `layout`, `shared/components/drawer`, `shared/components/kpi-card`, `shared/components/section-hero` |
 | `LayoutDrawerService` | `layout` |
 | `LayoutService` | `layout` |
 | `MenuConfigService` | `layout` |
@@ -67,6 +68,7 @@
 | Artefacto | Tipo | Archivo |
 |-----------|------|---------|
 | `app-drawer` | componente | `src/app/shared/components/drawer/drawer.component.ts` |
+| `app-tabs` | componente | `src/app/shared/components/tabs/tabs.component.ts` |
 | `[appClickOutside]` | directiva | `src/app/core/directives/click-outside.directive.ts` |
 | `[appHasRole]` | directiva | `src/app/core/directives/has-role.directive.ts` |
 | `[appModalOverlay]` | directiva | `src/app/core/directives/modal-overlay.directive.ts` |

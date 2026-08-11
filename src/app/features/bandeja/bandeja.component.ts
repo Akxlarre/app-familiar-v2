@@ -10,7 +10,8 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BandejaFacade } from '@core/facades/bandeja.facade';
 import { IconComponent } from '@shared/components/icon/icon.component';
-import { KpiCardComponent } from '@shared/components/kpi-card/kpi-card.component';
+import { SectionHeroComponent } from '@shared/components/section-hero/section-hero.component';
+import type { SectionHeroKpi } from '@core/models/section-hero.model';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '@shared/components/error-state/error-state.component';
 import { SkeletonBlockComponent } from '@shared/components/skeleton-block/skeleton-block.component';
@@ -40,7 +41,7 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
     DecimalPipe,
     FormsModule,
     IconComponent,
-    KpiCardComponent,
+    SectionHeroComponent,
     EmptyStateComponent,
     ErrorStateComponent,
     SkeletonBlockComponent,
@@ -48,47 +49,32 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
     BentoRevealDirective,
   ],
   template: `
-    <!-- App-like de tres filas, la misma forma que la referencia del blueprint:
-         hero → banda de KPIs → panel que llena. Toda celda hija es .bento-banner
-         porque en un grid fill-screen cada una ocupa UNA fila. -->
+    <!-- App-like: hero slim (con sus KPIs adentro) + panel que llena. Las dos
+         celdas ocupan UNA fila, que es el contrato de un grid fill-screen. -->
     <div
-      class="bento-grid bento-grid--fill-screen-kpi"
+      class="bento-grid bento-grid--fill-screen"
       appBentoReveal
       appBentoGridLayout
     >
-      <!-- ═══ Fila 1 — Hero (auto) ═══ -->
-      <header class="bento-banner flex flex-wrap items-end justify-between gap-4">
-        <div class="flex flex-col gap-1">
-          <span class="section-eyebrow">Captura</span>
-          <h1 class="text-2xl font-semibold text-text-primary">Bandeja</h1>
-          <p class="text-sm text-text-muted max-w-prose">
-            Lo que llegó del banco y de las boletas. Confirmá lo que está bien; lo que
-            corrijas se aprende para la próxima.
-          </p>
-        </div>
-      </header>
+      <!-- ═══ Fila 1 — Hero slim (auto) ═══
+           section-hero trae título, bajada y la banda de KPIs en una sola
+           celda. Antes esto eran dos celdas escritas a mano acá — el componente
+           ya existía en el blueprint y lo reimplementé sin saberlo. -->
+      <app-section-hero
+        class="bento-banner"
+        density="slim"
+        title="Bandeja"
+        contextLine="Captura"
+        subtitle="Lo que llegó del banco y de las boletas. Confirmá lo que está bien; lo que corrijas se aprende para la próxima."
+        icon="inbox"
+        [actions]="[]"
+        [kpis]="kpis()"
+        [loading]="facade.isLoading() && !facade.hasData()"
+        [loadingKpiCount]="3"
+        [animateOnInit]="false"
+      />
 
-      <!-- ═══ Fila 2 — KPIs (auto) ═══ -->
-      <div class="bento-banner grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <app-kpi-card
-          [value]="facade.total()"
-          label="Por revisar"
-          [loading]="facade.isLoading() && !facade.hasData()"
-          [accent]="true"
-        />
-        <app-kpi-card
-          [value]="facade.listasParaConfirmar()"
-          label="A un toque"
-          [loading]="facade.isLoading() && !facade.hasData()"
-        />
-        <app-kpi-card
-          [value]="facade.necesitanDatos()"
-          label="Necesitan datos"
-          [loading]="facade.isLoading() && !facade.hasData()"
-        />
-      </div>
-
-      <!-- ═══ Fila 3 — Panel que llena (minmax(0,1fr)) ═══
+      <!-- ═══ Fila 2 — Panel que llena (minmax(0,1fr)) ═══
            En desktop ocupa el resto del viewport y el scroll vive en el CUERPO
            del panel; bajo lg mide su contenido y la página scrollea nativamente. -->
       <div class="bento-banner bento-fill card flex min-h-0 flex-col p-0">
@@ -232,6 +218,13 @@ export class BandejaComponent implements OnInit {
 
   /** Estado del checkbox por captura. */
   protected recordar: Record<string, boolean> = {};
+
+  /** Los tres números que uno se pregunta al abrir la bandeja. */
+  protected readonly kpis = computed<SectionHeroKpi[]>(() => [
+    { id: 'total', label: 'Por revisar', value: this.facade.total() },
+    { id: 'listas', label: 'A un toque', value: this.facade.listasParaConfirmar() },
+    { id: 'faltan', label: 'Necesitan datos', value: this.facade.necesitanDatos() },
+  ]);
 
   ngOnInit(): void {
     void this.facade.initialize();

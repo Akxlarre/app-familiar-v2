@@ -18,6 +18,8 @@
 | `src/app/core/utils/phone.utils.ts` | `DialCode`, `DIAL_CODES`, `validatePhone`, `normalizePhone` |
 | `src/app/core/utils/request-guard.utils.ts` | `RequestGuard`, `createRequestGuard` |
 | `src/app/core/utils/search-filter.utils.ts` | `normalizeSearchText`, `matchesSearch`, `filterBySearch` |
+| `src/app/core/utils/sparkline.utils.ts` | `getSparklinePoints` |
+| `src/app/core/utils/subnav-tier.utils.ts` | `SubnavTier`, `pickSubnavTier` |
 | `src/app/core/utils/validation.utils.ts` | `validateEmail`, `normalizeEmail` |
 
 <!-- AUTO-GENERATED:END -->

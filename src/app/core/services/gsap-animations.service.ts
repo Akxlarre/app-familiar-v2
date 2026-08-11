@@ -130,7 +130,9 @@ export class GsapAnimationsService {
    * Animación del hero card — entrada con blur + scale
    * @param el - Elemento hero
    */
-  animateHero(el: HTMLElement): void {
+  animateHero(el: HTMLElement | null | undefined): void {
+    // Null-safe: el llamador típico es un viewChild() que puede no haber resuelto.
+    if (!el) return;
     if (!this.shouldAnimate()) {
       gsap.set(el, { opacity: 1 });
       return;
@@ -219,40 +221,70 @@ export class GsapAnimationsService {
     return tl;
   }
 
+  /** Elementos con hover ya enlazado — evita listeners duplicados. */
+  private readonly _hoverBound = new WeakSet<HTMLElement>();
+
   /**
-   * Hover en cards — sombra elevada sobre fondo claro.
-   * Usa tokens del design system (white-labeling).
-   * @param el - Elemento card
+   * Hover en cards: sombra elevada y elevación en Y.
+   *
+   * Acepta `null`/`undefined` porque el llamador típico es un `viewChild()`, que
+   * puede no haber resuelto todavía.
+   *
+   * Devuelve una función de limpieza. Sin ella los listeners quedan colgados del
+   * elemento después de destruir el componente, y en una lista que se rerenderiza
+   * se acumulan silenciosamente.
    */
-  addCardHover(el: HTMLElement): void {
-    if (!this.shouldAnimate()) return;
+  addCardHover(el: HTMLElement | null | undefined): (() => void) | null {
+    if (!el || !this.shouldAnimate()) return null;
+    // Llamarlo dos veces sobre el mismo elemento duplicaría los listeners y el
+    // hover se sentiría "doble".
+    if (this._hoverBound.has(el)) return null;
+    this._hoverBound.add(el);
 
-    const getToken = (name: string): string => {
-      if (typeof document === 'undefined') return '';
-      return getComputedStyle(document.documentElement).getPropertyValue(name).trim() || '';
-    };
+    // Los tokens se leen en cada evento, no una vez: así el hover refleja el
+    // tema activo si el usuario cambia a oscuro con el componente ya montado.
+    const token = (name: string): string =>
+      typeof document === 'undefined'
+        ? ''
+        : getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
-    const enter = () =>
+    const enter = () => {
+      gsap.killTweensOf(el);
+      el.style.willChange = 'transform, box-shadow';
       gsap.to(el, {
-        boxShadow: getToken('--card-shadow-hover') || getToken('--shadow-lg'),
-        borderColor: getToken('--border-strong') || getToken('--border-default'),
+        boxShadow: token('--card-shadow-hover') || token('--shadow-lg'),
+        borderColor: token('--border-strong') || token('--border-default'),
         y: -2,
         duration: 0.22,
         ease: 'power2.out',
       });
+    };
 
-    const leave = () =>
+    const leave = () => {
+      gsap.killTweensOf(el);
       gsap.to(el, {
-        boxShadow: getToken('--card-shadow') || getToken('--shadow-md'),
-        borderColor: getToken('--border-default') || getToken('--border-subtle'),
+        boxShadow: token('--card-shadow') || token('--shadow-md'),
+        borderColor: token('--border-default') || token('--border-subtle'),
         y: 0,
         duration: 0.32,
         ease: 'power2.inOut',
         clearProps: 'boxShadow,borderColor,transform',
+        onComplete: () => {
+          el.style.willChange = '';
+        },
       });
+    };
 
     el.addEventListener('mouseenter', enter);
     el.addEventListener('mouseleave', leave);
+
+    return () => {
+      el.removeEventListener('mouseenter', enter);
+      el.removeEventListener('mouseleave', leave);
+      gsap.killTweensOf(el);
+      el.style.willChange = '';
+      this._hoverBound.delete(el);
+    };
   }
 
   /**

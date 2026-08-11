@@ -180,6 +180,8 @@
 | `app-error-state` | `title`, `message`, `retryLabel` | `retry` | `src/app/shared/components/error-state/error-state.component.ts` |
 | `app-icon` | `name`, `size`, `color`, `ariaHidden`, `ariaLabel` | — | `src/app/shared/components/icon/icon.component.ts` |
 | `app-kpi-card` | `value`, `label`, `suffix`, `prefix`, `trend`, `trendLabel`, `accent`, `loading` | — | `src/app/shared/components/kpi-card/kpi-card.component.ts` |
+| `app-section-hero` | `title`, `contextLine`, `subtitle`, `icon`, `chips`, `actions`, `backRoute`, `backLabel`, `animateOnInit`, `backClickable`, `density`, `kpis`, `loading`, `loadingKpiCount` | `actionClick`, `backClicked`, `kpiClick` | `src/app/shared/components/section-hero/section-hero.component.ts` |
 | `app-skeleton-block` | `variant`, `width`, `height` | — | `src/app/shared/components/skeleton-block/skeleton-block.component.ts` |
+| `app-tabs` | `tabs`, `activeId`, `variant`, `uppercase` | `activeIdChange` | `src/app/shared/components/tabs/tabs.component.ts` |
 
 <!-- AUTO-GENERATED:END -->

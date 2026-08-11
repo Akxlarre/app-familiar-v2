@@ -116,13 +116,19 @@ la necesidad se resuelve con lo que ya hay.
 
 | Token | Usos | Valor |
 |-------|------|-------|
-| `--border-subtle` | 16 | `rgba(255, 255, 255, 0.04)` |
-| `--text-muted` | 14 | `#71717a` |
-| `--text-secondary` | 13 | `#a1a1aa` |
-| `--transition-color` | 10 | `—` |
-| `--color-primary` | 9 | `#38bdf8` |
-| `--bg-subtle` | 9 | `#2d2d30` |
-| `--bg-elevated` | 8 | `#27272a` |
+| `--text-muted` | 24 | `#71717a` |
+| `--border-subtle` | 19 | `rgba(255, 255, 255, 0.04)` |
+| `--color-primary-text` | 16 | `#ffffff` |
+| `--text-secondary` | 14 | `#a1a1aa` |
+| `--transition-color` | 11 | `—` |
+| `--bg-subtle` | 11 | `#2d2d30` |
+| `--color-primary` | 10 | `#38bdf8` |
+| `--text-primary` | 10 | `#f4f4f5` |
+| `--bg-elevated` | 9 | `#27272a` |
+| `--state-success` | 9 | `#4ade80` |
+| `--state-error` | 8 | `#f87171` |
+| `--ds-brand` | 7 | `#38bdf8` |
+| `--bg-surface` | 7 | `#18181b` |
 | `--input-radius` | 6 | `var(--radius-md)` |
 | `--input-border-default` | 6 | `var(--border-default)` |
 | `--input-bg` | 6 | `var(--bg-subtle)` |
@@ -133,24 +139,18 @@ la necesidad se resuelve con lo que ya hay.
 | `--input-placeholder` | 6 | `var(--text-muted)` |
 | `--input-border-focus` | 6 | `var(--color-primary)` |
 | `--input-shadow-focus-neutral` | 6 | `var(--shadow-focus)` |
-| `--color-primary-text` | 6 | `#ffffff` |
-| `--ds-brand` | 5 | `#38bdf8` |
-| `--state-success` | 5 | `#4ade80` |
-| `--overlay-backdrop` | 5 | `rgba(0, 0, 0, 0.7)` |
-| `--bg-surface` | 5 | `#18181b` |
-| `--state-success-bg` | 4 | `rgba(74, 222, 128, 0.1)` |
-| `--btn-primary-radius` | 4 | `var(--radius-md)` |
-| `--btn-primary-bg` | 4 | `var(--ds-brand)` |
+| `--state-success-bg` | 5 | `rgba(74, 222, 128, 0.1)` |
+| `--state-warning` | 5 | `#fbbf24` |
 
 ## Clases semánticas del Design System
 
 | Clase | Usos en templates | Archivo |
 |-------|------------------|---------|
-| `.micro-label` | 5 | `src/styles/tokens/_variables.scss` |
-| `.card` | 5 | `src/styles/tokens/_variables.scss` |
-| `.surface-hero` | 4 | `src/styles/tokens/_variables.scss` |
+| `.micro-label` | 8 | `src/styles/tokens/_variables.scss` |
+| `.card` | 7 | `src/styles/tokens/_variables.scss` |
+| `.surface-hero` | 6 | `src/styles/tokens/_variables.scss` |
+| `.item-title` | 4 | `src/styles/tokens/_variables.scss` |
 | `.kpi-value` | 3 | `src/styles/tokens/_variables.scss` |
-| `.item-title` | 3 | `src/styles/tokens/_variables.scss` |
 | `.indicator-live` | 3 | `src/styles/tokens/_variables.scss` |
 | `.card-accent` | 2 | `src/styles/tokens/_variables.scss` |
 | `.micro-label--warning` | 1 | `src/styles/tokens/_variables.scss` |
@@ -238,7 +238,7 @@ la necesidad se resuelve con lo que ya hay.
 | Categoría | Usos | Interpretación |
 |-----------|------|----------------|
 | Tamaño display (`text-4xl/3xl/2xl`) | 7 | Candidatas a `.kpi-value` o heading semántico |
-| Peso de fuente (`font-bold/semibold`) | 17 | Informativo — legítimo en botones/headers/títulos |
+| Peso de fuente (`font-bold/semibold`) | 22 | Informativo — legítimo en botones/headers/títulos |
 
 
 <!-- AUTO-GENERATED:END -->
