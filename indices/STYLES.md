@@ -146,17 +146,17 @@ la necesidad se resuelve con lo que ya hay.
 
 | Clase | Usos en templates | Archivo |
 |-------|------------------|---------|
+| `.micro-label` | 6 | `src/styles/tokens/_variables.scss` |
+| `.kpi-value` | 5 | `src/styles/tokens/_variables.scss` |
+| `.card` | 5 | `src/styles/tokens/_variables.scss` |
 | `.surface-hero` | 4 | `src/styles/tokens/_variables.scss` |
-| `.card` | 4 | `src/styles/tokens/_variables.scss` |
+| `.item-title` | 3 | `src/styles/tokens/_variables.scss` |
 | `.indicator-live` | 3 | `src/styles/tokens/_variables.scss` |
-| `.kpi-value` | 2 | `src/styles/tokens/_variables.scss` |
-| `.micro-label` | 2 | `src/styles/tokens/_variables.scss` |
-| `.item-title` | 2 | `src/styles/tokens/_variables.scss` |
 | `.card-accent` | 2 | `src/styles/tokens/_variables.scss` |
 | `.badge-count` | 1 | `src/styles/tokens/_variables.scss` |
+| `.section-eyebrow` | 1 | `src/styles/tokens/_variables.scss` |
 | `.card-tinted` | 1 | `src/styles/tokens/_variables.scss` |
 | `.kpi-label` | — | `src/styles/tokens/_variables.scss` |
-| `.section-eyebrow` | — | `src/styles/tokens/_variables.scss` |
 | `.surface-glass` | — | `src/styles/tokens/_variables.scss` |
 | `.badge-pulse` | — | `src/styles/tokens/_variables.scss` |
 
@@ -234,8 +234,8 @@ la necesidad se resuelve con lo que ya hay.
 
 | Categoría | Usos | Interpretación |
 |-----------|------|----------------|
-| Tamaño display (`text-4xl/3xl/2xl`) | 6 | Candidatas a `.kpi-value` o heading semántico |
-| Peso de fuente (`font-bold/semibold`) | 15 | Informativo — legítimo en botones/headers/títulos |
+| Tamaño display (`text-4xl/3xl/2xl`) | 7 | Candidatas a `.kpi-value` o heading semántico |
+| Peso de fuente (`font-bold/semibold`) | 16 | Informativo — legítimo en botones/headers/títulos |
 
 
 <!-- AUTO-GENERATED:END -->

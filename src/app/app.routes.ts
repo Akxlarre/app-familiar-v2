@@ -40,6 +40,12 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
       },
+      {
+        path: 'bandeja',
+        title: 'Bandeja',
+        loadComponent: () =>
+          import('./features/bandeja/bandeja.component').then((m) => m.BandejaComponent),
+      },
       // TODO: Añade tus feature routes aquí
     ],
   },

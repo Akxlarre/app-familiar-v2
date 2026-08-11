@@ -46,14 +46,16 @@ sin_rls=$("${PSQL[@]}" -d "$DB" -tAc \
 if [ -n "$sin_rls" ]; then echo "   ✗ sin RLS: $sin_rls"; exit 1; fi
 echo "   ✓ todas"
 
-echo "▸ Pruebas de RLS"
-salida=$("${PSQL[@]}" -d "$DB" -f "$RAIZ/supabase/tests/rls_hogar.test.sql" 2>&1 || true)
-echo "$salida" | grep -oE "PASS +.*" | sed 's/^/   ✓ /'
-if echo "$salida" | grep -qE "FALLO|ERROR"; then
-  echo "$salida" | grep -E "FALLO|ERROR" | sed 's/^/   ✗ /'
-  exit 1
-fi
-
-total=$(echo "$salida" | grep -c "PASS" || true)
+total=0
+for prueba in "$RAIZ"/supabase/tests/*.test.sql; do
+  echo "▸ $(basename "$prueba")"
+  salida=$("${PSQL[@]}" -d "$DB" -f "$prueba" 2>&1 || true)
+  echo "$salida" | grep -oE "PASS +.*" | sed 's/^/   ✓ /'
+  if echo "$salida" | grep -qE "FALLO|ERROR"; then
+    echo "$salida" | grep -E "FALLO|ERROR" | sed 's/^/   ✗ /'
+    exit 1
+  fi
+  total=$(( total + $(echo "$salida" | grep -c "PASS" || true) ))
+done
 echo
 echo "✅ $total casos en verde"

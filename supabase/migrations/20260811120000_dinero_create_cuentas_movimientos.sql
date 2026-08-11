@@ -2,7 +2,6 @@
 --   tables_added: [cuentas, detalle_credito, categorias_gasto, movimientos, alias_comercio, compras_en_cuotas]
 --   columns_added: [monto, tipo, fecha, comercio, captura_id, compra_cuotas_id, numero_cuota, patron]
 --   breaking: false
---   functions_added: [incrementar_aciertos_alias]
 --   description: "Cuentas y movimientos, con alias_comercio para que categorizar se aprenda una sola vez."
 -- /spec
 
@@ -152,19 +151,6 @@ ALTER TABLE public.movimientos
 
 CREATE INDEX IF NOT EXISTS idx_movimientos_compra_cuotas
   ON public.movimientos(compra_cuotas_id) WHERE compra_cuotas_id IS NOT NULL;
-
--- ─── Aciertos del alias ──────────────────────────────────────────────────────
--- Cada vez que un alias resuelve la categoría de un movimiento suma uno. Sirve
--- para ver cuáles están trabajando y cuáles se crearon y nunca se usaron.
--- Es un RPC y no un UPDATE desde la función para que el incremento sea atómico.
-CREATE OR REPLACE FUNCTION public.incrementar_aciertos_alias(p_alias_id UUID)
-RETURNS void
-LANGUAGE sql
-SECURITY DEFINER
-SET search_path = public
-AS $$
-  UPDATE public.alias_comercio SET aciertos = aciertos + 1 WHERE id = p_alias_id;
-$$;
 
 -- ─── RLS ─────────────────────────────────────────────────────────────────────
 ALTER TABLE public.cuentas            ENABLE ROW LEVEL SECURITY;

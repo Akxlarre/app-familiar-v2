@@ -24,7 +24,7 @@ import {
   necesitaRefresco,
   refrescarToken,
 } from '../_shared/gmail.ts';
-import { elegirParser, extraerDatos, fechaEnZona, normalizarComercio } from '../_shared/parseo.ts';
+import { elegirParser, extraerDatos, fechaEnZona } from '../_shared/parseo.ts';
 
 // Límites conservadores: la función tiene tope de tiempo y Gmail cobra cuota.
 const MAX_CORREOS_POR_CORRIDA = 10;
@@ -67,34 +67,25 @@ async function marcarIntegracion(
     .eq('id', id);
 }
 
-/** Busca la categoría aprendida para este comercio (REQ-013, RN-10). */
+/**
+ * Categoría aprendida para este comercio (REQ-013, RN-10).
+ *
+ * Delega en el RPC porque la normalización del patrón vive sólo en SQL: tenerla
+ * también acá significaría que dos implementaciones tienen que coincidir para
+ * siempre, y el día que difieran los alias dejan de aplicarse en silencio.
+ */
 async function categoriaAprendida(
   supabase: SupabaseClient,
   householdId: string,
   comercio: string | null,
 ): Promise<string | null> {
   if (!comercio) return null;
-  const patron = normalizarComercio(comercio);
-  if (!patron) return null;
-
-  const { data } = await supabase
-    .from('alias_comercio')
-    .select('id, categoria_id')
-    .eq('household_id', householdId)
-    .eq('patron', patron)
-    .maybeSingle();
-
-  const alias = data as { id: string; categoria_id: string } | null;
-  if (!alias) return null;
-
-  // Contador de aciertos: sirve para mostrar qué alias están funcionando y
-  // cuáles nunca se usaron.
-  await supabase.rpc('incrementar_aciertos_alias', { p_alias_id: alias.id }).then(
-    () => {},
-    () => {},   // si el RPC no existe todavía, no es motivo para fallar el proceso
-  );
-
-  return alias.categoria_id;
+  const { data, error } = await supabase.rpc('categoria_para_comercio', {
+    p_household_id: householdId,
+    p_comercio: comercio,
+  });
+  if (error) return null;
+  return (data as string | null) ?? null;
 }
 
 /** Agrupa las cuotas de una misma compra (REQ-031, RB-03). */

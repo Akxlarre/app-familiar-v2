@@ -13,15 +13,17 @@
 | Componente | Usado en |
 |------------|----------|
 | `app-alert-card` | `shared/components/error-state` |
-| `app-icon` | `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card` |
+| `app-empty-state` | `features/bandeja` |
+| `app-error-state` | `features/bandeja` |
+| `app-icon` | `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card` |
 | `app-kpi-card` | `features/dashboard` |
-| `app-skeleton-block` | `shared/components/kpi-card` |
+| `app-skeleton-block` | `features/bandeja`, `shared/components/kpi-card` |
 
 ## Directivas → Consumidores
 
 | Directiva | Usada en |
 |-----------|---------|
-| `[appAnimateIn]` | `features/dashboard` |
+| `[appAnimateIn]` | `features/bandeja`, `features/dashboard` |
 | `[appBentoGridLayout]` | `features/dashboard` |
 | `[appBentoReveal]` | `features/dashboard` |
 | `[appCardHover]` | `features/dashboard` |
@@ -32,6 +34,7 @@
 | Facade | Inyectada en |
 |--------|-------------|
 | `AuthFacade` | `features/auth/login`, `features/dashboard`, `layout` |
+| `BandejaFacade` | `features/bandeja` |
 
 ## Services → Consumidores
 
@@ -49,6 +52,7 @@
 | Página | Loading | Empty | Error | Skeleton |
 |--------|---------|-------|-------|----------|
 | `features/auth/login` | ❌ | ❌ | ❌ | ❌ |
+| `features/bandeja` | ✅ | ✅ | ✅ | ✅ |
 | `features/dashboard` | ✅ | ❌ | ❌ | ❌ |
 | `features/not-found` | ❌ | ❌ | ❌ | ❌ |
 
@@ -61,8 +65,6 @@
 | Artefacto | Tipo | Archivo |
 |-----------|------|---------|
 | `app-drawer` | componente | `src/app/shared/components/drawer/drawer.component.ts` |
-| `app-empty-state` | componente | `src/app/shared/components/empty-state/empty-state.component.ts` |
-| `app-error-state` | componente | `src/app/shared/components/error-state/error-state.component.ts` |
 | `[appClickOutside]` | directiva | `src/app/core/directives/click-outside.directive.ts` |
 | `[appHasRole]` | directiva | `src/app/core/directives/has-role.directive.ts` |
 | `[appModalOverlay]` | directiva | `src/app/core/directives/modal-overlay.directive.ts` |

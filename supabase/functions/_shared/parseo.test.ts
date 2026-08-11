@@ -13,7 +13,6 @@ import assert from 'node:assert/strict';
 
 import {
   montoChileno,
-  normalizarComercio,
   extraerDatos,
   elegirParser,
   fechaEnZona,
@@ -51,21 +50,6 @@ test('devuelve el valor absoluto — el signo lo da el tipo de movimiento', () =
 test('sin dígitos devuelve null', () => {
   assert.equal(montoChileno(''), null);
   assert.equal(montoChileno('monto no disponible'), null);
-});
-
-// ─── normalizarComercio ──────────────────────────────────────────────────────
-
-test('dos cargos del mismo comercio caen en el mismo alias', () => {
-  assert.equal(normalizarComercio('UBER   *TRIP 123'), normalizarComercio('uber *trip 456'));
-});
-
-test('quita tildes para que no dependan de cómo lo escriba el banco', () => {
-  assert.equal(normalizarComercio('FARMACIA CRUZ VERDE'), 'FARMACIA CRUZ VERDE');
-  assert.equal(normalizarComercio('Café Altura'), 'CAFE ALTURA');
-});
-
-test('los números de transacción no ensucian el patrón', () => {
-  assert.equal(normalizarComercio('JUMBO 0451'), 'JUMBO');
 });
 
 // ─── extraerDatos ────────────────────────────────────────────────────────────

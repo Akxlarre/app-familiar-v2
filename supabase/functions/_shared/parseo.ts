@@ -70,20 +70,6 @@ function primerGrupo(texto: string, patron: string | null | undefined): string |
   }
 }
 
-/**
- * Normaliza el texto de un comercio para poder compararlo entre correos.
- * "UBER   *TRIP 123" y "uber *trip 456" tienen que caer en el mismo alias.
- */
-export function normalizarComercio(texto: string): string {
-  return texto
-    .toUpperCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')  // saca tildes
-    .replace(/\d+/g, ' ')                               // los números varían por transacción
-    .replace(/[^A-Z\s]/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
 /** Extrae "Cuota 3 de 12" en sus dos números (RB-03). */
 function extraerCuota(texto: string, patron: string | null | undefined): [number | null, number | null] {
   if (!patron) return [null, null];

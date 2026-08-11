@@ -27,7 +27,11 @@ export class MenuConfigService {
         icon: 'layout-dashboard',
         routerLink: '/app/dashboard',
       },
-      // TODO: Añade tus rutas de feature aquí
+      {
+        label: 'Bandeja',
+        icon: 'inbox',
+        routerLink: '/app/bandeja',
+      },
       {
         label: 'Configuración',
         icon: 'settings',

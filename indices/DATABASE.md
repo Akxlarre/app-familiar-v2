@@ -311,11 +311,14 @@ corre 21 casos de aislamiento con tres usuarios en dos hogares.
 | Función | Argumentos |
 |---------|-----------|
 | `belongs_to_household` | `(household_uuid UUID)` |
+| `categoria_para_comercio` | `(p_household_id UUID, p_comercio TEXT)` |
 | `create_household` | `(p_nombre TEXT)` |
 | `get_my_household_id` | `()` |
 | `handle_new_user` | `()` |
-| `incrementar_aciertos_alias` | `(p_alias_id UUID)` |
 | `join_household_by_code` | `(p_code TEXT)` |
+| `normalizar_comercio` | `(p_texto TEXT)` |
+| `resolver_captura` | `(p_captura_id UUID, p_monto BIGINT, p_comercio TEXT, p_categoria_id UUID, p_cuenta_id UUID, p_fecha DATE, p_tipo TEXT, p_recordar BOOLEAN DEFAULT false)` |
+| `unaccent_simple` | `(p_texto TEXT)` |
 
 
 <!-- AUTO-GENERATED:END -->

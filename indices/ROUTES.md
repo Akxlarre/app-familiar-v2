@@ -14,6 +14,7 @@
 | `/app` | `AppShellComponent` | `authGuard` | `src/app/app.routes.ts` |
 | `/app` | → redirect a `dashboard` | — | `src/app/app.routes.ts` |
 | `/app/dashboard` | `DashboardComponent` | — | `src/app/app.routes.ts` |
+| `/app/bandeja` | `BandejaComponent` | — | `src/app/app.routes.ts` |
 | `/` | → redirect a `/login` | — | `src/app/app.routes.ts` |
 | `/**` | `NotFoundComponent` | — | `src/app/app.routes.ts` |
 

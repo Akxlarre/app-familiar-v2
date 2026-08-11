@@ -17,6 +17,7 @@
 <!-- AUTO-GENERATED:BEGIN -->
 | Clase | Dependencias | Signals expuestos | Archivo |
 |-------|-------------|------------------|---------|
+| `BandejaFacade` | `CapturasRepository`, `ToastService` | — | `src/app/core/facades/bandeja.facade.ts` |
 | `ProductosFacade` | `SupabaseService` | — | `src/app/core/facades/base.facade.ts` |
 | `AuthFacade` | `SupabaseService`, `Router`, `ProfilesRepository` | — | `src/app/core/services/auth.facade.ts` |
 

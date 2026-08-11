@@ -23,6 +23,7 @@
 <!-- AUTO-GENERATED:BEGIN -->
 | Interfaces | Categoría | Archivo |
 |-----------|----------|---------|
+| `OrigenCaptura`, `EstadoCaptura`, `PayloadCaptura`, `InterpretacionCaptura`, `Captura`, `ResolucionCaptura` | `other` | `src/app/core/models/captura.model.ts` |
 | `LayoutTier` | `other` | `src/app/core/models/layout.model.ts` |
 | `NotificationType`, `Notification` | `other` | `src/app/core/models/notification.model.ts` |
 | `UserRole`, `User` | `other` | `src/app/core/models/user.model.ts` |
