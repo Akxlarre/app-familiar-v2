@@ -8,7 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "test:watch": "ng test --watch",
-    "test:ci": "ng test --watch=false --reporter=verbose",
+    "test:ci": "ng test --watch=false",
     "test:coverage": "ng test --watch=false --coverage",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
