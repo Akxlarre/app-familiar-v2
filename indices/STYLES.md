@@ -146,10 +146,10 @@ la necesidad se resuelve con lo que ya hay.
 
 | Clase | Usos en templates | Archivo |
 |-------|------------------|---------|
-| `.micro-label` | 6 | `src/styles/tokens/_variables.scss` |
-| `.kpi-value` | 5 | `src/styles/tokens/_variables.scss` |
+| `.micro-label` | 5 | `src/styles/tokens/_variables.scss` |
 | `.card` | 5 | `src/styles/tokens/_variables.scss` |
 | `.surface-hero` | 4 | `src/styles/tokens/_variables.scss` |
+| `.kpi-value` | 3 | `src/styles/tokens/_variables.scss` |
 | `.item-title` | 3 | `src/styles/tokens/_variables.scss` |
 | `.indicator-live` | 3 | `src/styles/tokens/_variables.scss` |
 | `.card-accent` | 2 | `src/styles/tokens/_variables.scss` |

@@ -10,11 +10,12 @@ import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BandejaFacade } from '@core/facades/bandeja.facade';
 import { IconComponent } from '@shared/components/icon/icon.component';
+import { KpiCardComponent } from '@shared/components/kpi-card/kpi-card.component';
 import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.component';
 import { ErrorStateComponent } from '@shared/components/error-state/error-state.component';
 import { SkeletonBlockComponent } from '@shared/components/skeleton-block/skeleton-block.component';
-import { AnimateInDirective } from '@core/directives/animate-in.directive';
 import { BentoGridLayoutDirective } from '@core/directives/bento-grid-layout.directive';
+import { BentoRevealDirective } from '@core/directives/bento-reveal.directive';
 import type { Captura } from '@core/models/captura.model';
 import { requiereEscribirMonto } from '@core/models/captura.model';
 
@@ -39,21 +40,23 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
     DecimalPipe,
     FormsModule,
     IconComponent,
+    KpiCardComponent,
     EmptyStateComponent,
     ErrorStateComponent,
     SkeletonBlockComponent,
-    AnimateInDirective,
     BentoGridLayoutDirective,
+    BentoRevealDirective,
   ],
   template: `
-    <!-- App-like: en desktop el grid ocupa el alto disponible y el scroll vive
-         DENTRO de la lista, no en el documento. Ambas celdas son .bento-banner
-         (una fila cada una), que es el contrato de un grid fill-screen. -->
-    <section
-      class="bento-grid bento-grid--fill-screen"
+    <!-- App-like de tres filas, la misma forma que la referencia del blueprint:
+         hero → banda de KPIs → panel que llena. Toda celda hija es .bento-banner
+         porque en un grid fill-screen cada una ocupa UNA fila. -->
+    <div
+      class="bento-grid bento-grid--fill-screen-kpi"
+      appBentoReveal
       appBentoGridLayout
     >
-      <!-- Encabezado -->
+      <!-- ═══ Fila 1 — Hero (auto) ═══ -->
       <header class="bento-banner flex flex-wrap items-end justify-between gap-4">
         <div class="flex flex-col gap-1">
           <span class="section-eyebrow">Captura</span>
@@ -63,137 +66,162 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
             corrijas se aprende para la próxima.
           </p>
         </div>
-
-        @if (facade.total() > 0) {
-          <div class="flex items-center gap-4">
-            <div class="flex flex-col items-end">
-              <span class="kpi-value">{{ facade.total() }}</span>
-              <span class="micro-label">por revisar</span>
-            </div>
-            @if (facade.listasParaConfirmar() > 0) {
-              <div class="flex flex-col items-end">
-                <span class="kpi-value">{{ facade.listasParaConfirmar() }}</span>
-                <span class="micro-label">a un toque</span>
-              </div>
-            }
-          </div>
-        }
       </header>
 
-      <!-- Fila 2: la celda protagonista. Llena el alto restante y scrollea
-           por dentro; el documento no se mueve. -->
-      <div class="bento-banner bento-fill flex min-h-0 flex-col gap-3 overflow-hidden">
+      <!-- ═══ Fila 2 — KPIs (auto) ═══ -->
+      <div class="bento-banner grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <app-kpi-card
+          [value]="facade.total()"
+          label="Por revisar"
+          [loading]="facade.isLoading() && !facade.hasData()"
+          [accent]="true"
+        />
+        <app-kpi-card
+          [value]="facade.listasParaConfirmar()"
+          label="A un toque"
+          [loading]="facade.isLoading() && !facade.hasData()"
+        />
+        <app-kpi-card
+          [value]="facade.necesitanDatos()"
+          label="Necesitan datos"
+          [loading]="facade.isLoading() && !facade.hasData()"
+        />
+      </div>
 
-      <!-- Carga -->
-      @if (facade.isLoading() && !facade.hasData()) {
-        <div class="flex flex-col gap-3">
-          @for (i of [1, 2, 3]; track i) {
-            <app-skeleton-block [height]="'5.5rem'" />
+      <!-- ═══ Fila 3 — Panel que llena (minmax(0,1fr)) ═══
+           En desktop ocupa el resto del viewport y el scroll vive en el CUERPO
+           del panel; bajo lg mide su contenido y la página scrollea nativamente. -->
+      <div class="bento-banner bento-fill card flex min-h-0 flex-col p-0">
+        <!-- Cabecera del panel -->
+        <div
+          class="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3"
+        >
+          <span class="micro-label">Capturas sin resolver</span>
+          @if (facade.total() > 0) {
+            <span class="text-sm text-text-muted">
+              {{ facade.listasParaConfirmar() }} de {{ facade.total() }} se confirman sin escribir nada
+            </span>
           }
         </div>
-      }
 
-      <!-- Error -->
-      @if (facade.error(); as mensaje) {
-        <app-error-state [message]="mensaje" (retry)="recargar()" />
-      }
-
-      <!-- Vacía: el estado deseable, no un error -->
-      @if (facade.vacia()) {
-        <app-empty-state
-          icon="inbox"
-          message="No hay nada que revisar"
-          subtitle="Los movimientos del banco entran solos. Cuando algo no se pueda resolver, aparece acá."
-        />
-      }
-
-      <!-- Lista -->
-      @if (facade.total() > 0) {
-        <ul class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1" appAnimateIn>
-          @for (captura of facade.ordenadas(); track captura.id) {
-            <li class="card flex flex-col gap-3 p-4">
-              <!-- Resumen -->
-              <div class="flex flex-wrap items-start justify-between gap-3">
-                <div class="flex min-w-0 flex-col gap-1">
-                  <div class="flex items-center gap-2">
-                    <app-icon
-                      [name]="captura.origen === 'email' ? 'mail' : 'receipt'"
-                      [size]="16"
-                      [ariaHidden]="true"
-                    />
-                    <span class="item-title truncate">
-                      {{ captura.interpretado?.comercio || sinComercio(captura) }}
-                    </span>
-                  </div>
-                  <span class="micro-label">
-                    {{ captura.interpretado?.banco || 'Boleta' }}
-                    @if (captura.fechaOrigen) {
-                      · {{ captura.fechaOrigen | date: 'd MMM' }}
-                    }
-                    @if (captura.interpretado?.cuotasTotal) {
-                      · cuota {{ captura.interpretado?.cuotaActual }} de
-                      {{ captura.interpretado?.cuotasTotal }}
-                    }
-                  </span>
-                </div>
-
-                <div class="flex items-center gap-3">
-                  @if (captura.interpretado?.monto; as monto) {
-                    <span class="kpi-value">\${{ monto | number: '1.0-0' }}</span>
-                  } @else {
-                    <span class="micro-label micro-label--warning">falta el monto</span>
-                  }
-                </div>
-              </div>
-
-              <!-- Motivo por el que quedó acá -->
-              @if (captura.motivo) {
-                <p class="text-sm text-text-muted">{{ captura.motivo }}</p>
+        <!-- Cuerpo: lo único que scrollea -->
+        <div class="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-3">
+          @if (facade.isLoading() && !facade.hasData()) {
+            <div class="flex flex-col gap-3">
+              @for (i of [1, 2, 3, 4]; track i) {
+                <app-skeleton-block height="5.5rem" />
               }
-
-              <!-- Acciones -->
-              <div class="flex flex-wrap items-center justify-between gap-3 border-t border-subtle pt-3">
-                <label class="flex cursor-pointer items-center gap-2 text-sm text-text-muted">
-                  <input
-                    type="checkbox"
-                    [(ngModel)]="recordar[captura.id]"
-                    [attr.aria-label]="'Recordar la categoría de ' + (captura.interpretado?.comercio || 'este comercio')"
-                  />
-                  Recordar este comercio
-                </label>
-
-                <div class="flex items-center gap-2">
-                  <button
-                    type="button"
-                    class="btn-ghost"
-                    [disabled]="ocupada() === captura.id"
-                    (click)="descartar(captura)"
-                  >
-                    Descartar
-                  </button>
-                  <button
-                    type="button"
-                    class="btn-primary"
-                    [disabled]="ocupada() === captura.id || !puedeConfirmar(captura)"
-                    (click)="confirmar(captura)"
-                  >
-                    @if (ocupada() === captura.id) { Guardando… } @else { Confirmar }
-                  </button>
-                </div>
-              </div>
-
-              @if (!puedeConfirmar(captura)) {
-                <p class="text-sm text-text-muted">
-                  Esta captura necesita datos que el parser no pudo leer. Abrila para completarla.
-                </p>
-              }
-            </li>
+            </div>
           }
-        </ul>
-      }
 
+          @if (facade.error(); as mensaje) {
+            <app-error-state [message]="mensaje" (retry)="recargar()" />
+          }
+
+          @if (facade.vacia()) {
+            <app-empty-state
+              icon="inbox"
+              message="No hay nada que revisar"
+              subtitle="Los movimientos del banco entran solos. Cuando algo no se pueda resolver, aparece acá."
+            />
+          }
+
+          @if (facade.total() > 0) {
+            <ul class="divide-y divide-border-subtle">
+              @for (captura of facade.ordenadas(); track captura.id) {
+                <li class="flex flex-col gap-3 py-4 first:pt-0 last:pb-0">
+                  <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div class="flex min-w-0 flex-col gap-1">
+                      <div class="flex items-center gap-2">
+                        <app-icon
+                          [name]="captura.origen === 'email' ? 'mail' : 'receipt'"
+                          [size]="16"
+                          [ariaHidden]="true"
+                        />
+                        <span class="item-title truncate">
+                          {{ captura.interpretado?.comercio || sinComercio(captura) }}
+                        </span>
+                      </div>
+                      <span class="micro-label">
+                        {{ captura.interpretado?.banco || 'Boleta' }}
+                        @if (captura.fechaOrigen) {
+                          · {{ captura.fechaOrigen | date: 'd MMM' }}
+                        }
+                        @if (captura.interpretado?.cuotasTotal) {
+                          · cuota {{ captura.interpretado?.cuotaActual }} de
+                          {{ captura.interpretado?.cuotasTotal }}
+                        }
+                      </span>
+                    </div>
+
+                    <div class="flex items-center gap-3">
+                      @if (captura.interpretado?.monto; as monto) {
+                        <span class="kpi-value">\${{ monto | number: '1.0-0' }}</span>
+                      } @else {
+                        <span class="micro-label micro-label--warning">falta el monto</span>
+                      }
+                    </div>
+                  </div>
+
+                  @if (captura.motivo) {
+                    <p class="text-sm text-text-muted">{{ captura.motivo }}</p>
+                  }
+
+                  <div
+                    class="flex flex-wrap items-center justify-between gap-3 border-t border-border-subtle pt-3"
+                  >
+                    <label class="flex cursor-pointer items-center gap-2 text-sm text-text-muted">
+                      <input
+                        type="checkbox"
+                        [(ngModel)]="recordar[captura.id]"
+                        [attr.aria-label]="
+                          'Recordar la categoría de ' +
+                          (captura.interpretado?.comercio || 'este comercio')
+                        "
+                      />
+                      Recordar este comercio
+                    </label>
+
+                    <div class="flex items-center gap-2">
+                      <button
+                        type="button"
+                        class="btn-ghost"
+                        [disabled]="ocupada() === captura.id"
+                        (click)="descartar(captura)"
+                      >
+                        Descartar
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-primary"
+                        [disabled]="ocupada() === captura.id || !puedeConfirmar(captura)"
+                        (click)="confirmar(captura)"
+                      >
+                        @if (ocupada() === captura.id) { Guardando… } @else { Confirmar }
+                      </button>
+                    </div>
+                  </div>
+
+                  @if (!puedeConfirmar(captura)) {
+                    <p class="text-sm text-text-muted">
+                      Esta captura necesita datos que el parser no pudo leer. Abrila para completarla.
+                    </p>
+                  }
+                </li>
+              }
+            </ul>
+          }
+        </div>
+
+        <!-- Pie: queda fijo, no se va con el scroll -->
+        @if (facade.total() > 0) {
+          <div class="border-t border-border-subtle px-4 py-3 text-sm text-text-muted">
+            Mostrando {{ facade.total() }}
+            {{ facade.total() === 1 ? 'captura' : 'capturas' }} sin resolver
+          </div>
+        }
       </div>
-    </section>
+    </div>
   `,
 })
 export class BandejaComponent implements OnInit {

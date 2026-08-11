@@ -16,16 +16,16 @@
 | `app-empty-state` | `features/bandeja` |
 | `app-error-state` | `features/bandeja` |
 | `app-icon` | `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card` |
-| `app-kpi-card` | `features/dashboard` |
+| `app-kpi-card` | `features/bandeja`, `features/dashboard` |
 | `app-skeleton-block` | `features/bandeja`, `shared/components/kpi-card` |
 
 ## Directivas → Consumidores
 
 | Directiva | Usada en |
 |-----------|---------|
-| `[appAnimateIn]` | `features/bandeja`, `features/dashboard` |
-| `[appBentoGridLayout]` | `features/dashboard` |
-| `[appBentoReveal]` | `features/dashboard` |
+| `[appAnimateIn]` | `features/dashboard` |
+| `[appBentoGridLayout]` | `features/bandeja`, `features/dashboard` |
+| `[appBentoReveal]` | `features/bandeja`, `features/dashboard` |
 | `[appCardHover]` | `features/dashboard` |
 | `[appPressFeedback]` | `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state` |
 

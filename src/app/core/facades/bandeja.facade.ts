@@ -39,6 +39,11 @@ export class BandejaFacade extends BaseFacade<Captura[]> {
     () => this.capturas().filter((c) => !requiereEscribirMonto(c)).length,
   );
 
+  /** Las que el parser no pudo resolver y exigen escribir el monto a mano. */
+  readonly necesitanDatos = computed(
+    () => this.capturas().filter((c) => requiereEscribirMonto(c)).length,
+  );
+
   readonly vacia = computed(() => this.hasData() && this.total() === 0);
 
   protected override async fetchData(): Promise<Captura[]> {
