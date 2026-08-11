@@ -1,11 +1,19 @@
 # Spec 0023 — Gasto compartido
 
-> **Status:** draft
+> **Status:** archived
 > **Created:** 2026-08-11
 > **Owner:** Benjamín
 > **Priority:** P2
 > **Costo de entrada:** 🟡 confirmar
 > **Hito:** transversal — la última de la lista, y con razón
+
+> 🗄️ **ARCHIVADA el 2026-08-11, antes de construirse.** El dueño del producto confirmó que no
+> llevan cuenta entre ellos: comparten los gastos y ya. Esta spec resolvía un problema que este
+> hogar no tiene, a cambio de meter "lo tuyo" y "lo mío" en un modelo diseñado para "lo nuestro".
+>
+> Se conserva completa —no se borra— porque si algún día la falta se nota, el análisis ya está
+> hecho: las condiciones bajo las cuales entraría (AC4 y AC6, dividir solo por categoría o cuenta)
+> siguen siendo las correctas. Reabrirla es cambiar este estado, no volver a pensarla.
 
 ---
 
@@ -134,8 +142,8 @@ de llevar la cuenta a mano. Si hay que decidirlo en cada gasto, no se sostiene.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🧑 **¿Esta spec debería construirse?** Requiere evidencia de uso, no una decisión de diseño. Revisar después de tres meses con datos reales.
-- [ ] 🤖 ¿El saldo se cierra por mes o es continuo? Continuo es más simple; por mes se parece más a cómo se salda en la vida real.
+- [x] **¿Esta spec debería construirse?** **No.** No llevan cuenta entre ellos. Archivada antes de construirse; se reabre sólo si la falta se nota con uso real.
+- [~] ¿El saldo se cierra por mes o es continuo? **Sin objeto:** la spec se archivó antes de construirse.
 - [x] ¿Más de dos personas? **No.** R-02.
 - [x] ¿Recordatorios de deuda? **No.**
 
@@ -144,3 +152,4 @@ de llevar la cuenta a mano. Si hay que decidirlo en cada gasto, no se sostiene.
 ## Changelog
 
 - 2026-08-11 — draft inicial.
+- 2026-08-11 — **archivada** en la sesión de cierre de decisiones: el hogar no lleva cuenta entre sus miembros.

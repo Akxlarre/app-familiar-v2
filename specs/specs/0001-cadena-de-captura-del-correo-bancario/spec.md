@@ -155,6 +155,7 @@ Ninguna. Es la primera.
 ## 9. Notas / decisiones abiertas
 
 - [ ] 🌍 **La cadena nunca corrió contra la realidad.** Faltan: un proyecto Supabase desplegado, el cliente OAuth de Google y una casilla con correos de banco reales. Es lo único que puede decir si los parsers portados de v1 siguen sirviendo (RB-01). AC5, AC6 y AC-E2 dependen de esto.
+  <br>🔓 **Se desbloquea con:** un proyecto Supabase desplegado + el cliente OAuth de Google + una casilla con correos de banco reales. Es la tarea 1 del proyecto.
 - [x] ¿El reproceso crea movimientos? **No.** Deja la captura confirmable y el usuario da el toque: el parser ya se equivocó una vez con ese correo (R-04, RN-09).
 - [x] ¿Dónde se normaliza el comercio? **Sólo en SQL.** Tenerlo también en TS obligaría a que dos implementaciones coincidan para siempre; el día que difieran, los alias dejan de aplicarse en silencio.
 

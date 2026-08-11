@@ -129,7 +129,10 @@ No toca persistencia.
 ### Reglas de composición
 
 1. **Una pantalla = un hero + un panel.** Si necesita dos paneles, es `--fill-screen-2`.
-2. **Los formularios viven en drawers, no en páginas.** Salvo el login, que es previo al shell.
+2. **Los formularios viven en drawers, no en páginas.** Dos excepciones declaradas, y sólo
+   dos: el login (previo al shell) y la revisión de una boleta (spec 0010 — 20-40 líneas
+   que hay que comparar contra la foto necesitan ancho). Cualquier otra excepción se
+   discute contra esta regla antes de escribirse.
 3. **El estado vacío no es un error.** En la bandeja, vacío es el estado *deseable*, y el copy lo dice.
 4. **Nada de modales.** El drawer del shell cubre el caso y no tapa el contexto.
 
@@ -144,7 +147,7 @@ No toca persistencia.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿La pantalla de referencia va en una ruta `/app/_ds` sólo en dev, o se documenta en `indices/STYLES.md` con snippets? Una ruta viva se pudre menos, pero hay que excluirla del build de producción.
+- [x] ¿La pantalla de referencia va en una ruta `/app/_ds` sólo en dev, o se documenta en `indices/STYLES.md` con snippets? **Ruta `/app/_ds`, sólo en dev.** Se excluye del build de producción por configuración de rutas. Snippets en un `.md` se pudren en dos meses; una ruta que compila no puede quedar desactualizada sin que el build lo diga.
 - [x] ¿Modal o drawer? **Drawer.** Ya existe, empuja en vez de tapar, y en móvil es fullscreen — un modal en móvil es un drawer peor hecho.
 - [x] ¿KPIs en cards sueltas o en el hero? **En el hero.** Cards sueltas encima del contenido empujan la lista fuera del viewport y rompen el contrato App-like.
 

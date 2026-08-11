@@ -121,7 +121,9 @@ en otro supermercado, es información que ninguna app entrega y que sale de un g
 ## 9. Notas / decisiones abiertas
 
 - [ ] 🌍 ¿Qué umbral de variación dispara el aviso (AC8)? 25% es un punto de partida; calibrar con datos.
+  <br>🔓 **Se desbloquea con:** ~3 meses de precios observados. Arranca en 25% y se calibra midiendo cuántos avisos serían ruido.
 - [ ] 🌍 ¿La comparativa por comercio necesita mínimo de observaciones por comercio? Con una sola compra en un supermercado, decir "acá es más barato" es ruido.
+  <br>🔓 **Se desbloquea con:** datos de 2+ supermercados. Sin saber cuántas compras hay por comercio, cualquier mínimo es inventado.
 - [x] ¿Mediana o promedio? **Mediana.** Una oferta puntual no puede mover la referencia.
 - [x] ¿Precio por kilo? **No.** La boleta no trae gramaje confiable.
 

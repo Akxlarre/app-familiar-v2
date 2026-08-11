@@ -134,8 +134,8 @@ que llenar cada vez es la misma app de notas que ya tienen.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Los ítems marcados se borran al confirmar la boleta o quedan como historial? Historial permite medir; puede vivir en el log.
-- [ ] 🧑 ¿La lista es persistente o se archiva cada compra? Persistente es más simple y coincide con cómo se usa una lista en la heladera.
+- [x] ¿Los ítems marcados se borran o quedan? **Se limpian de la lista visible, y el evento queda en el log.** Es lo que permite medir si las sugerencias sirven, sin ensuciar la lista (coherente con la decisión de arriba).
+- [x] ¿Persistente o se archiva? **Persistente**, como la lista pegada en la heladera. Lo comprado se limpia, lo que quedó sigue ahí. Sin arrastres ni paso extra por compra.
 - [x] ¿Texto libre permitido? **Sí, siempre.** Una lista que exige catálogo es una lista que no se usa.
 - [x] ¿Actualización optimista? **Sí.** La señal en el supermercado es mala, y esperar rompe el flujo.
 

@@ -97,7 +97,7 @@ falso, este módulo es candidato a archivarse sin que nada más se caiga.
 - 0003 — lugar en la navegación.
 
 ### Capacidades del proyecto que se asumen existentes
-- Serie de mediciones, RLS por perfil (misma decisión pendiente que la spec 0015).
+- Serie de mediciones, con RLS por hogar (decidido en la spec 0015).
 
 ### Capacidades nuevas requeridas
 - Tablas `ejercicios`, `rutinas`, `ejercicios_rutina`, `sesiones`, `series_sesion`, `records_personales`, `metas`.
@@ -138,8 +138,8 @@ falso, este módulo es candidato a archivarse sin que nada más se caiga.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Persistencia local con IndexedDB o `localStorage`? Depende del tamaño; IndexedDB es lo correcto para una sesión con muchas series.
-- [ ] 🤖 ¿El catálogo de ejercicios se semilla con los comunes o se arma desde cero? Semilla: escribir "press banca" la primera vez es fricción evitable.
+- [x] ¿Persistencia local con IndexedDB o `localStorage`? **IndexedDB.** Una sesión con muchas series supera lo razonable para `localStorage`, y escribir ahí en cada serie bloquea el hilo principal.
+- [x] ¿El catálogo de ejercicios se semilla con los comunes o se arma desde cero? **Se semilla.** Escribir "press banca" la primera vez es fricción evitable, y el catálogo es global igual que el de artículos.
 - [x] ¿Entrenamiento se queda en el alcance? **Sí.** Está acoplado a Alimentación por composición corporal, y sacarlo obligaría a duplicar el peso (RN-08).
 - [x] ¿Récords en tabla o derivados? **Derivados, con caché.**
 

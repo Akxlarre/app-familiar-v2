@@ -150,8 +150,8 @@ Abrir la app → Hoy → o no hay nada (y se cierra), o hay N pendientes → res
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🧑 ¿"Casa" o "Despensa" como nombre del destino? "Casa" deja lugar para lista y precios sin volver a renombrar.
-- [ ] 🧑 ¿Entrenamiento dentro de Cuerpo o destino propio? Depende de cuánto se use; arranca dentro.
+- [x] ¿"Casa" o "Despensa"? **"Casa".** Agrupa despensa, lista y precios sin volver a renombrar cuando crezca.
+- [x] ¿Entrenamiento dentro de Cuerpo o destino propio? **Dentro de Cuerpo**, como tab junto a mediciones y comidas. Es lo menos usado y seis destinos aprietan en la barra inferior. Si el uso lo justifica, sacarlo después es barato: una ruta y una entrada de menú.
 - [x] ¿La bandeja va en el menú? **No.** Es un pendiente, no un lugar de trabajo.
 - [x] ¿Sidebar o barra inferior en móvil? **Barra inferior.** Cinco destinos entran, y el pulgar llega.
 

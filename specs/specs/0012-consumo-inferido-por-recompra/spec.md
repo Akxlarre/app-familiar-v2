@@ -127,9 +127,10 @@ cadencia habilita lo siguiente: proponer la lista de compras antes de que falte 
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Cuántos ciclos hacen falta? El dominio dice "dos o tres". Empezar con 3 y bajar si tarda demasiado en ser útil.
+- [x] ¿Cuántos ciclos hacen falta? **Tres.** Con dos, un ciclo atípico define la cadencia entera. Se baja a dos si tarda demasiado en ser útil.
 - [ ] 🌍 ¿Qué umbral de dispersión calla la pregunta (AC-E3)? Calibrar con datos reales.
-- [ ] 🤖 ¿La cadencia se recalcula en cada boleta o por job? Con un hogar, en cada boleta alcanza.
+  <br>🔓 **Se desbloquea con:** ~6 meses de boletas, que es cuando hay artículos con 3+ ciclos cerrados y se puede medir la dispersión real.
+- [x] ¿La cadencia se recalcula en cada boleta o por job? **En cada boleta confirmada.** Con un hogar el costo es despreciable y evita un job que se puede caer sin que nadie lo note.
 - [x] ¿Puede cambiar el estado sola? **No.** RN-07.
 - [x] ¿Un solo ciclo genera cadencia? **No.** Un punto no es una serie.
 

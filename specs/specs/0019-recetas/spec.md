@@ -131,8 +131,8 @@ Quince recetas escritas una vez permiten sugerir qué cocinar todos los días si
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Cómo se manejan las unidades no convertibles (AC-E1)? Una tabla de equivalencias declaradas ("1 diente de ajo = 3 g") es lo honesto, y se puede empezar con las diez más comunes.
-- [ ] 🧑 ¿Las recetas son del hogar o del perfil? Del hogar: se cocina para los dos.
+- [x] ¿Cómo se manejan las unidades no convertibles (AC-E1)? **Tabla de equivalencias declaradas**, arrancando con las diez más comunes (diente de ajo, cucharada, taza). Lo que no esté en la tabla se acepta sin aportar macros, y se dice (AC6).
+- [x] ¿Las recetas son del hogar o del perfil? **Del hogar.** Se cocina para los dos y las sugerencias (spec 0020) miran una sola despensa compartida; dos recetarios sobre una despensa obligarían a elegir de quién sugerir.
 - [x] ¿Las recetas guardan macros? **No.** RN-05, y es el complemento exacto de RN-04.
 - [x] ¿Ingredientes de texto libre? **No.** Sin catálogo no hay macros ni cruce con la despensa, y entonces la receta no sirve para nada más que leerla.
 

@@ -106,7 +106,7 @@ recalibrar a mano se ignora a los dos meses.
 - **Tabla nueva:** `perfil_nutricional` (sexo, nacimiento, altura, actividad, objetivo, reparto de macros, override opcional).
 - **Prohibido:** columnas `calories_target`, `last_recalibration`, `is_manual_override` como estado calculado. El override sí es un dato del usuario; el objetivo derivado, no.
 - **Modelo UI:** `PerfilNutricional`, `ObjetivoCalorico` (con su explicación).
-- **RLS:** por perfil, igual que 0015 y 0017.
+- **RLS:** por hogar, igual que 0015 y 0017. La UI muestra lo propio por defecto.
 
 ---
 
@@ -128,9 +128,9 @@ recalibrar a mano se ignora a los dos meses.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Qué fórmula? Mifflin-St Jeor es el estándar razonable. Documentarla en el código con su fuente.
-- [ ] 🤖 ¿Cuántos días hacen "peso viejo" (AC-E1)? 30 parece razonable.
-- [ ] 🤖 ¿El reparto de macros por defecto? Uno sensato y editable.
+- [x] ¿Qué fórmula? **Mifflin-St Jeor**, documentada en el código con su fuente. Es el estándar y no hay razón para elegir otra.
+- [x] ¿Cuántos días hacen "peso viejo" (AC-E1)? **30 días.** Más que eso y el objetivo derivado deja de describir el cuerpo de hoy.
+- [x] ¿El reparto de macros por defecto? **30/40/30** (proteína/carbohidrato/grasa), editable. Un default sensato que nadie tiene que tocar para empezar.
 - [x] ¿Se almacena el objetivo? **No.** Es la razón de existir de esta spec.
 - [x] ¿Se ajusta solo según el progreso? **No.** R-04.
 

@@ -129,9 +129,9 @@ toque y el aviso de "vas a pasarte" llega a tiempo.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Mediana o promedio recortado para la propuesta? La mediana aguanta mejor el mes con la compra grande.
-- [ ] 🤖 ¿El umbral de aviso es global (80%) o por categoría? Global es una decisión menos que tomar.
-- [ ] 🧑 **¿Esta spec debería existir?** Revisarla después de tres meses de uso real. Si el presupuesto no se mantiene solo, es candidata a archivarse — y archivarla sería una victoria de R-01, no un fracaso.
+- [x] ¿Mediana o promedio recortado para la propuesta? **Mediana.** Aguanta el mes con la compra grande sin recortes arbitrarios.
+- [x] ¿El umbral de aviso es global (80%) o por categoría? **Global al 80%, editable.** Una decisión menos por categoría; si alguien lo necesita distinto en una, se agrega después.
+- [x] **¿Esta spec debería existir?** **Sí, con la condición del encabezado:** los montos se proponen desde el historial y el usuario ajusta. Nunca un formulario en blanco. Se revisa a los tres meses de uso real y si el presupuesto no se mantiene solo, se archiva — sería una victoria de R-01, no un fracaso.
 - [x] ¿Las cuotas consumen el total o la cuota? **La cuota del mes.** El total ya se ve en la spec 0007.
 
 ---

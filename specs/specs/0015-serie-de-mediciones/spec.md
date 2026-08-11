@@ -13,8 +13,8 @@
 
 **Origen:** REQ-060, RN-08.
 
-**Persona afectada:** cada miembro por separado. Es el primer dominio **personal** del producto:
-el peso de uno no es dato del hogar de la misma forma que un gasto.
+**Persona afectada:** cada miembro por separado — aunque los datos son del hogar, como todo lo
+demás (AC13). Lo personal acá es el uso, no el alcance: cada uno registra y mira lo suyo.
 
 **Problema que resuelve:**
 En v1 el peso vivía en tres tablas distintas y ninguna era la buena. La consecuencia no fue sólo
@@ -62,10 +62,11 @@ el resultado se quiere ver. A cambio, habilita que el objetivo calórico se deri
 - **AC10**: Given una medición nueva, When se guarda, Then el objetivo calórico se actualiza solo (spec 0018).
 - **AC11**: Given cualquier otro contexto, When necesita el peso, Then **no** lo copia a una columna propia.
 
-### Privacidad dentro del hogar
+### Alcance dentro del hogar
 
-- **AC12**: Given dos miembros del hogar, When uno abre Cuerpo, Then ve **sus** mediciones por defecto.
-- **AC13**: Given las mediciones del otro miembro, When se intentan ver, Then… ver decisión abierta. El hogar comparte todo por diseño (REQ-001), pero el peso corporal es la primera cosa donde eso puede no ser deseable.
+- **AC12**: Given dos miembros del hogar, When uno abre Cuerpo, Then ve **sus** mediciones por defecto — es el caso de uso del 99% de las veces.
+- **AC13**: Given las mediciones del otro miembro, When se buscan explícitamente, Then **se ven**. El hogar comparte todo (REQ-001) y esta tabla no es la excepción: cuelga de `belongs_to_household()` como el resto.
+- **AC14**: Given un miembro nuevo que se une al hogar, When entra, Then ve las mediciones históricas del otro — no hay datos que se oculten retroactivamente.
 
 ### Edge cases obligatorios
 
@@ -82,7 +83,8 @@ el resultado se quiere ver. A cambio, habilita que el objetivo calórico se deri
 - ❌ **% de grasa corporal, IMC como métrica destacada.** El IMC se puede mostrar como dato secundario, pero no es un objetivo.
 - ❌ **Objetivos de peso con fecha.** Es una meta, y las metas viven en Entrenamiento (spec 0021).
 - ❌ **Recordatorios de pesaje.** Notificación recurrente para una entrada manual: el camino más corto a que se desinstale la app.
-- ❌ **Comparar entre miembros.** No.
+- ❌ **Comparar entre miembros.** Las mediciones del otro se pueden ver (AC13), pero la app no pone dos series una al lado de la otra. Ver el progreso de tu pareja para acompañarla es una cosa; una pantalla que las compara es otra.
+- ❌ **Ocultar mediciones propias.** Decidido: el hogar comparte todo, sin switch de privacidad. Si algún día hace falta, es una spec nueva y una migración de RLS.
 
 ---
 
@@ -97,7 +99,7 @@ el resultado se quiere ver. A cambio, habilita que el objetivo calórico se deri
 
 ### Capacidades nuevas requeridas
 - Tabla `mediciones`.
-- **RLS por perfil, no por hogar** — es el primer caso del proyecto donde el alcance no es el hogar entero. Requiere decidir AC13 primero.
+- **RLS por hogar**, vía `belongs_to_household()`, igual que todo el resto. Se evaluó hacerla por perfil y se descartó: habría sido la primera excepción del modelo, y la habrían heredado Alimentación y Entrenamiento.
 - Suavizado de la serie (media móvil) — función pura con tests.
 - `MedicionesRepository`, `MedicionesFacade`.
 
@@ -107,7 +109,7 @@ el resultado se quiere ver. A cambio, habilita que el objetivo calórico se deri
 
 - **Tabla nueva:** `mediciones` (perfil, fecha, peso, cintura, cadera, pecho, brazos, piernas, notas, foto).
 - **Modelo UI:** `Medicion`, `SeriePeso`, `TendenciaPeso`.
-- **RLS:** ver AC13. Es la decisión de esquema más delicada de esta spec.
+- **RLS:** por hogar (AC13). El filtro por perfil es de la UI —cada uno ve lo suyo por defecto—, no de la política.
 - **Regla:** ninguna otra tabla tiene columna de peso (RN-08). Si aparece una, esta spec falló.
 
 ---
@@ -131,8 +133,9 @@ el resultado se quiere ver. A cambio, habilita que el objetivo calórico se deri
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🧑 **AC13 — ¿el otro miembro ve mi peso?** REQ-001 dice que el hogar comparte todo y no hay roles. Pero el peso corporal es distinto de un gasto. Tres opciones: (a) visible como todo lo demás, coherente con el diseño; (b) privado por perfil, primera excepción del modelo; (c) visible con opción de ocultar. **Esta decisión define la RLS de la tabla y no es reversible barato.**
-- [ ] 🤖 ¿Qué ventana usa el suavizado? 7 días es lo habitual.
+- [x] **AC13 — ¿el otro miembro ve mi peso?** **Sí, compartido como todo lo demás.** El hogar comparte cuenta bancaria y despensa; esconder el peso sería una asimetría rara. La tabla cuelga de `belongs_to_household()` y no hay excepción al modelo — que además habrían heredado Alimentación (0017) y Entrenamiento (0021). El filtro "veo lo mío" es de la UI, no de la política.
+- [x] ¿Se pueden comparar las dos series? **No.** Verlas es una cosa; una pantalla que las pone lado a lado es otra. Queda en out-of-scope.
+- [x] ¿Qué ventana usa el suavizado? **Media móvil de 7 días.** Es lo habitual y absorbe la oscilación por hidratación sin ocultar una tendencia real.
 - [x] ¿El peso vive en una sola tabla? **Sí.** RN-08, sin excepciones.
 - [x] ¿Recordatorios? **No.**
 

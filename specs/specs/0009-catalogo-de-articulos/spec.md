@@ -131,8 +131,8 @@ Esta spec casi no tiene UI propia. Aparece dentro de otras pantallas:
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿Quién puede escribir en el catálogo global? Cualquier autenticado es lo simple; con dos usuarios no hay riesgo real, pero deja la puerta abierta si algún día hay más hogares.
-- [ ] 🧑 ¿La categoría del artículo se infiere del texto de la boleta o se pregunta? Inferir con confirmación (R-04).
+- [x] ¿Quién puede escribir en el catálogo global? **Cualquier autenticado.** Con un hogar no hay riesgo real, y agregar control después es trivial. Los alias con `household_id` sí quedan privados: ahí está el dato sensible (R-06).
+- [x] ¿La categoría se infiere o se pregunta? **Se infiere y se muestra ya asignada, marcada como inferida y corregible de un toque.** No viola R-04: no cambia un dato tuyo en silencio, propone uno nuevo. Preguntar por cada ítem convertiría una boleta de 30 líneas en 30 preguntas.
 - [x] ¿Catálogo global o por hogar? **Global** (R-02). Agregar `household_id` después es trivial; deduplicar al revés no.
 - [x] ¿Una tabla de alias o dos? **Una**, con `origen` y `household_id` nullable. v1 tenía varias y ninguna se consultaba entera.
 

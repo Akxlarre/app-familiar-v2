@@ -123,7 +123,8 @@ parte, obtenida sin escribir nada. Es de las cosas que hacen que la app valga la
 ## 9. Notas / decisiones abiertas
 
 - [ ] 🌍 ¿La agrupación por comercio + monto + total es suficiente, o hace falta también el últimos-4 de la tarjeta? Verificar con correos reales (RB-01).
-- [ ] 🤖 ¿Cómo se estima la fecha de las cuotas futuras — día de facturación de la cuenta, o mismo día del mes que la primera capturada?
+  <br>🔓 **Se desbloquea con:** correos reales de una compra en cuotas (RB-01). Si traen los últimos-4 de la tarjeta, entran a la clave de agrupación.
+- [x] ¿Cómo se estima la fecha de las cuotas futuras — día de facturación de la cuenta, o mismo día del mes que la primera capturada? **Día de facturación de la cuenta.** Es el dato real; el mismo día del mes que la primera cuota es una coincidencia que se rompe en febrero.
 - [x] ¿Se pueden crear cuotas a mano? **No.** El dato viene del correo o no viene.
 - [x] ¿"Cuota 1 de 1" crea compra? **No.** Es una compra normal.
 

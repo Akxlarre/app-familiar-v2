@@ -152,9 +152,9 @@ está configurado", no vuelve.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿La lista de bancos con sus parsers se semilla en migración o se administra en una tabla global? Semilla es más simple; tabla global permite corregir un regex sin desplegar. **Depende de RB-01: los formatos cambian solos**, así que probablemente tabla.
-- [ ] 🤖 ¿Qué días hacia atrás mira la primera corrida? `process-bank-emails` usa 90. Para el onboarding puede convenir más, para que el paso 4 tenga qué mostrar.
-- [ ] 🧑 ¿Se puede usar la app sin conectar correo? Hoy no tendría ningún dato. Quizás sí, con la boleta del hito 2 como alternativa — decidir cuando exista.
+- [x] ¿La lista de bancos con sus parsers se semilla en migración o se administra en una tabla global? **Tabla global de plantillas**, no semilla de migración. RB-01 dice que los formatos cambian solos: corregir un regex no puede exigir un despliegue.
+- [x] ¿Qué días hacia atrás mira la primera corrida? **180 días en la primera corrida, 90 en las siguientes.** El paso 4 del onboarding necesita algo que mostrar; después el cron sólo mira lo nuevo.
+- [x] ¿Se puede usar la app sin conectar correo? **Obligatorio ahora, opcional cuando exista la boleta (hito 2).** Hasta entonces, sin correo la app está literalmente vacía y dejar entrar es prometer algo que no se cumple. Cuando la boleta produzca datos, el onboarding ofrece los dos caminos y esta spec se revisa.
 - [x] ¿`onboarding_step` en la base? **No.** Se deriva del estado real; una columna de progreso miente el día que alguien desconecta su correo.
 
 ---

@@ -101,7 +101,7 @@ combinación se guardó la semana pasada, se sostiene. Si cuesta buscar en un ca
 
 ### Capacidades nuevas requeridas
 - Tablas `registro_comida`, `comidas_guardadas`, `items_comida_guardada`.
-- **RLS por perfil** — mismo problema que la spec 0015: lo que come uno no es necesariamente dato del otro. Se decide junto con AC13 de aquélla.
+- **RLS por hogar**, coherente con la decisión de la spec 0015. La UI filtra por perfil; la política no.
 - Cálculo de macros por cantidad — función pura con tests.
 - Selector de alimentos con las cuatro fuentes priorizadas (AC1-AC4).
 
@@ -136,8 +136,8 @@ combinación se guardó la semana pasada, se sostiene. Si cuesta buscar en un ca
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🧑 ¿Momento del día fijo (desayuno/almuerzo/once/cena) o libre? Fijo es menos decisiones; "once" es chileno y no puede faltar.
-- [ ] 🤖 ¿La despensa se ordena por lo más comido o por lo más reciente? Probablemente lo más comido, que converge rápido.
+- [x] ¿Momento del día fijo o libre? **Fijo: desayuno, almuerzo, once, cena y snack.** Menos decisiones al registrar y agrupa bien la pantalla del día. "Once" es chileno y no puede faltar.
+- [x] ¿La despensa se ordena por lo más comido o por lo más reciente? **Por lo más comido, con lo reciente como desempate.** Converge rápido a las quince cosas que uno come siempre.
 - [x] ¿Congelan o derivan? **Congelan.** RN-04, y habilita podar el catálogo.
 - [x] ¿Micronutrientes? **No.**
 

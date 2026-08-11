@@ -136,9 +136,9 @@ inventaríe nada.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🧑 **OCR: cuál.** Un modelo multimodal entiende el layout de una boleta chilena mucho mejor que un OCR de líneas, pero cuesta por llamada y es una dependencia externa. Es la decisión más cara de esta spec. Probar con boletas reales antes de comprometerse.
-- [ ] 🤖 ¿Cómo se liga la boleta al movimiento del banco (AC11)? Por comercio + fecha + total, con tolerancia. Y si no hay match seguro, se pregunta (R-04).
-- [ ] 🧑 ¿La revisión es pantalla o drawer? Empieza como pantalla; con boletas de 5 ítems quizás alcance el drawer.
+- [x] **OCR: cuál.** **Modelo multimodal**, empezando por el más barato que funcione. Un modelo que ve la imagen entiende el layout irregular de una boleta chilena; un OCR de líneas sería RB-01 otra vez pero peor. El costo por uso es despreciable a 4-8 boletas por mes, pero **se mide con boletas reales antes de fijar el modelo** — y la edge function lo deja intercambiable a propósito.
+- [x] ¿Cómo se liga la boleta al movimiento del banco (AC11)? **Comercio normalizado + fecha ±2 días + total exacto.** Con match único se liga solo; con varios o ninguno se pregunta (R-04).
+- [x] ¿La revisión es pantalla o drawer? **Pantalla propia.** Una boleta de súper trae 20-40 líneas y hay que compararlas contra la foto: eso necesita ancho. Es la **única excepción declarada** a "los formularios viven en drawers" (spec 0002, regla de composición 2), y está anotada allá.
 - [x] ¿Boleta y correo comparten bandeja? **Sí.** Una sola cola de revisión — es el error explícito que se corrigió de v1.
 - [x] ¿Se puede escribir una boleta a mano? **No.**
 

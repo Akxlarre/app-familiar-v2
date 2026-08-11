@@ -108,7 +108,6 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 | ID | Título | Entrada | Prioridad | Estado | REQ |
 |----|--------|---------|-----------|--------|-----|
 | 0022 | Los dos miembros en vivo | 🟢 | P2 | `draft` | RNF-01 |
-| 0023 | Gasto compartido | 🟡 confirmar | P2 | `draft` | REQ-033 |
 
 ---
 
@@ -146,7 +145,7 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 | REQ-030 | 0006 | | REQ-070 | 0021 |
 | REQ-031 | 0007 | | RNF-01 | 0022 |
 | REQ-032 | 0008 | | RNF-02 | 0003 |
-| REQ-033 | 0023 | | RNF-03 | 0001, 0022 |
+| REQ-033 | ~~0023~~ archivada | | RNF-03 | 0001, 0022 |
 | REQ-040 | 0011 | | RNF-04 | 0001 |
 | | | | RNF-05 | 0001, 0004 |
 | | | | RNF-06 | 0002, 0003 |
@@ -155,7 +154,7 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 
 ## Specs cuya existencia está condicionada
 
-> Tres specs entran con una condición explícita. No es duda: es que R-01 se aplica también a lo
+> Dos specs entran con una condición explícita. No es duda: es que R-01 se aplica también a lo
 > que ya está escrito, y saber de antemano qué las mataría es lo que permite archivarlas sin
 > discusión.
 
@@ -163,9 +162,9 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 |---|---|---|
 | 0008 · Presupuestos | Los montos se **proponen** desde el historial, no se escriben | Menos del 50% de meses con presupuesto vigente al tercer mes |
 | 0017 · Registrar una comida | El selector arranca de la despensa, no del catálogo global | Registros que caen a cero en la semana 4 |
-| 0023 · Gasto compartido | Se divide solo por categoría o cuenta | Cero movimientos divididos en dos meses |
 
-Archivar cualquiera de las tres sería una victoria de R-01, no un fracaso del proyecto.
+Archivar cualquiera de las dos sería una victoria de R-01, no un fracaso del proyecto. Ya pasó
+una vez: la 0023 (gasto compartido) se archivó antes de construirse.
 
 ---
 
@@ -187,6 +186,7 @@ Archivar cualquiera de las tres sería una victoria de R-01, no un fracaso del p
 
 | ID | Título | Motivo | Reemplazada por |
 |----|--------|--------|-----------------|
+| 0023 | Gasto compartido | El hogar no lleva cuenta entre sus miembros: comparten los gastos y ya. Resolvía un problema que no tienen, a cambio de meter "lo tuyo" y "lo mío" en un modelo diseñado para "lo nuestro". Archivada **antes** de construirse | — (se reabre si la falta se nota) |
 
 ---
 

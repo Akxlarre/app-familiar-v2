@@ -137,8 +137,8 @@ comportamiento que v1 nunca consiguió, y el único que sostiene el resto del pr
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] 🤖 ¿El reparto por categoría se calcula en una vista materializada o en un RPC por período? Depende del volumen real; con un hogar probablemente alcance un RPC.
-- [ ] 🧑 ¿Aplicar el alias a movimientos pasados es una sola acción o una confirmación con conteo ("se aplicará a 14 movimientos")? Con conteo parece más honesto.
+- [x] ¿El reparto por categoría se calcula en una vista materializada o en un RPC por período? **RPC por período.** Un hogar no genera volumen para una vista materializada, y materializar obliga a decidir cuándo refrescar.
+- [x] ¿El alias se aplica a los movimientos pasados? **Se ofrece, con el conteo a la vista** ("también aplicar a los 14 anteriores de JUMBO"). El usuario decide (R-04) y el número le deja evaluar antes de aceptar. Aplicarlo solo reescribiría historial en silencio.
 - [x] ¿Se pueden crear movimientos a mano? **No en esta spec.** Es la pantalla donde R-01 se pone a prueba.
 - [x] ¿Filtros en URL o en memoria? **En URL.** Recargar y perder el filtro es de las cosas que hacen que una app se sienta un prototipo.
 
