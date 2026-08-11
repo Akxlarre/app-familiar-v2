@@ -1,4 +1,4 @@
-import { Injectable, signal, computed, Type, inject } from '@angular/core';
+import { Injectable, signal, computed, Type } from '@angular/core';
 
 export interface LayoutDrawerAction {
     label: string;
@@ -13,14 +13,21 @@ export interface LayoutDrawerState {
     title: string;
     icon?: string;
     actions?: LayoutDrawerAction[];
+    /** Texto corto en el header, ej. "Paso 2 de 6". */
+    badge?: string | null;
 }
 
 /**
- * LayoutDrawerService - Orquesta el Drawer arquitectónico del AppShell.
- * 
- * Este panel coexiste con el <main> principal y desplaza el layout.
- * Permite renderizado dinámico de componentes y previene flickering en el cierre
- * esperando a que termine la animación antes de limpiar el NgComponentOutlet.
+ * LayoutDrawerService — orquesta el drawer arquitectónico del AppShell.
+ *
+ * El panel convive con el `<main>` y desplaza el layout en desktop. Permite
+ * renderizar componentes dinámicos y evita el parpadeo al cerrar: no limpia el
+ * componente al instante, espera a que `LayoutDrawerComponent` termine la
+ * animación de salida y recién ahí llama a `clear()`.
+ *
+ * Navegación interna: `open()` apila el estado anterior, así un drawer puede
+ * abrir otro y `back()` vuelve al de antes sin cerrar el panel. Sin esto, entrar
+ * a un detalle desde una lista obliga a cerrar y volver a abrir.
  */
 @Injectable({
     providedIn: 'root'
@@ -31,56 +38,77 @@ export class LayoutDrawerService {
         component: null,
         title: '',
         icon: undefined,
-        actions: []
+        actions: [],
+        badge: null
     });
 
-    // Selectors
+    /** Pila de estados anteriores dentro de la misma sesión de drawer. */
+    private _history = signal<LayoutDrawerState[]>([]);
+
+    // ── Selectores ───────────────────────────────────────────────────────────
     readonly state = this._state.asReadonly();
     readonly isOpen = computed(() => this._state().isOpen);
     readonly component = computed(() => this._state().component);
     readonly title = computed(() => this._state().title);
     readonly icon = computed(() => this._state().icon);
     readonly actions = computed(() => this._state().actions ?? []);
+    readonly badge = computed(() => this._state().badge ?? null);
+    readonly canGoBack = computed(() => this._history().length > 0);
 
     /**
-     * Abre el drawer arquitectónico inyectando un componente dinámico.
+     * Abre el drawer con un componente dinámico.
+     *
+     * Si ya estaba abierto, apila el estado actual: se está navegando hacia
+     * adentro y `back()` tiene que poder volver. Si estaba cerrado, la pila
+     * arranca vacía — abrir de cero no hereda el historial de la sesión previa.
      */
     open(component: Type<any>, title: string, icon?: string, actions?: LayoutDrawerAction[]): void {
-        this._state.set({
-            isOpen: true,
-            component,
-            title,
-            icon,
-            actions
-        });
+        if (this._state().isOpen && this._state().component) {
+            this._history.update((h) => [...h, { ...this._state() }]);
+            this._state.update((s) => ({ ...s, component, title, icon, actions: actions ?? [], badge: null }));
+            return;
+        }
+        this._history.set([]);
+        this._state.set({ isOpen: true, component, title, icon, actions: actions ?? [], badge: null });
     }
 
-    /**
-     * Actualiza las acciones del header dinámicamente si el componente ya está abierto.
-     */
+    /** Vuelve al estado anterior de la pila. Sin historial no hace nada. */
+    back(): void {
+        const historia = this._history();
+        const anterior = historia[historia.length - 1];
+        if (!anterior) return;
+        this._history.update((h) => h.slice(0, -1));
+        this._state.set({ ...anterior, isOpen: true });
+    }
+
+    /** Actualiza las acciones del header con el drawer ya abierto. */
     setActions(actions: LayoutDrawerAction[]): void {
         this._state.update(s => ({ ...s, actions }));
     }
 
+    /** Actualiza el badge del header, ej. el paso de un asistente. */
+    setBadge(badge: string | null): void {
+        this._state.update(s => ({ ...s, badge }));
+    }
+
     /**
-     * Comienza la secuencia de cierre.
-     * IMPORTANTE: No limpia el componente inmediatamente. El LayoutDrawerComponent
-     * es responsable de esperar a GSAP y luego llamar a `clear()` para destruir la vista.
+     * Arranca el cierre. NO limpia el componente: eso lo hace `clear()` cuando
+     * la animación de salida terminó, para que no desaparezca de golpe.
      */
     close(): void {
         this._state.update(s => ({ ...s, isOpen: false }));
     }
 
-    /**
-     * Destruye el componente renderizado (llamado DESPUÉS de la salida GSAP).
-     */
+    /** Destruye la vista renderizada. Se llama DESPUÉS de la salida de GSAP. */
     clear(): void {
+        this._history.set([]);
         this._state.update(s => ({
             ...s,
             component: null,
             title: '',
             icon: undefined,
-            actions: []
+            actions: [],
+            badge: null
         }));
     }
 }

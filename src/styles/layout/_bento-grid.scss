@@ -255,6 +255,14 @@ $bp-lg: 1024px;
   }
 
   /* Hero: full-width, siempre se expande al total de columnas */
+  /* Con el drawer abierto el hero pierde su piso de altura: comprimido a la
+     mitad del ancho, 180px fijos lo dejan con un hueco enorme debajo. */
+  .force-compact .bento-hero,
+  .force-compact.bento-hero {
+    min-height: unset;
+    height: auto;
+  }
+
   .bento-hero {
     grid-column: 1 / -1;
     grid-row: span 2;
@@ -502,4 +510,17 @@ $bp-lg: 1024px;
       }
     }
   }
+}
+
+/* ── MODO COMPACTO (drawer abierto) ───────────────────────────────────────────
+   El drawer lateral EMPUJA el contenido en desktop, así que el bento se queda
+   con la mitad del ancho. Sin esto las celdas se aplastan: una columna de dos
+   se vuelve ilegible antes que angosta.
+
+   La clase NO la aplica la directiva — la aplica cada página con
+   `[class.force-compact]="layoutDrawer.isOpen()"` en su `.bento-grid`. Se hace
+   por página porque no todas quieren compactarse igual: un grid de una sola
+   celda ya ocupa el ancho completo y no necesita nada. */
+.bento-grid.force-compact > * {
+  grid-column: 1 / -1 !important;
 }

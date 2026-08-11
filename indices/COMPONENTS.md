@@ -174,6 +174,7 @@
 | Selector | Inputs | Outputs | Archivo |
 |----------|--------|---------|---------|
 | `app-alert-card` | `severity`, `title`, `actionLabel`, `dismissible` | `action`, `dismissed` | `src/app/shared/components/alert-card/alert-card.component.ts` |
+| `app-badge` | `variant` | — | `src/app/shared/components/badge/badge.component.ts` |
 | `app-drawer` | `isOpen`, `title`, `icon`, `hasFooter` | `closed` | `src/app/shared/components/drawer/drawer.component.ts` |
 | `app-empty-state` | `message`, `subtitle`, `icon`, `actionLabel`, `actionIcon` | `action` | `src/app/shared/components/empty-state/empty-state.component.ts` |
 | `app-error-state` | `title`, `message`, `retryLabel` | `retry` | `src/app/shared/components/error-state/error-state.component.ts` |

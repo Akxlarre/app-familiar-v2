@@ -12,6 +12,7 @@ import { RouterOutlet } from "@angular/router";
 import { LayoutService } from "@core/services/layout.service";
 import { GsapAnimationsService } from "@core/services/gsap-animations.service";
 import { SidebarComponent } from "./sidebar.component";
+import { LayoutDrawerComponent } from './layout-drawer.component';
 import { TopbarComponent } from "./topbar.component";
 
 /**
@@ -30,7 +31,7 @@ import { TopbarComponent } from "./topbar.component";
   selector: "app-shell",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, SidebarComponent, TopbarComponent],
+  imports: [RouterOutlet, SidebarComponent, TopbarComponent, LayoutDrawerComponent],
   template: `
     <!-- Backdrop mobile drawer -->
     @if (layout.sidebarOpen()) {
@@ -45,7 +46,7 @@ import { TopbarComponent } from "./topbar.component";
     }
 
     <div
-      class="grid min-h-[100dvh] grid-cols-1 bg-base lg:grid-cols-[auto_1fr]"
+      class="grid min-h-[100dvh] grid-cols-1 bg-base lg:h-[100dvh] lg:grid-cols-[auto_1fr]"
     >
       <!-- Sidebar -->
       <app-sidebar
@@ -55,7 +56,14 @@ import { TopbarComponent } from "./topbar.component";
       />
 
       <!-- Main: topbar + content -->
-      <div class="grid min-w-0 grid-rows-[auto_1fr] overflow-hidden">
+      <!-- flex, no grid: el drawer es HERMANO de la zona de contenido y la
+           empuja. Con grid habría que declarar una columna que casi siempre
+           mide cero. -->
+      <!-- min-h-0: sin esto el drawer alto estira la fila del grid y arrastra
+           al <main>, que deja de scrollear por dentro y hace scrollear el
+           documento — rompiendo el contrato App-like justo al abrir el panel. -->
+      <div class="flex min-h-0 min-w-0 overflow-hidden">
+      <div class="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_1fr] overflow-hidden">
         <app-topbar />
 
         <!--
@@ -73,6 +81,11 @@ import { TopbarComponent } from "./topbar.component";
         >
           <router-outlet />
         </main>
+      </div>
+
+        <!-- Drawer arquitectónico: empuja el contenido en desktop, fullscreen en
+             mobile. Su ancho lo anima GSAP; en reposo mide 0 y no ocupa nada. -->
+        <app-layout-drawer />
       </div>
     </div>
   `,

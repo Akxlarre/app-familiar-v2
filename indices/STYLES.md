@@ -116,13 +116,13 @@ la necesidad se resuelve con lo que ya hay.
 
 | Token | Usos | Valor |
 |-------|------|-------|
+| `--border-subtle` | 16 | `rgba(255, 255, 255, 0.04)` |
 | `--text-muted` | 14 | `#71717a` |
 | `--text-secondary` | 13 | `#a1a1aa` |
-| `--border-subtle` | 12 | `rgba(255, 255, 255, 0.04)` |
 | `--transition-color` | 10 | `—` |
+| `--color-primary` | 9 | `#38bdf8` |
 | `--bg-subtle` | 9 | `#2d2d30` |
 | `--bg-elevated` | 8 | `#27272a` |
-| `--color-primary` | 7 | `#38bdf8` |
 | `--input-radius` | 6 | `var(--radius-md)` |
 | `--input-border-default` | 6 | `var(--border-default)` |
 | `--input-bg` | 6 | `var(--bg-subtle)` |
@@ -238,7 +238,7 @@ la necesidad se resuelve con lo que ya hay.
 | Categoría | Usos | Interpretación |
 |-----------|------|----------------|
 | Tamaño display (`text-4xl/3xl/2xl`) | 7 | Candidatas a `.kpi-value` o heading semántico |
-| Peso de fuente (`font-bold/semibold`) | 16 | Informativo — legítimo en botones/headers/títulos |
+| Peso de fuente (`font-bold/semibold`) | 17 | Informativo — legítimo en botones/headers/títulos |
 
 
 <!-- AUTO-GENERATED:END -->

@@ -13,6 +13,7 @@
 | Componente | Usado en |
 |------------|----------|
 | `app-alert-card` | `shared/components/error-state` |
+| `app-badge` | `layout` |
 | `app-empty-state` | `features/bandeja` |
 | `app-error-state` | `features/bandeja` |
 | `app-icon` | `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card` |
@@ -26,8 +27,8 @@
 | `[appAnimateIn]` | `features/dashboard` |
 | `[appBentoGridLayout]` | `features/bandeja`, `features/dashboard` |
 | `[appBentoReveal]` | `features/bandeja`, `features/dashboard` |
-| `[appCardHover]` | `features/dashboard` |
-| `[appPressFeedback]` | `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state` |
+| `[appCardHover]` | `features/dashboard`, `layout` |
+| `[appPressFeedback]` | `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state` |
 
 ## Facades → Consumidores
 
@@ -42,6 +43,7 @@
 |---------|-------------|
 | `BreadcrumbService` | `layout` |
 | `GsapAnimationsService` | `features/dashboard`, `layout`, `shared/components/drawer`, `shared/components/kpi-card` |
+| `LayoutDrawerService` | `layout` |
 | `LayoutService` | `layout` |
 | `MenuConfigService` | `layout` |
 | `NotificationsService` | `layout` |

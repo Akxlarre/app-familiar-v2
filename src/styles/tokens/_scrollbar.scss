@@ -1,0 +1,57 @@
+/* ============================================================
+   Scrollbars refinadas — auto-hide + expansión del thumb
+
+   Los tokens (--scrollbar-*) ya vivían en _variables.scss sin ninguna hoja que
+   los usara, y `appScrollContainer` documenta que aplica "estilos de scrollbar
+   consistentes con los tokens del design system": esto es esa implementación.
+
+   Solo con puntero fino: en touch el scrollbar lo dibuja el sistema y no
+   conviene tocarlo.
+   ============================================================ */
+
+@media (pointer: fine) {
+  /* ── Firefox ── */
+  @supports not selector(::-webkit-scrollbar) {
+    * {
+      scrollbar-width: thin;
+      scrollbar-color: color-mix(in srgb, var(--scrollbar-thumb) 50%, transparent) transparent;
+    }
+  }
+
+  /* ── WebKit ── */
+
+  /* El área de click es más ancha que la barra visible: apuntar una barra de
+     4px con el mouse es incómodo, así que se reserva 14px y el borde
+     transparente hace de margen interno. */
+  ::-webkit-scrollbar {
+    width: 14px;
+    height: 14px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: color-mix(in srgb, var(--scrollbar-thumb) 40%, transparent);
+    border-radius: var(--scrollbar-radius);
+    background-clip: content-box;
+    /* 14px − (5px × 2) = 4px visibles */
+    border: 5px solid transparent;
+    transition:
+      background-color var(--duration-fast) var(--ease-standard),
+      border-width var(--duration-fast) var(--ease-standard);
+  }
+
+  /* Al pasar el mouse crece de 4px a 6px y sube de opacidad. No cambia de
+     color: se hace notorio sin llamar la atención. */
+  ::-webkit-scrollbar-thumb:hover {
+    background-color: color-mix(in srgb, var(--scrollbar-thumb-hover) 80%, transparent);
+    border-width: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:active {
+    background-color: var(--scrollbar-thumb-hover);
+    border-width: 4px;
+  }
+}

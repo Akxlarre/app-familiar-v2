@@ -224,3 +224,94 @@
     pointer-events: none;
   }
 }
+
+/* ── Badges de estado ─────────────────────────────────────────────────────────
+   Píldoras de estado semántico. Los tokens (--badge-*) ya vivían en
+   _variables.scss sin ninguna utilidad que los usara.
+
+   Las clases se escriben COMPLETAS en BadgeComponent, nunca concatenadas: el
+   scanner de Tailwind v4 poda por contenido, y `'badge-' + variant` no es
+   detectable. */
+@utility badge-neutral {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-default);
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@utility badge-brand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-muted);
+  color: var(--ds-brand);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@utility badge-success {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--state-success-bg);
+  color: var(--state-success);
+  border: 1px solid var(--state-success-border);
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@utility badge-warning {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--state-warning-bg);
+  color: var(--state-warning);
+  border: 1px solid var(--state-warning-border);
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@utility badge-error {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--state-error-bg);
+  color: var(--state-error);
+  border: 1px solid var(--state-error-border);
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+@utility badge-info {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--state-info-bg);
+  color: var(--state-info);
+  border: 1px solid var(--state-info-border);
+  border-radius: var(--badge-radius);
+  padding: var(--badge-padding-y) var(--badge-padding-x);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.5;
+}
