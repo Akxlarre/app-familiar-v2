@@ -41,6 +41,7 @@ import {
     findAdhocPills, findButtonSizeOverrides, findArbitraryTextSizes, findAdhocTypography,
     buildBaseline, compareWithBaseline,
 } from './lib/class-discipline.js';
+import { parsearTemas, verificarPares } from './lib/contrast-check.js';
 
 const require = createRequire(import.meta.url);
 const ts = require('typescript');
@@ -111,6 +112,11 @@ const RULES = {
         name: 'Fill-screen bento cell spanning 2 rows',
         doc: '.claude/rules/visual-system.md',
         fix: 'En un grid App-like toda celda hija ocupa UNA fila: usa .bento-banner y anida adentro (KPIs como grid/flex dentro del banner). .bento-hero/.bento-feature/.bento-tall ocupan 2 filas y desbordan el template explícito.',
+    },
+    'ARCH-25': {
+        name: 'Contrast below WCAG AA',
+        doc: '.claude/rules/visual-system.md',
+        fix: 'Ajusta el token de texto o el de fondo hasta 4.5:1 (3.0:1 si el texto es grande). Que un token exista en los dos temas no significa que se pueda leer.',
     },
     'A11Y-03': {
         name: 'Icon-only button without accessible name',
@@ -695,6 +701,45 @@ if (iconsUsed.size > 0) {
             console.log(cyan, `   ℹ ICON-01: ${iconDynamicFiles.size} archivo(s) usan [name] dinámico — no verificable estáticamente.`);
         }
     } catch { /* fail-open */ }
+}
+
+// ─── ARCH-25: contraste AA, con ratchet ──────────────────────────────────────
+// Ratcheado por la misma razón que class-discipline: el proyecto arranca con
+// deuda de contraste real y bloquear el build hoy no la arregla, sólo frena.
+// El baseline fija cuántas fallas se toleran; una más es regresión.
+const CONTRAST_BASELINE_PATH = path.join(process.cwd(), 'scripts', 'lib', 'contrast.baseline.json');
+try {
+    const temas = parsearTemas(path.join(process.cwd(), 'src', 'styles', 'tokens', '_variables.scss'));
+    const { fallas, sinResolver } = verificarPares(temas);
+
+    let toleradas = [];
+    try {
+        toleradas = JSON.parse(fs.readFileSync(CONTRAST_BASELINE_PATH, 'utf-8')).toleradas ?? [];
+    } catch { /* sin baseline: tolerancia cero */ }
+
+    if (process.argv.includes('--update-contrast-baseline')) {
+        fs.writeFileSync(CONTRAST_BASELINE_PATH, JSON.stringify({
+            nota: 'Deuda de contraste tolerada. Cada entrada es un par que HOY no pasa AA. Bajar esta lista es el objetivo; crecerla es una regresión.',
+            toleradas: fallas.map(f => `${f.tema}:${f.fg}:${f.sobre}`),
+        }, null, 2) + '\n');
+        console.log(cyan, `   ℹ ARCH-25: baseline de contraste actualizado (${fallas.length} pares tolerados).`);
+    } else {
+        const tolerado = new Set(toleradas);
+        const regresiones = fallas.filter(f => !tolerado.has(`${f.tema}:${f.fg}:${f.sobre}`));
+        for (const f of regresiones) {
+            reportError('ARCH-25', 'src/styles/tokens/_variables.scss',
+                `[${f.tema}] ${f.fg} sobre ${f.sobre} da ${f.ratio}:1 (mínimo ${f.minimo}).`);
+        }
+        if (fallas.length > 0 && regresiones.length === 0) {
+            console.log(cyan, `   ℹ ARCH-25: ${fallas.length} par(es) con deuda de contraste tolerada. Ver contrast.baseline.json.`);
+        }
+    }
+
+    if (sinResolver.length > 0) {
+        console.log(cyan, `   ℹ ARCH-25: ${sinResolver.length} par(es) no evaluables (color-mix u otros).`);
+    }
+} catch (e) {
+    console.log(cyan, `   ℹ ARCH-25 no pudo correr: ${e.message}`);
 }
 
 console.log('');

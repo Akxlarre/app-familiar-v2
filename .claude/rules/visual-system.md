@@ -3,6 +3,8 @@ paths:
   - "src/app/**/*.html"
   - "src/app/**/*.scss"
   - "src/app/shared/**/*.ts"
+  - "src/app/features/**/*.ts"
+  - "src/app/layout/**/*.ts"
   - "src/styles/**/*.scss"
 ---
 

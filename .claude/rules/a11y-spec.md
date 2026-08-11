@@ -1,6 +1,8 @@
 ---
 paths:
   - "src/app/**/*.html"
+  - "src/app/features/**/*.ts"
+  - "src/app/layout/**/*.ts"
 ---
 
 # Regla: A11y Spec (Accesibilidad)

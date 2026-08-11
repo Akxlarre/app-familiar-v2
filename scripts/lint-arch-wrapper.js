@@ -23,7 +23,10 @@ function ensureTempDir() {
 
 function runArchitect() {
   return new Promise((resolve) => {
-    const proc = spawn(process.execPath, [ARCHITECT_PATH], {
+    // Los flags se REENVÍAN. Sin esto, `npm run lint:arch -- --update-ds-baseline`
+    // corría el linter sin la bandera y no pasaba nada — y ese comando es el que el
+    // propio linter imprime como la forma de fijar una mejora del ratchet.
+    const proc = spawn(process.execPath, [ARCHITECT_PATH, ...process.argv.slice(2)], {
       stdio: ['ignore', 'pipe', 'pipe'],
       shell: false,
     });
