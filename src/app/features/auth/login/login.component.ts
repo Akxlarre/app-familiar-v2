@@ -121,14 +121,14 @@ function sanitizeAuthError(rawMessage: string): string {
         >
           <!-- Email -->
           <div class="flex flex-col gap-2">
-            <label for="email" class="text-sm font-medium text-text-secondary"
+            <label for="email" class="field-label"
               >Correo electrónico</label
             >
             <input
               id="email"
               type="email"
               data-llm-description="User email address for authentication"
-              class="w-full box-border rounded-[var(--input-radius)] border border-[var(--input-border-default)] bg-[var(--input-bg)] px-[var(--input-padding-x)] py-[var(--input-padding-y)] font-body text-base text-[var(--input-text)] outline-none transition-[var(--transition-input)] placeholder-[var(--input-placeholder)] focus:border-[var(--input-border-focus)] focus:shadow-[var(--input-shadow-focus-neutral)]"
+              class="field-input"
               placeholder="tu@correo.com"
               [(ngModel)]="email"
               name="email"
@@ -142,14 +142,14 @@ function sanitizeAuthError(rawMessage: string): string {
             <div class="flex flex-col gap-2">
               <label
                 for="password"
-                class="text-sm font-medium text-text-secondary"
+                class="field-label"
                 >Contraseña</label
               >
               <input
                 id="password"
                 type="password"
                 data-llm-description="User password for authentication"
-                class="w-full box-border rounded-[var(--input-radius)] border border-[var(--input-border-default)] bg-[var(--input-bg)] px-[var(--input-padding-x)] py-[var(--input-padding-y)] font-body text-base text-[var(--input-text)] outline-none transition-[var(--transition-input)] placeholder-[var(--input-placeholder)] focus:border-[var(--input-border-focus)] focus:shadow-[var(--input-shadow-focus-neutral)]"
+                class="field-input"
                 placeholder="••••••••"
                 [(ngModel)]="password"
                 name="password"
@@ -164,14 +164,14 @@ function sanitizeAuthError(rawMessage: string): string {
             <div class="flex flex-col gap-2">
               <label
                 for="displayName"
-                class="text-sm font-medium text-text-secondary"
+                class="field-label"
                 >Nombre para mostrar</label
               >
               <input
                 id="displayName"
                 type="text"
                 data-llm-description="Display name shown on user profile"
-                class="w-full box-border rounded-[var(--input-radius)] border border-[var(--input-border-default)] bg-[var(--input-bg)] px-[var(--input-padding-x)] py-[var(--input-padding-y)] font-body text-base text-[var(--input-text)] outline-none transition-[var(--transition-input)] placeholder-[var(--input-placeholder)] focus:border-[var(--input-border-focus)] focus:shadow-[var(--input-shadow-focus-neutral)]"
+                class="field-input"
                 placeholder="Tu nombre"
                 [(ngModel)]="displayName"
                 name="displayName"

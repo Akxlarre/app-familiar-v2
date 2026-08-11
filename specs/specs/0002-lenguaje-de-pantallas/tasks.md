@@ -17,44 +17,44 @@
 
 ## Fase 1 — Arreglar el harness (va primero: todo lo demás se escribe con las reglas cargando bien)
 
-- [ ] **T1.1** — Agregar `src/app/features/**/*.ts` al `paths:` de `visual-system.md` y `a11y-spec.md`
+- [x] **T1.1** — Agregar `src/app/features/**/*.ts` al `paths:` de `visual-system.md` y `a11y-spec.md`
   - **AC ref:** AC7, AC13
   - **Por qué:** los templates inline de `features/` (bandeja, completar-captura) **no** reciben
     estas reglas hoy. La regla existe y no se aplica donde más hace falta.
   - **DoD:**
-    - [ ] Los dos frontmatter incluyen el glob
-    - [ ] Verificado: editar `features/bandeja/bandeja.component.ts` inyecta la regla
+    - [x] Los dos frontmatter incluyen el glob
+    - [x] Verificado: editar `features/bandeja/bandeja.component.ts` inyecta la regla
 
-- [ ] **T1.2** — `scripts/lib/contrast-check.js`: contraste AA de los pares texto/fondo declarados
+- [x] **T1.2** — `scripts/lib/contrast-check.js`: contraste AA de los pares texto/fondo declarados
   - **AC ref:** AC9
   - **DoD:**
-    - [ ] Función pura `contrasteDe(fg, bg)` con el algoritmo de luminancia relativa de WCAG
-    - [ ] Lista explícita de pares canónicos (texto primario/secundario/muted sobre base, surface, elevated, y los `--state-*-bg`)
-    - [ ] Resuelve `var(--x)` encadenados hasta el color literal
-    - [ ] Reporta por tema (claro y oscuro) con el ratio medido
-    - [ ] `contrast-check.test.mjs` cubre: par que pasa, par que falla, `var()` anidado, color en formato distinto
+    - [x] Función pura `contrasteDe(fg, bg)` con el algoritmo de luminancia relativa de WCAG
+    - [x] Lista explícita de pares canónicos (texto primario/secundario/muted sobre base, surface, elevated, y los `--state-*-bg`)
+    - [x] Resuelve `var(--x)` encadenados hasta el color literal
+    - [x] Reporta por tema (claro y oscuro) con el ratio medido
+    - [x] `contrast-check.test.mjs` cubre: par que pasa, par que falla, `var()` anidado, color en formato distinto
 
-- [ ] **T1.3** — Cablear `contrast-check` en `npm run lint:arch` como ARCH-25
+- [x] **T1.3** — Cablear `contrast-check` en `npm run lint:arch` como ARCH-25
   - **DoD:**
-    - [ ] Aparece en la lista de reglas validadas del reporte
-    - [ ] Corre con el baseline actual sin romper el build (si hay deuda, se ratchea como class-discipline)
+    - [x] Aparece en la lista de reglas validadas del reporte
+    - [x] Corre con el baseline actual sin romper el build (si hay deuda, se ratchea como class-discipline)
 
-- [ ] **T1.4** — ARCH-24 en `class-discipline.js`: cluster de input ad-hoc
+- [x] **T1.4** — ARCH-24 en `class-discipline.js`: cluster de input ad-hoc
   - **AC ref:** AC7
   - **Por qué:** `.field-input` reemplazó un cluster de catorce utilities. Nada impide volver a escribirlo.
   - **DoD:**
-    - [ ] Detecta la combinación (border + bg + padding + rounded) sobre un `<input>`, `<select>` o `<textarea>`
-    - [ ] Exime el login (deuda pre-existente) vía el baseline del ratchet
-    - [ ] Micro-suite en `class-discipline.test.mjs`: caso positivo, caso con `.field-input`, falso positivo típico
-    - [ ] `npm run lint:arch:test` verde
+    - [x] Detecta la combinación (border + bg + padding + rounded) sobre un `<input>`, `<select>` o `<textarea>`
+    - [x] ~~Exime el login vía baseline~~ → se **arregló** el login: sus 3 inputs usan `.field-input`. Baseline en cero.
+    - [x] Micro-suite en `class-discipline.test.mjs`: caso positivo, caso con `.field-input`, falso positivo típico
+    - [x] `npm run lint:arch:test` verde
 
-- [ ] **T1.5** — `.claude/rules/screen-contract.md`, path-scoped a `features/**` y `shared/**`
+- [x] **T1.5** — `.claude/rules/screen-contract.md`, path-scoped a `features/**` y `shared/**`
   - **AC ref:** AC5, AC6
   - **DoD:**
-    - [ ] Las cinco piezas, las cuatro reglas de composición y las **dos** excepciones declaradas (login y revisión de boleta)
-    - [ ] Enlaza a `/app/_ds` como referencia viva
-    - [ ] Frontmatter `paths:` correcto
-    - [ ] Pasa el `harness-gate` (principios reutilizables, no parches de un track)
+    - [x] Las cinco piezas, las cuatro reglas de composición y las **dos** excepciones declaradas (login y revisión de boleta)
+    - [x] Enlaza a `/app/_ds` como referencia viva
+    - [x] Frontmatter `paths:` correcto
+    - [x] Pasa el `harness-gate` (principios reutilizables, no parches de un track)
 
 ---
 
@@ -147,7 +147,15 @@
 
 > Dentro del scope de la spec. Si algo queda fuera, spec nueva.
 
-- (ninguna todavía)
+- [x] **TD1** — El wrapper de `lint:arch` no reenviaba los flags a `architect.js`.
+      `npm run lint:arch -- --update-ds-baseline` no hacía nada, y es el comando que el propio
+      linter imprime como la forma de fijar una mejora del ratchet.
+- [x] **TD2** — `--color-base` en el `@theme` generaba `text-base` como utilidad de COLOR y le
+      ganaba a la nativa de tamaño de fuente. Los inputs del login estaban en 1.15:1. ARCH-26.
+- [x] **TD3** — `DS_RULES` es una lista fija en el módulo: ARCH-24 contaba y la comparación lo
+      ignoraba. El detector existía, corría, y no reportaba nunca.
+- [x] **TD4** — El login usaba el cluster de catorce utilities en sus 3 inputs. Migrado a
+      `.field-input` / `.field-label` en vez de tolerarlo en el baseline.
 
 ---
 

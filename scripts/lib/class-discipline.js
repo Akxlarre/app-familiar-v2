@@ -103,6 +103,45 @@ export function findButtonSizeOverrides(content) {
   return hits;
 }
 
+// ── ARCH-24: cluster de input ad-hoc ─────────────────────────────────────────
+//
+// `.field-input` nació de un cluster de catorce utilities escrito a mano en el
+// login. Reemplazarlo no impide volver a escribirlo: el segundo formulario del
+// proyecto estuvo a punto de copiarlo tal cual.
+//
+// La heurística busca el cluster completo —borde + fondo + padding + radio—
+// sobre un campo de formulario. Menos de eso son casos legítimos: un `w-full`
+// suelto, o un `bg-transparent` para un input embebido en una barra.
+
+const CAMPO_RE = /^(?:input|select|textarea)$/;
+const BORDE_RE = /(?:^|\s)(?:[\w-]+:)?border(?:-\[|-[\w-]+)/;
+const FONDO_RE = /(?:^|\s)(?:[\w-]+:)?bg-(?:\[|[\w-]+)/;
+const PADDING_RE = /(?:^|\s)(?:[\w-]+:)?p[xy]?-(?:\d|\[)/;
+const RADIO_RE = /(?:^|\s)(?:[\w-]+:)?rounded(?:-|$|\s)/;
+
+/** Ya usa la clase canónica: no hay nada que reportar. */
+const CANONICA_RE = /(?:^|\s)field-input(?:--[\w-]+)?(?=\s|$)/;
+
+export function findAdhocInputClusters(content) {
+  const hits = [];
+  OPENING_TAG_RE.lastIndex = 0;
+  let m;
+  while ((m = OPENING_TAG_RE.exec(content)) !== null) {
+    const [, tagName, attrsRaw] = m;
+    if (!CAMPO_RE.test(tagName)) continue;
+    const classMatch = attrsRaw.match(/\bclass\s*=\s*"([^"]*)"/);
+    if (!classMatch) continue;
+    const attr = classMatch[1];
+    if (CANONICA_RE.test(attr)) continue;
+    if (!BORDE_RE.test(attr)) continue;
+    if (!FONDO_RE.test(attr)) continue;
+    if (!PADDING_RE.test(attr)) continue;
+    if (!RADIO_RE.test(attr)) continue;
+    hits.push(attr.trim().slice(0, 90));
+  }
+  return hits;
+}
+
 // ── ARCH-17: tamaños de fuente arbitrarios ───────────────────────────────────
 const ARBITRARY_TEXT_RE = /(?:^|\s)(?:[\w-]+:)?(text-\[\d+(?:\.\d+)?px\])(?=\s|$|\/)/g;
 
@@ -169,7 +208,7 @@ export function findAdhocTypography(content) {
 // ── Ratchet / baseline ───────────────────────────────────────────────────────
 // Shape: { generatedAt, rules: { 'ARCH-15': { total, files: { relPath: n } }, ... } }
 
-export const DS_RULES = ['ARCH-15', 'ARCH-16', 'ARCH-17', 'ARCH-19'];
+export const DS_RULES = ['ARCH-15', 'ARCH-16', 'ARCH-17', 'ARCH-19', 'ARCH-24'];
 
 export function buildBaseline(countsByRule) {
   const rules = {};

@@ -7,6 +7,7 @@ import {
   findButtonSizeOverrides,
   findArbitraryTextSizes,
   findAdhocTypography,
+  findAdhocInputClusters,
   isPillWhitelisted,
   isTypographyWhitelisted,
   buildBaseline,
@@ -213,6 +214,41 @@ check(
   isTypographyWhitelisted('src/styles/tokens/_variables.scss') &&
     !isTypographyWhitelisted('src/app/shared/components/task-card/task-card.component.ts'),
 );
+
+
+// ── ARCH-24: cluster de input ad-hoc ─────────────────────────────────────────
+
+// El cluster real del login, el que motivó `.field-input`.
+const CLUSTER_LOGIN =
+  '<input id="email" type="email" class="w-full box-border rounded-[var(--input-radius)] ' +
+  'border border-[var(--input-border-default)] bg-[var(--input-bg)] px-[var(--input-padding-x)] ' +
+  'py-[var(--input-padding-y)] text-base text-[var(--input-text)]" />';
+
+check('detecta el cluster de input escrito a mano',
+  findAdhocInputClusters(CLUSTER_LOGIN).length === 1);
+
+check('no marca un input que ya usa .field-input',
+  findAdhocInputClusters('<input class="field-input" />').length === 0);
+
+check('no marca .field-input con su modificador',
+  findAdhocInputClusters('<input class="field-input field-input--invalid" />').length === 0);
+
+// Menos que el cluster completo son casos legítimos: no queremos que el linter
+// obligue a usar .field-input en un input embebido de una barra de búsqueda.
+check('no marca un input con sólo w-full',
+  findAdhocInputClusters('<input class="w-full" />').length === 0);
+check('no marca un input sin padding ni radio',
+  findAdhocInputClusters('<input class="border border-border-default bg-surface" />').length === 0);
+
+check('aplica a select y textarea, no sólo a input',
+  findAdhocInputClusters('<select class="rounded-lg border border-x bg-surface px-4 py-2"></select>').length === 1 &&
+  findAdhocInputClusters('<textarea class="rounded-lg border border-x bg-surface px-4 py-2"></textarea>').length === 1);
+
+check('no marca un div con el mismo cluster (no es un campo)',
+  findAdhocInputClusters('<div class="rounded-lg border border-x bg-surface px-4 py-2"></div>').length === 0);
+
+check('un input sin class no explota',
+  findAdhocInputClusters('<input type="text" />').length === 0);
 
 if (failures > 0) {
   console.error(`\n${failures} caso(s) fallidos`);

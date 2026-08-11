@@ -39,6 +39,7 @@ import { extractBentoClasses, diffBentoClasses } from './check-bento-classes.js'
 import {
     isPillWhitelisted, isTypographyWhitelisted,
     findAdhocPills, findButtonSizeOverrides, findArbitraryTextSizes, findAdhocTypography,
+    findAdhocInputClusters,
     buildBaseline, compareWithBaseline,
 } from './lib/class-discipline.js';
 import { parsearTemas, verificarPares } from './lib/contrast-check.js';
@@ -107,6 +108,11 @@ const RULES = {
         name: 'Ad-hoc typography cluster',
         doc: '.claude/rules/visual-system.md',
         fix: 'Usa .micro-label / .item-title / .section-eyebrow / .kpi-value en vez de recomponer el cluster de utilities.',
+    },
+    'ARCH-24': {
+        name: 'Ad-hoc input cluster',
+        doc: '.claude/rules/visual-system.md',
+        fix: 'Usa .field-input (y .field-label) en vez de recomponer el cluster de borde + fondo + padding + radio sobre un campo.',
     },
     'ARCH-23': {
         name: 'Fill-screen bento cell spanning 2 rows',
@@ -217,6 +223,7 @@ const dsCounts = {
     'ARCH-16': new Map(),
     'ARCH-17': new Map(),
     'ARCH-19': new Map(),
+    'ARCH-24': new Map(),
 };
 
 function trackClassDiscipline(filePath, content) {
@@ -242,6 +249,9 @@ function trackClassDiscipline(filePath, content) {
         const clusters = findAdhocTypography(content);
         add('ARCH-19', clusters.length, [...new Set(clusters)].join(', '));
     }
+
+    const inputs = findAdhocInputClusters(content);
+    add('ARCH-24', inputs.length, inputs[0]);
 }
 
 function checkClassDiscipline() {
