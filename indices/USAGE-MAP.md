@@ -14,20 +14,20 @@
 |------------|----------|
 | `app-alert-card` | `shared/components/error-state` |
 | `app-badge` | `layout`, `shared/components/section-hero` |
-| `app-empty-state` | `features/bandeja` |
-| `app-error-state` | `features/bandeja` |
-| `app-icon` | `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card`, `shared/components/section-hero`, `shared/components/tabs` |
+| `app-empty-state` | `features/_ds`, `features/bandeja` |
+| `app-error-state` | `features/_ds`, `features/bandeja` |
+| `app-icon` | `features/_ds`, `features/bandeja`, `features/dashboard`, `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state`, `shared/components/kpi-card`, `shared/components/section-hero`, `shared/components/tabs` |
 | `app-kpi-card` | `features/dashboard` |
-| `app-section-hero` | `features/bandeja` |
-| `app-skeleton-block` | `features/bandeja`, `shared/components/kpi-card`, `shared/components/section-hero` |
+| `app-section-hero` | `features/_ds`, `features/bandeja` |
+| `app-skeleton-block` | `features/_ds`, `features/bandeja`, `shared/components/kpi-card`, `shared/components/section-hero` |
 
 ## Directivas → Consumidores
 
 | Directiva | Usada en |
 |-----------|---------|
 | `[appAnimateIn]` | `features/dashboard`, `shared/components/section-hero` |
-| `[appBentoGridLayout]` | `features/bandeja`, `features/dashboard` |
-| `[appBentoReveal]` | `features/bandeja`, `features/dashboard` |
+| `[appBentoGridLayout]` | `features/_ds`, `features/bandeja`, `features/dashboard` |
+| `[appBentoReveal]` | `features/_ds`, `features/bandeja`, `features/dashboard` |
 | `[appCardHover]` | `features/dashboard`, `layout` |
 | `[appPressFeedback]` | `layout`, `shared/components/alert-card`, `shared/components/drawer`, `shared/components/empty-state` |
 
@@ -44,7 +44,7 @@
 |---------|-------------|
 | `BreadcrumbService` | `layout` |
 | `GsapAnimationsService` | `features/dashboard`, `layout`, `shared/components/drawer`, `shared/components/kpi-card`, `shared/components/section-hero` |
-| `LayoutDrawerFacadeService` | `features/bandeja` |
+| `LayoutDrawerFacadeService` | `features/_ds`, `features/bandeja` |
 | `LayoutDrawerService` | `layout` |
 | `LayoutService` | `layout` |
 | `MenuConfigService` | `layout` |
@@ -55,6 +55,8 @@
 
 | Página | Loading | Empty | Error | Skeleton |
 |--------|---------|-------|-------|----------|
+| `features/_ds` | ❌ | ❌ | ❌ | ❌ |
+| `features/_ds` | ✅ | ✅ | ✅ | ✅ |
 | `features/auth/login` | ❌ | ❌ | ❌ | ❌ |
 | `features/bandeja` | ✅ | ✅ | ✅ | ✅ |
 | `features/bandeja` | ❌ | ❌ | ❌ | ❌ |

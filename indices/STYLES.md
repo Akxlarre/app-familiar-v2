@@ -45,7 +45,8 @@
 
 | Clase | Qué es | Reemplaza a |
 |---|---|---|
-| `.kpi-value` | Número KPI principal | `text-4xl font-bold` |
+| `.kpi-value` | Número KPI principal, **sólo en la banda de un hero** | `text-4xl font-bold` |
+| `.row-value` | Valor numérico a la derecha de una fila de lista, con `tabular-nums`. **No uses `.kpi-value` acá**: es `--text-4xl` y se come el ancho que el título necesita para truncar | `text-base font-semibold` a mano |
 | `.micro-label` | Micro-label uppercase (label de KPI, cabecera de grupo, título de columna) | `text-xs uppercase tracking-* text-text-muted` |
 | `.item-title` | Título de fila / card / ítem de lista | `text-sm font-semibold text-text-primary` |
 | `.section-eyebrow` | Línea de contexto legible antes de un título (sin uppercase) | `text-sm text-text-secondary` |
@@ -56,6 +57,11 @@
 | `.indicator-live` / `.badge-pulse` | Indicadores de actividad | — |
 
 > `.kpi-label` es alias **deprecado** de `.micro-label`. Sigue funcionando; no usar en código nuevo.
+>
+> ⚠️ **La referencia viva está en `/app` → ruta `/_ds`, sólo en dev.** Muestra las cinco piezas
+> armadas y permite forzar los cuatro estados (normal, vacío, error, cargando). Copiá de ahí.
+> No está tras `authGuard` a propósito: una referencia de diseño que exige credenciales de
+> producción para mirarse es una referencia que nadie mira.
 >
 > ⚠️ **Los tokens del `@theme` también colisionan.** `--color-base` hacía que Tailwind generara
 > `text-base` como utilidad de COLOR, ganándole a la nativa de tamaño de fuente: el texto se
@@ -137,37 +143,38 @@ la necesidad se resuelve con lo que ya hay.
 | `--state-error` | 8 | `#f87171` |
 | `--ds-brand` | 7 | `#38bdf8` |
 | `--bg-surface` | 7 | `#18181b` |
-| `--input-radius` | 6 | `var(--radius-md)` |
-| `--input-border-default` | 6 | `var(--border-default)` |
-| `--input-bg` | 6 | `var(--bg-subtle)` |
-| `--input-padding-x` | 6 | `var(--space-4)` |
-| `--input-padding-y` | 6 | `var(--space-3)` |
-| `--input-text` | 6 | `var(--text-primary)` |
-| `--transition-input` | 6 | `—` |
-| `--input-placeholder` | 6 | `var(--text-muted)` |
-| `--input-border-focus` | 6 | `var(--color-primary)` |
-| `--input-shadow-focus-neutral` | 6 | `var(--shadow-focus)` |
 | `--state-success-bg` | 5 | `rgba(74, 222, 128, 0.1)` |
 | `--state-warning` | 5 | `#fbbf24` |
+| `--overlay-backdrop` | 5 | `rgba(0, 0, 0, 0.7)` |
+| `--state-error-bg` | 4 | `rgba(248, 113, 113, 0.1)` |
+| `--btn-primary-radius` | 4 | `var(--radius-md)` |
+| `--btn-primary-bg` | 4 | `var(--ds-brand)` |
+| `--btn-primary-padding-x` | 4 | `var(--space-4)` |
+| `--btn-primary-padding-y` | 4 | `var(--space-3)` |
+| `--btn-primary-text` | 4 | `#09090b` |
+| `--btn-primary-shadow` | 4 | `var(--shadow-sm)` |
+| `--transition-btn` | 4 | `—` |
+| `--btn-primary-bg-hover` | 4 | `var(--color-primary-hover)` |
 
 ## Clases semánticas del Design System
 
 | Clase | Usos en templates | Archivo |
 |-------|------------------|---------|
-| `.micro-label` | 11 | `src/styles/tokens/_variables.scss` |
-| `.card` | 8 | `src/styles/tokens/_variables.scss` |
+| `.micro-label` | 15 | `src/styles/tokens/_variables.scss` |
+| `.field-input` | 10 | `src/styles/tokens/_variables.scss` |
+| `.card` | 10 | `src/styles/tokens/_variables.scss` |
+| `.field-label` | 9 | `src/styles/tokens/_variables.scss` |
+| `.item-title` | 7 | `src/styles/tokens/_variables.scss` |
 | `.surface-hero` | 6 | `src/styles/tokens/_variables.scss` |
-| `.item-title` | 5 | `src/styles/tokens/_variables.scss` |
-| `.field-label` | 4 | `src/styles/tokens/_variables.scss` |
-| `.field-input` | 4 | `src/styles/tokens/_variables.scss` |
 | `.kpi-value` | 3 | `src/styles/tokens/_variables.scss` |
+| `.row-value` | 3 | `src/styles/tokens/_variables.scss` |
 | `.indicator-live` | 3 | `src/styles/tokens/_variables.scss` |
 | `.micro-label--warning` | 2 | `src/styles/tokens/_variables.scss` |
+| `.micro-label--error` | 2 | `src/styles/tokens/_variables.scss` |
+| `.field-input--invalid` | 2 | `src/styles/tokens/_variables.scss` |
 | `.card-accent` | 2 | `src/styles/tokens/_variables.scss` |
-| `.micro-label--error` | 1 | `src/styles/tokens/_variables.scss` |
 | `.badge-count` | 1 | `src/styles/tokens/_variables.scss` |
 | `.section-eyebrow` | 1 | `src/styles/tokens/_variables.scss` |
-| `.field-input--invalid` | 1 | `src/styles/tokens/_variables.scss` |
 | `.card-tinted` | 1 | `src/styles/tokens/_variables.scss` |
 | `.micro-label--success` | — | `src/styles/tokens/_variables.scss` |
 | `.kpi-label` | — | `src/styles/tokens/_variables.scss` |
@@ -248,7 +255,7 @@ la necesidad se resuelve con lo que ya hay.
 
 | Categoría | Usos | Interpretación |
 |-----------|------|----------------|
-| Tamaño display (`text-4xl/3xl/2xl`) | 7 | Candidatas a `.kpi-value` o heading semántico |
+| Tamaño display (`text-4xl/3xl/2xl`) | 8 | Candidatas a `.kpi-value` o heading semántico |
 | Peso de fuente (`font-bold/semibold`) | 22 | Informativo — legítimo en botones/headers/títulos |
 
 

@@ -629,6 +629,23 @@ body {
   color: var(--text-primary);
 }
 
+/* .row-value — Valor numérico a la derecha de una fila de lista.
+   Existe porque `.kpi-value` es `--text-4xl`: correcto en la banda de un hero,
+   ridículo en una fila, donde el número compite con el título y se come el
+   ancho que el título necesita para no truncar. Lo destapó la pantalla de
+   referencia (spec 0002): con `.kpi-value`, un monto de nueve cifras empujaba
+   el nombre del comercio a una segunda línea.
+   `tabular-nums` alinea las columnas de cifras entre filas. */
+.row-value {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  font-weight: var(--font-semibold);
+  line-height: var(--leading-snug);
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
 /* .section-eyebrow — Línea de contexto LEGIBLE antes de un título (sin uppercase).
    La distinción con .micro-label importa: micro-label etiqueta un dato,
    section-eyebrow da contexto legible.

@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { environment } from '../environments/environment';
 import { authGuard } from '@core/guards/auth.guard';
 import { guestGuard } from '@core/guards/guest.guard';
 // import { roleGuard } from '@core/guards/role.guard'; // ← usar para rutas por rol
@@ -49,6 +50,29 @@ export const routes: Routes = [
       // TODO: Añade tus feature routes aquí
     ],
   },
+
+  // Referencia viva del contrato de UI (spec 0002). Va con el shell —hace falta
+  // para demostrar que el drawer EMPUJA el contenido— pero **sin authGuard**: una
+  // referencia de diseño que exige credenciales de producción para mirarse es una
+  // referencia que nadie mira, y la que se queda sin verificar en navegador.
+  //
+  // Sólo existe en dev. En producción el array queda vacío y la ruta no existe.
+  ...(environment.production
+    ? []
+    : [
+        {
+          path: '_ds',
+          title: 'Referencia del design system',
+          loadComponent: () => import('./layout/app-shell.component').then((m) => m.AppShellComponent),
+          children: [
+            {
+              path: '',
+              loadComponent: () =>
+                import('./features/_ds/ds-reference.component').then((m) => m.DsReferenceComponent),
+            },
+          ],
+        },
+      ]),
 
   { path: '', redirectTo: '/login', pathMatch: 'full' },
   {

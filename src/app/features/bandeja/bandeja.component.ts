@@ -159,7 +159,7 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
 
                     <div class="flex items-center gap-3">
                       @if (captura.interpretado?.monto; as monto) {
-                        <span class="kpi-value">\${{ monto | number: '1.0-0' }}</span>
+                        <span class="row-value">\${{ monto | number: '1.0-0' }}</span>
                       } @else {
                         <span class="micro-label micro-label--warning">falta el monto</span>
                       }
