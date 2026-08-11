@@ -138,8 +138,8 @@ falso, este módulo es candidato a archivarse sin que nada más se caiga.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿Persistencia local con IndexedDB o `localStorage`? Depende del tamaño; IndexedDB es lo correcto para una sesión con muchas series.
-- [ ] ¿El catálogo de ejercicios se semilla con los comunes o se arma desde cero? Semilla: escribir "press banca" la primera vez es fricción evitable.
+- [ ] 🤖 ¿Persistencia local con IndexedDB o `localStorage`? Depende del tamaño; IndexedDB es lo correcto para una sesión con muchas series.
+- [ ] 🤖 ¿El catálogo de ejercicios se semilla con los comunes o se arma desde cero? Semilla: escribir "press banca" la primera vez es fricción evitable.
 - [x] ¿Entrenamiento se queda en el alcance? **Sí.** Está acoplado a Alimentación por composición corporal, y sacarlo obligaría a duplicar el peso (RN-08).
 - [x] ¿Récords en tabla o derivados? **Derivados, con caché.**
 

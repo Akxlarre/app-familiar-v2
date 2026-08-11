@@ -131,8 +131,8 @@ el resultado se quiere ver. A cambio, habilita que el objetivo calórico se deri
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] **AC13 — ¿el otro miembro ve mi peso?** REQ-001 dice que el hogar comparte todo y no hay roles. Pero el peso corporal es distinto de un gasto. Tres opciones: (a) visible como todo lo demás, coherente con el diseño; (b) privado por perfil, primera excepción del modelo; (c) visible con opción de ocultar. **Esta decisión define la RLS de la tabla y no es reversible barato.**
-- [ ] ¿Qué ventana usa el suavizado? 7 días es lo habitual.
+- [ ] 🧑 **AC13 — ¿el otro miembro ve mi peso?** REQ-001 dice que el hogar comparte todo y no hay roles. Pero el peso corporal es distinto de un gasto. Tres opciones: (a) visible como todo lo demás, coherente con el diseño; (b) privado por perfil, primera excepción del modelo; (c) visible con opción de ocultar. **Esta decisión define la RLS de la tabla y no es reversible barato.**
+- [ ] 🤖 ¿Qué ventana usa el suavizado? 7 días es lo habitual.
 - [x] ¿El peso vive en una sola tabla? **Sí.** RN-08, sin excepciones.
 - [x] ¿Recordatorios? **No.**
 

@@ -133,8 +133,8 @@ No tiene pantalla. Se manifiesta como:
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿Un canal por tabla o uno por hogar? Uno por hogar es menos conexiones; hay que ver qué permite el filtrado de Supabase.
-- [ ] ¿Cómo se dedupe el eco propio (AC-E2)? Por id del cambio local, o ignorando eventos cuyo `updated_by` es uno mismo.
+- [ ] 🤖 ¿Un canal por tabla o uno por hogar? Uno por hogar es menos conexiones; hay que ver qué permite el filtrado de Supabase.
+- [ ] 🤖 ¿Cómo se dedupe el eco propio (AC-E2)? Por id del cambio local, o ignorando eventos cuyo `updated_by` es uno mismo.
 - [x] ¿Realtime en todo? **No.** Sólo lista, despensa y movimientos.
 - [x] ¿Offline con cola? **No.** Que no se rompa, sí; sincronización diferida completa, no.
 

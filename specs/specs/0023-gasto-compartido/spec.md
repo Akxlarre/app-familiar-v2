@@ -134,8 +134,8 @@ de llevar la cuenta a mano. Si hay que decidirlo en cada gasto, no se sostiene.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] **¿Esta spec debería construirse?** Requiere evidencia de uso, no una decisión de diseño. Revisar después de tres meses con datos reales.
-- [ ] ¿El saldo se cierra por mes o es continuo? Continuo es más simple; por mes se parece más a cómo se salda en la vida real.
+- [ ] 🧑 **¿Esta spec debería construirse?** Requiere evidencia de uso, no una decisión de diseño. Revisar después de tres meses con datos reales.
+- [ ] 🤖 ¿El saldo se cierra por mes o es continuo? Continuo es más simple; por mes se parece más a cómo se salda en la vida real.
 - [x] ¿Más de dos personas? **No.** R-02.
 - [x] ¿Recordatorios de deuda? **No.**
 

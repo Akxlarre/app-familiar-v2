@@ -144,7 +144,7 @@ No toca persistencia.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿La pantalla de referencia va en una ruta `/app/_ds` sólo en dev, o se documenta en `indices/STYLES.md` con snippets? Una ruta viva se pudre menos, pero hay que excluirla del build de producción.
+- [ ] 🤖 ¿La pantalla de referencia va en una ruta `/app/_ds` sólo en dev, o se documenta en `indices/STYLES.md` con snippets? Una ruta viva se pudre menos, pero hay que excluirla del build de producción.
 - [x] ¿Modal o drawer? **Drawer.** Ya existe, empuja en vez de tapar, y en móvil es fullscreen — un modal en móvil es un drawer peor hecho.
 - [x] ¿KPIs en cards sueltas o en el hero? **En el hero.** Cards sueltas encima del contenido empujan la lista fuera del viewport y rompen el contrato App-like.
 

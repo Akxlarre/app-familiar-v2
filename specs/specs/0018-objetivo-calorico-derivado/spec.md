@@ -128,9 +128,9 @@ recalibrar a mano se ignora a los dos meses.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿Qué fórmula? Mifflin-St Jeor es el estándar razonable. Documentarla en el código con su fuente.
-- [ ] ¿Cuántos días hacen "peso viejo" (AC-E1)? 30 parece razonable.
-- [ ] ¿El reparto de macros por defecto? Uno sensato y editable.
+- [ ] 🤖 ¿Qué fórmula? Mifflin-St Jeor es el estándar razonable. Documentarla en el código con su fuente.
+- [ ] 🤖 ¿Cuántos días hacen "peso viejo" (AC-E1)? 30 parece razonable.
+- [ ] 🤖 ¿El reparto de macros por defecto? Uno sensato y editable.
 - [x] ¿Se almacena el objetivo? **No.** Es la razón de existir de esta spec.
 - [x] ¿Se ajusta solo según el progreso? **No.** R-04.
 

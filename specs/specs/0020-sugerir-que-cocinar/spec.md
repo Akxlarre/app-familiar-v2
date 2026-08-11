@@ -136,8 +136,8 @@ todos los días. Un planificador semanal no se abre nunca.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿Cuánto pesa la recencia frente a la disponibilidad (AC4)? Empezar simple: excluir lo cocinado en los últimos 3 días del top.
-- [ ] ¿Se sugiere por momento del día (almuerzo vs. cena)? Requiere clasificar las recetas; quizás no haga falta.
+- [ ] 🤖 ¿Cuánto pesa la recencia frente a la disponibilidad (AC4)? Empezar simple: excluir lo cocinado en los últimos 3 días del top.
+- [ ] 🌍 ¿Se sugiere por momento del día (almuerzo vs. cena)? Requiere clasificar las recetas; quizás no haga falta.
 - [x] ¿Planificador semanal? **No.** Es el anti-patrón que esta spec corrige.
 - [x] ¿El plan vacío es un problema? **No.** Es el estado normal.
 

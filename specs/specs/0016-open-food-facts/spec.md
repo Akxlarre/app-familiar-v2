@@ -122,8 +122,8 @@ una lista corta y no llenar un formulario nutricional.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿`BarcodeDetector` alcanza? Está en Chrome/Android; Safari iOS no lo tiene. Va a hacer falta un fallback en JS.
-- [ ] ¿Se cachea la respuesta cruda o sólo lo mapeado? Cruda permite re-mapear si cambia el criterio, y ocupa poco.
+- [ ] 🌍 ¿`BarcodeDetector` alcanza? Está en Chrome/Android; Safari iOS no lo tiene. Va a hacer falta un fallback en JS.
+- [ ] 🤖 ¿Se cachea la respuesta cruda o sólo lo mapeado? Cruda permite re-mapear si cambia el criterio, y ocupa poco.
 - [x] ¿Consulta desde el cliente o desde el servidor? **Servidor.** Cachea y no expone patrones de consumo.
 - [x] ¿Qué gana, la base o la corrección del usuario? **La corrección** (`verificado`).
 

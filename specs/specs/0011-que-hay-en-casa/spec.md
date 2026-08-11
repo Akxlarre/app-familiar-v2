@@ -133,8 +133,8 @@ parte, y sale gratis de un gesto que ya se hizo por otro motivo (la boleta, spec
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿`por_acabarse` quién lo pone? Sólo el usuario, o también la cadencia de la spec 0012 (preguntando, R-04).
-- [ ] ¿El orden por defecto es por categoría o por última compra? En el supermercado, categoría; en casa, quizás otra cosa.
+- [ ] 🤖 ¿`por_acabarse` quién lo pone? Sólo el usuario, o también la cadencia de la spec 0012 (preguntando, R-04).
+- [ ] 🧑 ¿El orden por defecto es por categoría o por última compra? En el supermercado, categoría; en casa, quizás otra cosa.
 - [x] ¿Cantidades? **No.** R-03, sin excepciones.
 - [x] ¿La despensa se puede llenar sin boleta? **No en esta spec.** Si hace falta seguido, el problema está en la boleta.
 

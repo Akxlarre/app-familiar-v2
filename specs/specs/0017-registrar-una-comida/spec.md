@@ -136,8 +136,8 @@ combinación se guardó la semana pasada, se sostiene. Si cuesta buscar en un ca
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿Momento del día fijo (desayuno/almuerzo/once/cena) o libre? Fijo es menos decisiones; "once" es chileno y no puede faltar.
-- [ ] ¿La despensa se ordena por lo más comido o por lo más reciente? Probablemente lo más comido, que converge rápido.
+- [ ] 🧑 ¿Momento del día fijo (desayuno/almuerzo/once/cena) o libre? Fijo es menos decisiones; "once" es chileno y no puede faltar.
+- [ ] 🤖 ¿La despensa se ordena por lo más comido o por lo más reciente? Probablemente lo más comido, que converge rápido.
 - [x] ¿Congelan o derivan? **Congelan.** RN-04, y habilita podar el catálogo.
 - [x] ¿Micronutrientes? **No.**
 

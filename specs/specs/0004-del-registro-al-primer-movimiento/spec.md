@@ -152,9 +152,9 @@ está configurado", no vuelve.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿La lista de bancos con sus parsers se semilla en migración o se administra en una tabla global? Semilla es más simple; tabla global permite corregir un regex sin desplegar. **Depende de RB-01: los formatos cambian solos**, así que probablemente tabla.
-- [ ] ¿Qué días hacia atrás mira la primera corrida? `process-bank-emails` usa 90. Para el onboarding puede convenir más, para que el paso 4 tenga qué mostrar.
-- [ ] ¿Se puede usar la app sin conectar correo? Hoy no tendría ningún dato. Quizás sí, con la boleta del hito 2 como alternativa — decidir cuando exista.
+- [ ] 🤖 ¿La lista de bancos con sus parsers se semilla en migración o se administra en una tabla global? Semilla es más simple; tabla global permite corregir un regex sin desplegar. **Depende de RB-01: los formatos cambian solos**, así que probablemente tabla.
+- [ ] 🤖 ¿Qué días hacia atrás mira la primera corrida? `process-bank-emails` usa 90. Para el onboarding puede convenir más, para que el paso 4 tenga qué mostrar.
+- [ ] 🧑 ¿Se puede usar la app sin conectar correo? Hoy no tendría ningún dato. Quizás sí, con la boleta del hito 2 como alternativa — decidir cuando exista.
 - [x] ¿`onboarding_step` en la base? **No.** Se deriva del estado real; una columna de progreso miente el día que alguien desconecta su correo.
 
 ---

@@ -136,9 +136,9 @@ inventaríe nada.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] **OCR: cuál.** Un modelo multimodal entiende el layout de una boleta chilena mucho mejor que un OCR de líneas, pero cuesta por llamada y es una dependencia externa. Es la decisión más cara de esta spec. Probar con boletas reales antes de comprometerse.
-- [ ] ¿Cómo se liga la boleta al movimiento del banco (AC11)? Por comercio + fecha + total, con tolerancia. Y si no hay match seguro, se pregunta (R-04).
-- [ ] ¿La revisión es pantalla o drawer? Empieza como pantalla; con boletas de 5 ítems quizás alcance el drawer.
+- [ ] 🧑 **OCR: cuál.** Un modelo multimodal entiende el layout de una boleta chilena mucho mejor que un OCR de líneas, pero cuesta por llamada y es una dependencia externa. Es la decisión más cara de esta spec. Probar con boletas reales antes de comprometerse.
+- [ ] 🤖 ¿Cómo se liga la boleta al movimiento del banco (AC11)? Por comercio + fecha + total, con tolerancia. Y si no hay match seguro, se pregunta (R-04).
+- [ ] 🧑 ¿La revisión es pantalla o drawer? Empieza como pantalla; con boletas de 5 ítems quizás alcance el drawer.
 - [x] ¿Boleta y correo comparten bandeja? **Sí.** Una sola cola de revisión — es el error explícito que se corrigió de v1.
 - [x] ¿Se puede escribir una boleta a mano? **No.**
 

@@ -132,8 +132,8 @@ permanente.
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿`archivada BOOLEAN` o `estado TEXT`? Estado deja lugar a "cerrada por el banco", que es distinto de archivada por el usuario.
-- [ ] ¿El cupo usado incluye cuotas futuras? El banco las descuenta del cupo al comprar; mostrarlo distinto confundiría. Verificar contra un estado de cuenta real.
+- [ ] 🤖 ¿`archivada BOOLEAN` o `estado TEXT`? Estado deja lugar a "cerrada por el banco", que es distinto de archivada por el usuario.
+- [ ] 🌍 ¿El cupo usado incluye cuotas futuras? El banco las descuenta del cupo al comprar; mostrarlo distinto confundiría. Verificar contra un estado de cuenta real.
 - [x] ¿Saldo de débito? **No.** El correo informa cargos, no saldo.
 - [x] ¿Cuentas privadas por miembro? **No.** El hogar comparte todo (REQ-001).
 

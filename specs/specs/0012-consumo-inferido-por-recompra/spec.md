@@ -127,9 +127,9 @@ cadencia habilita lo siguiente: proponer la lista de compras antes de que falte 
 
 ## 9. Notas / decisiones abiertas
 
-- [ ] ¿Cuántos ciclos hacen falta? El dominio dice "dos o tres". Empezar con 3 y bajar si tarda demasiado en ser útil.
-- [ ] ¿Qué umbral de dispersión calla la pregunta (AC-E3)? Calibrar con datos reales.
-- [ ] ¿La cadencia se recalcula en cada boleta o por job? Con un hogar, en cada boleta alcanza.
+- [ ] 🤖 ¿Cuántos ciclos hacen falta? El dominio dice "dos o tres". Empezar con 3 y bajar si tarda demasiado en ser útil.
+- [ ] 🌍 ¿Qué umbral de dispersión calla la pregunta (AC-E3)? Calibrar con datos reales.
+- [ ] 🤖 ¿La cadencia se recalcula en cada boleta o por job? Con un hogar, en cada boleta alcanza.
 - [x] ¿Puede cambiar el estado sola? **No.** RN-07.
 - [x] ¿Un solo ciclo genera cadencia? **No.** Un punto no es una serie.
 
