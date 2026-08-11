@@ -63,25 +63,25 @@ import { TopbarComponent } from "./topbar.component";
            al <main>, que deja de scrollear por dentro y hace scrollear el
            documento — rompiendo el contrato App-like justo al abrir el panel. -->
       <div class="flex min-h-0 min-w-0 overflow-hidden">
-      <div class="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_1fr] overflow-hidden">
-        <app-topbar />
+        <div class="grid min-h-0 min-w-0 flex-1 grid-rows-[auto_1fr] overflow-hidden">
+          <app-topbar />
 
-        <!--
-          container-type/name: LOAD-BEARING. Todo el bento grid responde a
-          @container layoutmain, no a @media. Si se quitan estas dos
-          propiedades, ninguna container query matchea y el grid colapsa a
-          su layout base (1 columna) en cualquier ancho de pantalla.
-        -->
-        <main
-          #contentEl
-          class="overflow-y-auto p-6 transition-[view-transition-name:main-content]"
-          style="view-transition-name: main-content; container-type: inline-size; container-name: layoutmain;"
-          role="main"
-          tabindex="-1"
-        >
-          <router-outlet />
-        </main>
-      </div>
+          <!--
+            container-type/name: LOAD-BEARING. Todo el bento grid responde a
+            @container layoutmain, no a @media. Si se quitan estas dos
+            propiedades, ninguna container query matchea y el grid colapsa a
+            su layout base (1 columna) en cualquier ancho de pantalla.
+          -->
+          <main
+            #contentEl
+            class="overflow-y-auto p-6 transition-[view-transition-name:main-content]"
+            style="view-transition-name: main-content; container-type: inline-size; container-name: layoutmain;"
+            role="main"
+            tabindex="-1"
+          >
+            <router-outlet />
+          </main>
+        </div>
 
         <!-- Drawer arquitectónico: empuja el contenido en desktop, fullscreen en
              mobile. Su ancho lo anima GSAP; en reposo mide 0 y no ocupa nada. -->

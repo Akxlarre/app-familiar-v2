@@ -3,29 +3,54 @@
 // En v1 cada función repetía el bloque de CORS y armaba sus Response a mano, con
 // pequeñas diferencias entre archivos. Acá vive una sola vez.
 
-export const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
+/**
+ * Origen permitido. `*` sería cómodo pero esta app es privada de una familia
+ * (R-06): cualquier página podría invocar las funciones desde el navegador de un
+ * usuario logueado. Se configura con el secreto `CORS_ALLOWLIST` (orígenes
+ * separados por coma). Sin allowlist configurada NO se refleja ningún origen.
+ *
+ * Idea tomada de `anti-abuse.ts` de autoescuela, donde la allowlist nació de una
+ * auditoría de seguridad de su endpoint público.
+ */
+export function origenPermitido(origen: string | null | undefined): boolean {
+  if (!origen) return false;
+  const limpio = origen.trim();
+  if (!limpio) return false;
+  const allowlist = (Deno.env.get('CORS_ALLOWLIST') ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  return allowlist.includes(limpio);
+}
 
-export function json(body: unknown, status = 200): Response {
+export function corsHeaders(req?: Request): Record<string, string> {
+  const base: Record<string, string> = {
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    Vary: 'Origin',
+  };
+  const origen = req?.headers.get('Origin');
+  if (origenPermitido(origen)) base['Access-Control-Allow-Origin'] = origen!;
+  return base;
+}
+
+export function json(body: unknown, status = 200, req?: Request): Response {
   return new Response(JSON.stringify(body), {
     status,
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    headers: { ...corsHeaders(req), 'Content-Type': 'application/json' },
   });
 }
 
-export function error(mensaje: string, status = 400): Response {
-  return json({ error: mensaje }, status);
+export function error(mensaje: string, status = 400, req?: Request): Response {
+  return json({ error: mensaje }, status, req);
 }
 
 /**
  * Resuelve preflight y método incorrecto. Devuelve `null` si la petición sigue.
  */
 export function guardarPreflight(req: Request): Response | null {
-  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
-  if (req.method !== 'POST') return error('Method not allowed', 405);
+  if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders(req) });
+  if (req.method !== 'POST') return error('Method not allowed', 405, req);
   return null;
 }
 
