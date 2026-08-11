@@ -14,6 +14,7 @@ import { EmptyStateComponent } from '@shared/components/empty-state/empty-state.
 import { ErrorStateComponent } from '@shared/components/error-state/error-state.component';
 import { SkeletonBlockComponent } from '@shared/components/skeleton-block/skeleton-block.component';
 import { AnimateInDirective } from '@core/directives/animate-in.directive';
+import { BentoGridLayoutDirective } from '@core/directives/bento-grid-layout.directive';
 import type { Captura } from '@core/models/captura.model';
 import { requiereEscribirMonto } from '@core/models/captura.model';
 
@@ -42,11 +43,18 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
     ErrorStateComponent,
     SkeletonBlockComponent,
     AnimateInDirective,
+    BentoGridLayoutDirective,
   ],
   template: `
-    <section class="page-wide flex flex-col gap-6">
+    <!-- App-like: en desktop el grid ocupa el alto disponible y el scroll vive
+         DENTRO de la lista, no en el documento. Ambas celdas son .bento-banner
+         (una fila cada una), que es el contrato de un grid fill-screen. -->
+    <section
+      class="bento-grid bento-grid--fill-screen"
+      appBentoGridLayout
+    >
       <!-- Encabezado -->
-      <header class="flex flex-wrap items-end justify-between gap-4">
+      <header class="bento-banner flex flex-wrap items-end justify-between gap-4">
         <div class="flex flex-col gap-1">
           <span class="section-eyebrow">Captura</span>
           <h1 class="text-2xl font-semibold text-text-primary">Bandeja</h1>
@@ -71,6 +79,10 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
           </div>
         }
       </header>
+
+      <!-- Fila 2: la celda protagonista. Llena el alto restante y scrollea
+           por dentro; el documento no se mueve. -->
+      <div class="bento-banner bento-fill flex min-h-0 flex-col gap-3 overflow-hidden">
 
       <!-- Carga -->
       @if (facade.isLoading() && !facade.hasData()) {
@@ -97,7 +109,7 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
 
       <!-- Lista -->
       @if (facade.total() > 0) {
-        <ul class="flex flex-col gap-3" appAnimateIn>
+        <ul class="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1" appAnimateIn>
           @for (captura of facade.ordenadas(); track captura.id) {
             <li class="card flex flex-col gap-3 p-4">
               <!-- Resumen -->
@@ -179,6 +191,8 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
           }
         </ul>
       }
+
+      </div>
     </section>
   `,
 })
