@@ -631,6 +631,61 @@ body {
   color: var(--text-secondary);
 }
 
+/* ── Campos de formulario ────────────────────────────────────
+   Los tokens --input-* existían desde el principio, pero sólo se consumían
+   como clusters de utilities escritos a mano: el login tiene una cadena de
+   catorce clases arbitrarias por campo, y el segundo formulario del proyecto
+   iba a copiarla.
+   ─────────────────────────────────────────────────────────── */
+
+/* .field-label — Etiqueta de un campo. Legible, no uppercase: .micro-label
+   etiqueta un dato ya escrito; esto le pide al usuario que escriba. */
+.field-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  line-height: var(--leading-snug);
+  color: var(--text-secondary);
+}
+
+/* .field-input — Input, select o textarea de una línea. */
+.field-input {
+  box-sizing: border-box;
+  width: 100%;
+  padding: var(--input-padding-y) var(--input-padding-x);
+  border: 1px solid var(--input-border-default);
+  border-radius: var(--input-radius);
+  background: var(--input-bg);
+  color: var(--input-text);
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  outline: none;
+  transition: var(--transition-input);
+}
+
+.field-input::placeholder {
+  color: var(--input-placeholder);
+}
+
+.field-input:focus {
+  border-color: var(--input-border-focus);
+  box-shadow: var(--input-shadow-focus-neutral);
+}
+
+.field-input:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Estado inválido. Se aplica sólo cuando el campo ya fue tocado: marcar en rojo
+   un formulario recién abierto es hostil. */
+.field-input--invalid,
+.field-input--invalid:focus {
+  border-color: var(--state-error);
+}
+
 /* ── Jerarquía de Superficies ────────────────────────────────
    surface-hero:  Banners, hero sections, CTAs de alta jerarquía.
                   Texto sobre este fondo SIEMPRE en white/light.

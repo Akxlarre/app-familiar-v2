@@ -128,7 +128,7 @@ import { LayoutDrawerService } from '@core/services/layout-drawer.service';
       <!-- Cuerpo dinámico -->
       <div class="mr-1 mb-2 flex flex-1 flex-col overflow-y-auto py-2 pr-3 pl-4 lg:mr-2 lg:pr-2">
         @if (component(); as componenteActivo) {
-          <ng-container *ngComponentOutlet="componenteActivo" />
+          <ng-container *ngComponentOutlet="componenteActivo; inputs: inputs()" />
         }
       </div>
     </div>
@@ -146,6 +146,7 @@ export class LayoutDrawerComponent implements OnDestroy {
   protected readonly icon = this.drawer.icon;
   protected readonly actions = this.drawer.actions;
   protected readonly badge = this.drawer.badge;
+  protected readonly inputs = this.drawer.inputs;
   protected readonly canGoBack = this.drawer.canGoBack;
 
   /** El signal `isOpen` cambia antes que el DOM: hace falta saber qué se animó. */

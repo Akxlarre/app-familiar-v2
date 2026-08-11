@@ -49,6 +49,8 @@
 | `.micro-label` | Micro-label uppercase (label de KPI, cabecera de grupo, título de columna) | `text-xs uppercase tracking-* text-text-muted` |
 | `.item-title` | Título de fila / card / ítem de lista | `text-sm font-semibold text-text-primary` |
 | `.section-eyebrow` | Línea de contexto legible antes de un título (sin uppercase) | `text-sm text-text-secondary` |
+| `.field-label` | Etiqueta de un campo de formulario — legible, no uppercase (`.micro-label` etiqueta un dato ya escrito; esto pide escribirlo) | `text-sm font-medium text-text-secondary` |
+| `.field-input` | Input / select / textarea de una línea. Modificador `.field-input--invalid` para el estado tocado + inválido | el cluster de catorce utilities `border-[var(--input-border-default)] bg-[var(--input-bg)] px-[var(--input-padding-x)]…` del login |
 | `.badge-count` | Badge numérico superpuesto (notificaciones) | `rounded-full + text-[10px] + px-1` a mano |
 | `.surface-hero` / `.surface-glass` | Jerarquía de superficies | — |
 | `.indicator-live` / `.badge-pulse` | Indicadores de actividad | — |
@@ -146,18 +148,21 @@ la necesidad se resuelve con lo que ya hay.
 
 | Clase | Usos en templates | Archivo |
 |-------|------------------|---------|
-| `.micro-label` | 8 | `src/styles/tokens/_variables.scss` |
-| `.card` | 7 | `src/styles/tokens/_variables.scss` |
+| `.micro-label` | 11 | `src/styles/tokens/_variables.scss` |
+| `.card` | 8 | `src/styles/tokens/_variables.scss` |
 | `.surface-hero` | 6 | `src/styles/tokens/_variables.scss` |
-| `.item-title` | 4 | `src/styles/tokens/_variables.scss` |
+| `.item-title` | 5 | `src/styles/tokens/_variables.scss` |
+| `.field-label` | 4 | `src/styles/tokens/_variables.scss` |
+| `.field-input` | 4 | `src/styles/tokens/_variables.scss` |
 | `.kpi-value` | 3 | `src/styles/tokens/_variables.scss` |
 | `.indicator-live` | 3 | `src/styles/tokens/_variables.scss` |
+| `.micro-label--warning` | 2 | `src/styles/tokens/_variables.scss` |
 | `.card-accent` | 2 | `src/styles/tokens/_variables.scss` |
-| `.micro-label--warning` | 1 | `src/styles/tokens/_variables.scss` |
+| `.micro-label--error` | 1 | `src/styles/tokens/_variables.scss` |
 | `.badge-count` | 1 | `src/styles/tokens/_variables.scss` |
 | `.section-eyebrow` | 1 | `src/styles/tokens/_variables.scss` |
+| `.field-input--invalid` | 1 | `src/styles/tokens/_variables.scss` |
 | `.card-tinted` | 1 | `src/styles/tokens/_variables.scss` |
-| `.micro-label--error` | — | `src/styles/tokens/_variables.scss` |
 | `.micro-label--success` | — | `src/styles/tokens/_variables.scss` |
 | `.kpi-label` | — | `src/styles/tokens/_variables.scss` |
 | `.surface-glass` | — | `src/styles/tokens/_variables.scss` |

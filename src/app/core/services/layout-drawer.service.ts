@@ -15,6 +15,13 @@ export interface LayoutDrawerState {
     actions?: LayoutDrawerAction[];
     /** Texto corto en el header, ej. "Paso 2 de 6". */
     badge?: string | null;
+    /**
+     * Inputs del componente renderizado, por nombre de `input()`.
+     *
+     * Sin esto el drawer solo sirve para pantallas sin datos: no había forma de
+     * decirle a un detalle CUÁL registro mostrar.
+     */
+    inputs?: Record<string, unknown>;
 }
 
 /**
@@ -39,7 +46,8 @@ export class LayoutDrawerService {
         title: '',
         icon: undefined,
         actions: [],
-        badge: null
+        badge: null,
+        inputs: undefined
     });
 
     /** Pila de estados anteriores dentro de la misma sesión de drawer. */
@@ -53,6 +61,7 @@ export class LayoutDrawerService {
     readonly icon = computed(() => this._state().icon);
     readonly actions = computed(() => this._state().actions ?? []);
     readonly badge = computed(() => this._state().badge ?? null);
+    readonly inputs = computed(() => this._state().inputs);
     readonly canGoBack = computed(() => this._history().length > 0);
 
     /**
@@ -62,14 +71,20 @@ export class LayoutDrawerService {
      * adentro y `back()` tiene que poder volver. Si estaba cerrado, la pila
      * arranca vacía — abrir de cero no hereda el historial de la sesión previa.
      */
-    open(component: Type<any>, title: string, icon?: string, actions?: LayoutDrawerAction[]): void {
+    open(
+        component: Type<any>,
+        title: string,
+        icon?: string,
+        actions?: LayoutDrawerAction[],
+        inputs?: Record<string, unknown>
+    ): void {
         if (this._state().isOpen && this._state().component) {
             this._history.update((h) => [...h, { ...this._state() }]);
-            this._state.update((s) => ({ ...s, component, title, icon, actions: actions ?? [], badge: null }));
+            this._state.update((s) => ({ ...s, component, title, icon, actions: actions ?? [], badge: null, inputs }));
             return;
         }
         this._history.set([]);
-        this._state.set({ isOpen: true, component, title, icon, actions: actions ?? [], badge: null });
+        this._state.set({ isOpen: true, component, title, icon, actions: actions ?? [], badge: null, inputs });
     }
 
     /** Vuelve al estado anterior de la pila. Sin historial no hace nada. */
@@ -108,7 +123,8 @@ export class LayoutDrawerService {
             title: '',
             icon: undefined,
             actions: [],
-            badge: null
+            badge: null,
+            inputs: undefined
         }));
     }
 }

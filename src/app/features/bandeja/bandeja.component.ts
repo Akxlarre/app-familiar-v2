@@ -9,6 +9,8 @@ import {
 import { DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BandejaFacade } from '@core/facades/bandeja.facade';
+import { LayoutDrawerFacadeService } from '@core/services/layout-drawer.facade.service';
+import { CompletarCapturaComponent } from './completar-captura.component';
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SectionHeroComponent } from '@shared/components/section-hero/section-hero.component';
 import type { SectionHeroKpi } from '@core/models/section-hero.model';
@@ -177,20 +179,34 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
                       >
                         Descartar
                       </button>
-                      <button
-                        type="button"
-                        class="btn-primary"
-                        [disabled]="ocupada() === captura.id || !puedeConfirmar(captura)"
-                        (click)="confirmar(captura)"
-                      >
-                        @if (ocupada() === captura.id) { Guardando… } @else { Confirmar }
-                      </button>
+                      @if (puedeConfirmar(captura)) {
+                        <button
+                          type="button"
+                          class="btn-primary"
+                          [disabled]="ocupada() === captura.id"
+                          (click)="confirmar(captura)"
+                        >
+                          @if (ocupada() === captura.id) { Guardando… } @else { Confirmar }
+                        </button>
+                      } @else {
+                        <!-- Sin monto no hay nada que confirmar de un toque. El
+                             botón lleva al camino largo en vez de quedar muerto:
+                             antes decía "abrila para completarla" y no había con qué. -->
+                        <button
+                          type="button"
+                          class="btn-primary"
+                          [disabled]="ocupada() === captura.id"
+                          (click)="completar(captura)"
+                        >
+                          Completar
+                        </button>
+                      }
                     </div>
                   </div>
 
                   @if (!puedeConfirmar(captura)) {
                     <p class="text-sm text-text-muted">
-                      Esta captura necesita datos que el parser no pudo leer. Abrila para completarla.
+                      El parser no pudo leer el monto. Completalo a mano para crear el movimiento.
                     </p>
                   }
                 </li>
@@ -212,6 +228,7 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
 })
 export class BandejaComponent implements OnInit {
   protected readonly facade = inject(BandejaFacade);
+  private readonly drawer = inject(LayoutDrawerFacadeService);
 
   /** Qué captura está guardando ahora — evita dobles clics. */
   protected readonly ocupada = signal<string | null>(null);
@@ -266,6 +283,20 @@ export class BandejaComponent implements OnInit {
     } finally {
       this.ocupada.set(null);
     }
+  }
+
+  /**
+   * Abre el camino largo en el drawer del shell. En desktop empuja la lista en
+   * vez de taparla, así se ve qué más hay pendiente mientras se completa.
+   */
+  protected completar(captura: Captura): void {
+    this.drawer.open(
+      CompletarCapturaComponent,
+      'Completar captura',
+      'inbox',
+      [],
+      { captura },
+    );
   }
 
   protected async descartar(captura: Captura): Promise<void> {

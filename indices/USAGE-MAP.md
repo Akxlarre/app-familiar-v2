@@ -44,6 +44,7 @@
 |---------|-------------|
 | `BreadcrumbService` | `layout` |
 | `GsapAnimationsService` | `features/dashboard`, `layout`, `shared/components/drawer`, `shared/components/kpi-card`, `shared/components/section-hero` |
+| `LayoutDrawerFacadeService` | `features/bandeja` |
 | `LayoutDrawerService` | `layout` |
 | `LayoutService` | `layout` |
 | `MenuConfigService` | `layout` |
@@ -56,6 +57,7 @@
 |--------|---------|-------|-------|----------|
 | `features/auth/login` | ❌ | ❌ | ❌ | ❌ |
 | `features/bandeja` | ✅ | ✅ | ✅ | ✅ |
+| `features/bandeja` | ❌ | ❌ | ❌ | ❌ |
 | `features/dashboard` | ✅ | ❌ | ❌ | ❌ |
 | `features/not-found` | ❌ | ❌ | ❌ | ❌ |
 

@@ -1,5 +1,5 @@
-import { Injectable, computed, inject, Type } from '@angular/core';
-import { LayoutDrawerService } from './layout-drawer.service';
+import { Injectable, inject, Type } from '@angular/core';
+import { LayoutDrawerService, type LayoutDrawerAction } from './layout-drawer.service';
 
 /**
  * LayoutDrawerFacadeService — Interfaz pública para componentes UI.
@@ -18,11 +18,21 @@ export class LayoutDrawerFacadeService {
     readonly icon = this.layoutDrawer.icon;
     readonly actions = this.layoutDrawer.actions;
 
-    open(component: Type<any>, title: string, icon?: string, actions?: any[]): void {
-        this.layoutDrawer.open(component, title, icon, actions);
+    /**
+     * @param inputs Valores para los `input()` del componente, por nombre. Es lo
+     *               que permite abrir el detalle de un registro concreto.
+     */
+    open(
+        component: Type<unknown>,
+        title: string,
+        icon?: string,
+        actions?: LayoutDrawerAction[],
+        inputs?: Record<string, unknown>
+    ): void {
+        this.layoutDrawer.open(component, title, icon, actions, inputs);
     }
 
-    setActions(actions: any[]): void {
+    setActions(actions: LayoutDrawerAction[]): void {
         this.layoutDrawer.setActions(actions);
     }
 

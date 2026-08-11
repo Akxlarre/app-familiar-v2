@@ -53,4 +53,28 @@ describe('LayoutDrawerService', () => {
   it('actions() nunca es undefined', () => {
     expect(service.actions()).toEqual([]);
   });
+
+  it('pasa inputs al componente renderizado', () => {
+    // Sin esto el drawer solo servía para pantallas sin datos: no había forma de
+    // decirle a un detalle CUÁL registro mostrar.
+    service.open(StubPanel, 'Detalle', 'inbox', [], { id: 'abc' });
+    expect(service.inputs()).toEqual({ id: 'abc' });
+  });
+
+  it('cada nivel de la navegación lleva sus propios inputs', () => {
+    service.open(StubPanel, 'Lista', undefined, [], { id: 'lista' });
+    service.open(StubPanel, 'Detalle', undefined, [], { id: 'detalle' });
+    expect(service.inputs()).toEqual({ id: 'detalle' });
+
+    service.back();
+    expect(service.inputs()).toEqual({ id: 'lista' });
+  });
+
+  it('abrir de cero no arrastra los inputs de la sesión anterior', () => {
+    service.open(StubPanel, 'Detalle', undefined, [], { id: 'abc' });
+    service.close();
+    service.clear();
+    service.open(StubPanel, 'Otro');
+    expect(service.inputs()).toBeUndefined();
+  });
 });
