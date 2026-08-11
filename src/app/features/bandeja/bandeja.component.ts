@@ -85,11 +85,26 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
           class="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3"
         >
           <span class="micro-label">Capturas sin resolver</span>
-          @if (facade.total() > 0) {
-            <span class="text-sm text-text-muted">
-              {{ facade.listasParaConfirmar() }} de {{ facade.total() }} se confirman sin escribir nada
-            </span>
-          }
+          <div class="flex flex-wrap items-center gap-3">
+            @if (facade.total() > 0) {
+              <span class="text-sm text-text-muted">
+                {{ facade.listasParaConfirmar() }} de {{ facade.total() }} se confirman sin escribir nada
+              </span>
+            }
+            <!-- Sólo tiene sentido si hay algo atascado: reintentar sobre una
+                 bandeja que ya está resuelta no hace nada. -->
+            @if (facade.necesitanDatos() > 0) {
+              <button
+                type="button"
+                class="btn-ghost"
+                [disabled]="facade.reprocesando()"
+                (click)="reintentar()"
+                data-llm-action="reprocesar-capturas"
+              >
+                @if (facade.reprocesando()) { Reintentando… } @else { Reintentar con los parsers actuales }
+              </button>
+            }
+          </div>
         </div>
 
         <!-- Cuerpo: lo único que scrollea -->
@@ -249,6 +264,14 @@ export class BandejaComponent implements OnInit {
 
   protected recargar(): void {
     void this.facade.initialize();
+  }
+
+  /**
+   * Reintenta las atascadas con los parsers de hoy. El caso real: se arregla un
+   * regex y quedan las capturas de los días en que estuvo roto.
+   */
+  protected reintentar(): void {
+    void this.facade.reprocesar();
   }
 
   protected sinComercio(captura: Captura): string {

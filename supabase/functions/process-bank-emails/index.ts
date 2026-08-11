@@ -25,11 +25,11 @@ import {
   refrescarToken,
 } from '../_shared/gmail.ts';
 import { elegirParser, extraerDatos, fechaEnZona } from '../_shared/parseo.ts';
+import { motivoDeFaltante, motivoSeguro } from '../_shared/capturas.ts';
 
 // Límites conservadores: la función tiene tope de tiempo y Gmail cobra cuota.
 const MAX_CORREOS_POR_CORRIDA = 10;
 const DIAS_ATRAS = 90;
-const CONFIANZA_MINIMA = 60;   // sin monto no se llega nunca a este número
 
 interface Integracion {
   id: string;
@@ -282,11 +282,10 @@ Deno.serve(async (req) => {
         capturadas++;
 
         // ── ¿Alcanza para crear el movimiento solo? ─────────────────────────
+        // La decisión vive en `_shared/capturas.ts` porque `reprocesar-capturas`
+        // tiene que tomar exactamente la misma con el texto ya guardado.
         const cuentaId = parser.cuenta_id;
-        const faltante =
-          datos.confianza < CONFIANZA_MINIMA ? 'No se pudo leer el monto'
-          : !cuentaId ? 'El parser no tiene cuenta asociada'
-          : null;
+        const faltante = motivoDeFaltante(datos, cuentaId);
 
         if (faltante) {
           await supabase
@@ -337,11 +336,15 @@ Deno.serve(async (req) => {
           // El índice único sobre captura_id hace que un reproceso no duplique:
           // si ya existía el movimiento, la captura simplemente queda procesada.
           const duplicado = errMovimiento.code === '23505';
+          if (!duplicado) console.error('[movimientos]', errMovimiento);
           await supabase
             .from('capturas')
             .update({
               estado: duplicado ? 'procesada' : 'requiere_revision',
-              motivo: duplicado ? null : errMovimiento.message.slice(0, 300),
+              // `motivo` se muestra tal cual en la bandeja: un mensaje crudo de
+              // Postgres le contaría el esquema al usuario. El error real va al
+              // log de la función, que es donde sirve.
+              motivo: duplicado ? null : motivoSeguro(errMovimiento.code),
               intentos: captura.intentos + 1,
               updated_at: new Date().toISOString(),
             })

@@ -34,6 +34,7 @@ describe('BandejaFacade', () => {
     pendientes: ReturnType<typeof vi.fn>;
     resolver: ReturnType<typeof vi.fn>;
     descartar: ReturnType<typeof vi.fn>;
+    reprocesar: ReturnType<typeof vi.fn>;
   };
   let toast: { success: ReturnType<typeof vi.fn>; error: ReturnType<typeof vi.fn>; info: ReturnType<typeof vi.fn> };
 
@@ -42,6 +43,7 @@ describe('BandejaFacade', () => {
       pendientes: vi.fn().mockResolvedValue([]),
       resolver: vi.fn().mockResolvedValue(undefined),
       descartar: vi.fn().mockResolvedValue(undefined),
+      reprocesar: vi.fn().mockResolvedValue({ revisadas: 0, recuperadas: 0 }),
     };
     toast = { success: vi.fn(), error: vi.fn(), info: vi.fn() };
 
@@ -188,6 +190,57 @@ describe('BandejaFacade', () => {
     expect(ok).toBe(true);
     expect(repo.descartar).toHaveBeenCalledWith('a', 'No es un movimiento');
     expect(f.capturas().map((c) => c.id)).toEqual(['b']);
+  });
+
+  it('al reprocesar, recarga y avisa cuántas se recuperaron', async () => {
+    repo.pendientes.mockResolvedValue([captura({ id: 'a', interpretado: { monto: null } })]);
+    const f = crear();
+    await f.initialize();
+
+    repo.reprocesar.mockResolvedValue({ revisadas: 3, recuperadas: 2 });
+    repo.pendientes.mockClear();
+
+    await f.reprocesar();
+
+    expect(repo.pendientes).toHaveBeenCalled(); // cambió el estado de varias a la vez
+    expect(toast.success).toHaveBeenCalledWith(expect.stringContaining('2'));
+  });
+
+  it('si no se recuperó ninguna, lo dice sin celebrar', async () => {
+    const f = crear();
+    await f.initialize();
+    repo.reprocesar.mockResolvedValue({ revisadas: 4, recuperadas: 0 });
+
+    await f.reprocesar();
+
+    expect(toast.success).not.toHaveBeenCalled();
+    expect(toast.info).toHaveBeenCalledWith(expect.stringContaining('4'));
+  });
+
+  it('no dispara dos reprocesos a la vez', async () => {
+    const f = crear();
+    await f.initialize();
+    let liberar: (v: { revisadas: number; recuperadas: number }) => void = () => {};
+    repo.reprocesar.mockReturnValue(new Promise((res) => (liberar = res)));
+
+    const primero = f.reprocesar();
+    await f.reprocesar(); // mientras el primero sigue en vuelo
+
+    expect(repo.reprocesar).toHaveBeenCalledTimes(1);
+    liberar({ revisadas: 0, recuperadas: 0 });
+    await primero;
+    expect(f.reprocesando()).toBe(false);
+  });
+
+  it('si el reproceso falla, no deja el botón trabado', async () => {
+    const f = crear();
+    await f.initialize();
+    repo.reprocesar.mockRejectedValue(new Error('network error'));
+
+    await f.reprocesar();
+
+    expect(f.reprocesando()).toBe(false);
+    expect(toast.error).toHaveBeenCalled();
   });
 
   it('si descartar falla, la captura se queda', async () => {

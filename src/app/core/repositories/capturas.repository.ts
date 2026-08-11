@@ -86,6 +86,24 @@ export class CapturasRepository {
     if (error) throw new ErrorDeBd(error.message, error.code);
   }
 
+  /**
+   * Vuelve a interpretar lo atascado con los parsers de hoy.
+   *
+   * Va por edge function y no por RPC porque el parseo vive en TypeScript: los
+   * regex de los bancos se prueban en `_shared/parseo.test.ts`, y reescribirlos
+   * en plpgsql sería una segunda implementación del pedazo más frágil del
+   * sistema. Devuelve cuántas se revisaron y cuántas quedaron confirmables.
+   */
+  async reprocesar(): Promise<{ revisadas: number; recuperadas: number }> {
+    const { data, error } = await this.client.functions.invoke('reprocesar-capturas', {
+      body: {},
+    });
+
+    if (error) throw new ErrorDeBd(error.message);
+    const r = (data ?? {}) as { revisadas?: number; recuperadas?: number };
+    return { revisadas: r.revisadas ?? 0, recuperadas: r.recuperadas ?? 0 };
+  }
+
   /** Descarta una captura: no es un movimiento (publicidad, aviso, duplicado). */
   async descartar(capturaId: string, motivo: string): Promise<void> {
     const { error } = await this.client

@@ -8,35 +8,37 @@
 
 ## Estado del proyecto
 
-**Arrancando.** El discovery está hecho: visión, dominio, requerimientos y restricciones están
-escritos y decididos. Todavía no hay código.
+**Hito 0 escrito de punta a punta, sin probar contra la realidad.**
 
-## Foco actual
+La cadena completa existe en código: casilla conectada → correo del banco → captura → bandeja →
+movimiento. Está cubierta por 342 tests de front, 33 de las edge functions y 37 casos de RLS y
+esquema sobre una base real. Lo que **no** se probó nunca es lo único que importa de verdad: un
+correo de un banco chileno, en una cuenta de Gmail real, contra un proyecto Supabase desplegado.
+Hasta que eso corra, la tesis del producto sigue sin validar.
 
-**Hito 0 — el esqueleto vivo.**
+## Lo que está construido
 
-El objetivo no es un módulo completo: es una cadena end-to-end que demuestre la tesis del
-producto. Concretamente, que un correo del banco se convierta en un movimiento visible sin que
-nadie escriba nada.
+| Pieza | Dónde | Estado |
+|---|---|---|
+| Hogar: auth, `households`, `profiles`, RLS, crear y unirse por código | 11 tablas en `supabase/migrations/` | 37 casos en verde (`npm run db:test`) |
+| Conectar la casilla (OAuth de Google) | `supabase/functions/gmail-oauth/` | Sin correr contra Google |
+| Correo → captura → movimiento | `supabase/functions/process-bank-emails/` | Parseo con tests; el resto sin correr |
+| Rescatar lo atascado con los parsers de hoy | `supabase/functions/reprocesar-capturas/` | Decisión pura con tests |
+| Bandeja: confirmar de un toque y aprender el comercio | `features/bandeja/` | 17 tests de facade |
+| Completar a mano lo que el parser no pudo leer | `features/bandeja/completar-captura.component.ts` | 11 tests, binding verificado contra el DOM |
+| Resolver atómicamente (movimiento + captura) | RPC `resolver_captura` | 16 casos |
 
-Eso obliga a levantar, en orden:
+Requerimientos cubiertos: REQ-001, REQ-010, REQ-011, REQ-012, REQ-013, REQ-030.
 
-1. **Hogar** — auth, `households`, `profiles`, RLS y los RPC de creación y unión por código.
-2. **Captura** — `capturas`, `integraciones_email`, `parsers_email`, y la edge function
-   `process-bank-emails` portada desde v1.
-3. **Dinero, lo mínimo** — `cuentas`, `categorias_gasto`, `movimientos`, `alias_comercio`.
-4. **La bandeja** — la pantalla de revisión, que es donde el usuario confirma y el sistema aprende.
+## Lo siguiente, en orden
 
-Requerimientos que cubre: REQ-001, REQ-010, REQ-011, REQ-012, REQ-013, REQ-030.
-
-## Por qué este hito y no otro
-
-Es la única secuencia que valida la tesis antes de invertir en superficie. Si el correo del banco
-no llega a ser un movimiento sin intervención, el resto del producto no importa — v1 ya demostró
-qué pasa cuando se construyen nueve módulos sobre una premisa que no se probó.
-
-Los otros contextos quedan explícitamente para después: Artículos y Despensa entran con el hito 1
-(boleta → despensa), y Alimentación, Cuerpo y Entrenamiento después de eso.
+1. **Probar la cadena contra la realidad.** Necesita credenciales: un proyecto Supabase, el
+   cliente OAuth de Google y una casilla con correos de banco de verdad. Es lo único que puede
+   decir si los parsers portados de v1 siguen sirviendo — y es trabajo del dueño del producto,
+   no del agente.
+2. **Activar el SDD** (`specs/`) y escribir las specs de los hitos 1 y 2. El motor está incluido
+   y dormido: sin carpeta `specs/`, el `spec-gate` deja pasar todo.
+3. **Hito 1 — boleta → despensa.** Artículos y Despensa entran acá.
 
 ## Decisiones ya tomadas
 
@@ -45,16 +47,21 @@ Los otros contextos quedan explícitamente para después: Artículos y Despensa 
 - El consumo se infiere de la recompra, y nunca cambia estado sin preguntar.
 - La despensa no almacena cantidades.
 - Fitness se queda en el alcance: está acoplado a Alimentación por composición corporal.
+- **Un solo sanitizador de errores de BD** (`mensajeSeguroDeBd`). El mensaje crudo de Postgres
+  no llega al usuario ni por el toast ni por el `motivo` de una captura.
+- **El reproceso no crea movimientos**: deja la captura confirmable y el usuario da el toque.
+  Crear movimientos es de `resolver_captura`, que es atómico y está probado.
 
 ## Lo que no se migra de v1
 
 Nada del frontend. 80 componentes y 54 servicios con un solo archivo de test — no hay garantías
-que preservar. Sí se portan las 6 edge functions y los 5 RPC, cambiando solo nombres de tabla.
+que preservar. Sí se portaron las edge functions y los RPC, cambiando nombres de tabla.
 
 ## Riesgos abiertos
 
 | Riesgo | Mitigación |
 |---|---|
-| Los parsers bancarios son frágiles y dependen del formato exacto del correo | Portar los de v1 tal cual y verificar contra correos reales antes de confiar en ellos |
-| Sin datos reales, la cadencia de recompra no se puede validar | El hito 1 solo la implementa; la calibración necesita meses de uso |
-| El OAuth de Gmail requiere credenciales y consentimiento configurados | Es prerequisito del hito 0, no se puede diferir |
+| Los parsers bancarios son frágiles y dependen del formato exacto del correo | `reprocesar-capturas` permite arreglar el regex y rescatar lo atascado sin escribir monto por monto. Sigue faltando verificarlos contra correos reales |
+| El reproceso sólo ve `payload.extracto` (500 caracteres) | Un regex que necesite texto más abajo no matchea. Guardar el correo entero es peor: son datos bancarios y el payload no se borra (R-06) |
+| Sin datos reales, la cadencia de recompra no se puede validar | El hito 1 sólo la implementa; la calibración necesita meses de uso |
+| El OAuth de Gmail requiere credenciales y consentimiento configurados | Es el paso 1 de la lista de arriba |

@@ -1,4 +1,4 @@
-import { Injectable, computed, inject } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
 import { BaseFacade } from '@core/facades/base.facade';
 import { CapturasRepository } from '@core/repositories/capturas.repository';
 import { ToastService } from '@core/services/toast.service';
@@ -84,6 +84,45 @@ export class BandejaFacade extends BaseFacade<Captura[]> {
         mensajeSeguroDeBd(e, 'No se pudo crear el movimiento', BandejaFacade.MENSAJES_DEL_RPC),
       );
       return false;
+    }
+  }
+
+  /** Está reprocesando la bandeja ahora mismo. */
+  private readonly _reprocesando = signal(false);
+  readonly reprocesando = this._reprocesando.asReadonly();
+
+  /**
+   * Reintenta lo atascado con los parsers actuales (RB-01).
+   *
+   * Es el botón que uno quiere después de arreglar un regex: sin esto, las
+   * capturas de los días en que el parser estuvo roto sólo salen escribiendo el
+   * monto a mano, una por una.
+   */
+  async reprocesar(): Promise<void> {
+    if (this._reprocesando()) return;
+    this._reprocesando.set(true);
+    try {
+      const { revisadas, recuperadas } = await this.repo.reprocesar();
+      // Recargar entera es correcto acá: cambió el estado de varias a la vez.
+      await this.refreshSilently();
+
+      if (recuperadas > 0) {
+        this.toast.success(
+          recuperadas === 1
+            ? 'Se recuperó 1 captura: ya se puede confirmar'
+            : `Se recuperaron ${recuperadas} capturas: ya se pueden confirmar`,
+        );
+      } else if (revisadas > 0) {
+        this.toast.info(
+          `Se reintentaron ${revisadas} y ninguna se pudo resolver. Revisá los patrones del parser.`,
+        );
+      } else {
+        this.toast.info('No había nada atascado para reintentar');
+      }
+    } catch (e) {
+      this.toast.error('No se pudo reintentar', mensajeSeguroDeBd(e, 'No se pudo reintentar'));
+    } finally {
+      this._reprocesando.set(false);
     }
   }
 
