@@ -2,6 +2,7 @@ import { Injectable, computed, inject } from '@angular/core';
 import { BaseFacade } from '@core/facades/base.facade';
 import { CapturasRepository } from '@core/repositories/capturas.repository';
 import { ToastService } from '@core/services/toast.service';
+import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
 import type { Captura, ResolucionCaptura } from '@core/models/captura.model';
 import { requiereEscribirMonto } from '@core/models/captura.model';
 
@@ -51,23 +52,20 @@ export class BandejaFacade extends BaseFacade<Captura[]> {
   }
 
   /**
-   * Mensajes de dominio que `resolver_captura` levanta a propósito: son para el
-   * usuario y decirle "error inesperado" en su lugar sería peor. Todo lo demás
-   * pasa por el sanitizador, porque un error crudo de Supabase filtra nombres de
-   * tabla y detalles de la query.
+   * Mensajes que `resolver_captura` levanta con `RAISE EXCEPTION` a propósito:
+   * están escritos para el usuario y decirle "error inesperado" en su lugar
+   * sería peor. Todo lo demás lo sanea `mensajeSeguroDeBd`, porque un error
+   * crudo de Supabase filtra nombres de tabla y detalles de la query.
+   *
+   * Deben coincidir textualmente con los del RPC
+   * (`20260811130000_captura_fn_resolver_bandeja.sql`).
    */
-  private static readonly MENSAJES_DE_DOMINIO = [
+  private static readonly MENSAJES_DEL_RPC = [
     'El monto debe ser mayor que cero',
     'La captura ya fue procesada',
     'Captura inexistente o de otro hogar',
     'Tipo inválido',
-  ];
-
-  private mensajeParaUsuario(e: unknown): string {
-    const crudo = e instanceof Error ? e.message : '';
-    const deDominio = BandejaFacade.MENSAJES_DE_DOMINIO.find((m) => crudo.includes(m));
-    return deDominio ?? BandejaFacade.sanitizeError(e);
-  }
+  ] as const;
 
   /** Confirma una captura y la saca de la bandeja. */
   async resolver(capturaId: string, resolucion: ResolucionCaptura): Promise<boolean> {
@@ -81,7 +79,10 @@ export class BandejaFacade extends BaseFacade<Captura[]> {
       );
       return true;
     } catch (e) {
-      this.toast.error('No se pudo crear el movimiento', this.mensajeParaUsuario(e));
+      this.toast.error(
+        'No se pudo crear el movimiento',
+        mensajeSeguroDeBd(e, 'No se pudo crear el movimiento', BandejaFacade.MENSAJES_DEL_RPC),
+      );
       return false;
     }
   }
@@ -94,7 +95,10 @@ export class BandejaFacade extends BaseFacade<Captura[]> {
       this.toast.info('Descartada');
       return true;
     } catch (e) {
-      this.toast.error('No se pudo descartar', this.mensajeParaUsuario(e));
+      this.toast.error(
+        'No se pudo descartar',
+        mensajeSeguroDeBd(e, 'No se pudo descartar', BandejaFacade.MENSAJES_DEL_RPC),
+      );
       return false;
     }
   }

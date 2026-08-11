@@ -1427,6 +1427,40 @@ export class GsapAnimationsService {
   }
 
   /**
+   * Feedback de éxito en formularios — scale bounce en el botón submit.
+   * Diseñado para usarse cuando loading() pasa de true a false con éxito.
+   * Crea una sensación de "completado" sin requerir cambios en la lógica de negocio.
+   *
+   * @param el - Elemento botón o contenedor del feedback
+   * @param onComplete - Callback al finalizar (ej: resetear el estado del formulario)
+   */
+  animateSuccessFeedback(el: HTMLElement, onComplete?: () => void): void {
+    if (!this.shouldAnimate()) {
+      onComplete?.();
+      return;
+    }
+
+    const tl = gsap.timeline({ onComplete });
+
+    tl.to(el, {
+      scale: 0.94,
+      duration: 0.08,
+      ease: 'power2.in',
+    })
+      .to(el, {
+        scale: 1.06,
+        duration: 0.18,
+        ease: 'back.out(2.5)',
+      })
+      .to(el, {
+        scale: 1,
+        duration: 0.22,
+        ease: 'power2.out',
+        clearProps: 'transform',
+      });
+  }
+
+  /**
    * Check if animations should run based on user preferences
    */
   private shouldAnimate(): boolean {

@@ -12,6 +12,7 @@
 |---------|---------|
 | `src/app/core/utils/auth-errors.utils.ts` | `mapAuthError` |
 | `src/app/core/utils/date.utils.ts` | `toISODate`, `formatDate`, `capitalize` |
+| `src/app/core/utils/db-error.utils.ts` | `ErrorDeBd`, `mensajeSeguroDeBd` |
 | `src/app/core/utils/layout-tier.utils.ts` | `widthToTier`, `sliceByBudget`, `LoadMoreState`, `visibleWithLoadMore` |
 | `src/app/core/utils/name.utils.ts` | `stripInvalidNameChars`, `validateName` |
 | `src/app/core/utils/percentage.utils.ts` | `roundPercentagesTo100` |

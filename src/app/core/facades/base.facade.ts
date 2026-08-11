@@ -1,4 +1,5 @@
 import { signal, computed } from '@angular/core';
+import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
 
 /**
  * BaseFacade<T> — Clase base para todos los Facades de dominio.
@@ -80,16 +81,14 @@ export abstract class BaseFacade<T> {
 
   /**
    * Convierte un error desconocido en un mensaje seguro para la UI.
-   * Subclases pueden sobreescribir para mensajes específicos del dominio.
+   *
+   * Delega en `mensajeSeguroDeBd`, que es el único sanitizador de la app: acá
+   * vivía una segunda heurística por texto, y una copia que tiene que decir lo
+   * mismo que la otra termina diciendo distinto. Las subclases no la
+   * sobreescriben — pasan sus tokens de dominio al llamar directamente.
    */
   protected static sanitizeError(e: unknown): string {
-    if (!(e instanceof Error)) return 'Error inesperado. Intenta de nuevo.';
-    const msg = e.message.toLowerCase();
-    if (msg.includes('network') || msg.includes('fetch') || msg.includes('failed to fetch'))
-      return 'Error de conexión. Verifica tu internet e intenta de nuevo.';
-    if (msg.includes('permission') || msg.includes('policy') || msg.includes('rls') || msg.includes('403'))
-      return 'No tienes permisos para realizar esta acción.';
-    return 'Error al cargar los datos. Intenta de nuevo.';
+    return mensajeSeguroDeBd(e, 'Error al cargar los datos. Intenta de nuevo.');
   }
 
   /**

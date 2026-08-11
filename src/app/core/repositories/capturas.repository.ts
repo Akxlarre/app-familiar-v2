@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '@core/services/supabase.service';
+import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type {
   Captura,
   EstadoCaptura,
@@ -56,7 +57,7 @@ export class CapturasRepository {
       .order('fecha_origen', { ascending: false, nullsFirst: false })
       .limit(100);
 
-    if (error) throw new Error(error.message);
+    if (error) throw new ErrorDeBd(error.message, error.code);
     return ((data ?? []) as CapturaRow[]).map(aDominio);
   }
 
@@ -82,7 +83,7 @@ export class CapturasRepository {
       p_recordar: resolucion.recordarComercio,
     });
 
-    if (error) throw new Error(error.message);
+    if (error) throw new ErrorDeBd(error.message, error.code);
   }
 
   /** Descarta una captura: no es un movimiento (publicidad, aviso, duplicado). */
@@ -92,6 +93,6 @@ export class CapturasRepository {
       .update({ estado: 'descartada', motivo, updated_at: new Date().toISOString() })
       .eq('id', capturaId);
 
-    if (error) throw new Error(error.message);
+    if (error) throw new ErrorDeBd(error.message, error.code);
   }
 }
