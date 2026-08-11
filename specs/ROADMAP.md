@@ -128,6 +128,47 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 
 ---
 
+## Cobertura de requerimientos
+
+> Cada REQ y cada RNF de `context/requirements.md` tiene al menos una spec. Si se agrega un
+> requerimiento, esta tabla dice si quedó huérfano.
+
+| REQ | Spec(s) | | REQ | Spec(s) |
+|---|---|---|---|---|
+| REQ-001 | 0001, 0004 | | REQ-041 | 0012 |
+| REQ-010 | 0001, 0004 | | REQ-042 | 0013 |
+| REQ-011 | 0001, 0005 | | REQ-043 | 0014 |
+| REQ-012 | 0001 | | REQ-050 | 0017 |
+| REQ-013 | 0001, 0005 | | REQ-051 | 0018 |
+| REQ-014 | 0010 | | REQ-052 | 0019 |
+| REQ-020 | 0009 | | REQ-053 | 0020 |
+| REQ-021 | 0016 | | REQ-060 | 0015 |
+| REQ-030 | 0006 | | REQ-070 | 0021 |
+| REQ-031 | 0007 | | RNF-01 | 0022 |
+| REQ-032 | 0008 | | RNF-02 | 0003 |
+| REQ-033 | 0023 | | RNF-03 | 0001, 0022 |
+| REQ-040 | 0011 | | RNF-04 | 0001 |
+| | | | RNF-05 | 0001, 0004 |
+| | | | RNF-06 | 0002, 0003 |
+
+---
+
+## Specs cuya existencia está condicionada
+
+> Tres specs entran con una condición explícita. No es duda: es que R-01 se aplica también a lo
+> que ya está escrito, y saber de antemano qué las mataría es lo que permite archivarlas sin
+> discusión.
+
+| Spec | Condición | Qué la archiva |
+|---|---|---|
+| 0008 · Presupuestos | Los montos se **proponen** desde el historial, no se escriben | Menos del 50% de meses con presupuesto vigente al tercer mes |
+| 0017 · Registrar una comida | El selector arranca de la despensa, no del catálogo global | Registros que caen a cero en la semana 4 |
+| 0023 · Gasto compartido | Se divide solo por categoría o cuenta | Cero movimientos divididos en dos meses |
+
+Archivar cualquiera de las tres sería una victoria de R-01, no un fracaso del proyecto.
+
+---
+
 ## En progreso
 
 | ID | Título | % tareas | Última edición |

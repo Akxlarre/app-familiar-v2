@@ -30,15 +30,23 @@ Hasta que eso corra, la tesis del producto sigue sin validar.
 
 Requerimientos cubiertos: REQ-001, REQ-010, REQ-011, REQ-012, REQ-013, REQ-030.
 
+## La planificación completa
+
+El SDD está **activo**: con `specs/` presente, el `spec-gate` exige spec activa con plan antes de
+tocar código de producto. `specs/ROADMAP.md` mapea las **23 specs de toda la aplicación** en cinco
+hitos, ordenadas por dependencia sobre R-01 — cada hito produce los datos que consume el
+siguiente. Incluye la cobertura de los 22 REQ y 6 RNF, un backlog frío con lo que NO tiene spec y
+por qué, y tres specs cuya existencia está condicionada a evidencia de uso.
+
 ## Lo siguiente, en orden
 
 1. **Probar la cadena contra la realidad.** Necesita credenciales: un proyecto Supabase, el
    cliente OAuth de Google y una casilla con correos de banco de verdad. Es lo único que puede
    decir si los parsers portados de v1 siguen sirviendo — y es trabajo del dueño del producto,
    no del agente.
-2. **Activar el SDD** (`specs/`) y escribir las specs de los hitos 1 y 2. El motor está incluido
-   y dormido: sin carpeta `specs/`, el `spec-gate` deja pasar todo.
-3. **Hito 1 — boleta → despensa.** Artículos y Despensa entran acá.
+2. **Hito 1 — que la plata se pueda mirar.** Specs 0002 a 0008 en `specs/ROADMAP.md`. Empieza por
+   el contrato de UI y la navegación, porque ya hay dos pantallas que divergen y van a venir veinte.
+3. **Hito 2 — boleta → despensa.** Specs 0009 a 0014.
 
 ## Decisiones ya tomadas
 
