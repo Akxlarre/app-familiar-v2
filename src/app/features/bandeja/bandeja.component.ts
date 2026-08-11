@@ -129,7 +129,7 @@ import { requiereEscribirMonto } from '@core/models/captura.model';
                   @if (captura.interpretado?.monto; as monto) {
                     <span class="kpi-value">\${{ monto | number: '1.0-0' }}</span>
                   } @else {
-                    <span class="micro-label text-warning">falta el monto</span>
+                    <span class="micro-label micro-label--warning">falta el monto</span>
                   }
                 </div>
               </div>

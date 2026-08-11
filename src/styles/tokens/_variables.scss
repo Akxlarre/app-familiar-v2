@@ -563,6 +563,19 @@ body {
   letter-spacing: 0.06em;
 }
 
+/* Modificadores de estado del micro-label.
+
+   Existen porque `.micro-label` FIJA `color` y estas clases del DS viven fuera de
+   `@layer`, así que le ganan a las utilidades de Tailwind: escribir
+   `class="micro-label text-warning"` no cambia absolutamente nada —el texto sigue
+   gris, no falla el build y ningún linter se queja—. Se descubrió midiendo el
+   color computado en el navegador, no leyendo el código.
+
+   Si un micro-label tiene que señalar estado, va por acá. */
+.micro-label--warning { color: var(--state-warning); }
+.micro-label--error   { color: var(--state-error); }
+.micro-label--success { color: var(--state-success); }
+
 /* DEPRECADO — alias de .micro-label. No usar en código nuevo. */
 .kpi-label {
   font-family: var(--font-body);

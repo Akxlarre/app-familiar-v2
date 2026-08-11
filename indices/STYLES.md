@@ -153,9 +153,12 @@ la necesidad se resuelve con lo que ya hay.
 | `.item-title` | 3 | `src/styles/tokens/_variables.scss` |
 | `.indicator-live` | 3 | `src/styles/tokens/_variables.scss` |
 | `.card-accent` | 2 | `src/styles/tokens/_variables.scss` |
+| `.micro-label--warning` | 1 | `src/styles/tokens/_variables.scss` |
 | `.badge-count` | 1 | `src/styles/tokens/_variables.scss` |
 | `.section-eyebrow` | 1 | `src/styles/tokens/_variables.scss` |
 | `.card-tinted` | 1 | `src/styles/tokens/_variables.scss` |
+| `.micro-label--error` | — | `src/styles/tokens/_variables.scss` |
+| `.micro-label--success` | — | `src/styles/tokens/_variables.scss` |
 | `.kpi-label` | — | `src/styles/tokens/_variables.scss` |
 | `.surface-glass` | — | `src/styles/tokens/_variables.scss` |
 | `.badge-pulse` | — | `src/styles/tokens/_variables.scss` |
