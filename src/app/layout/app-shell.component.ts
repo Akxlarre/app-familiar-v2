@@ -46,7 +46,7 @@ import { TopbarComponent } from "./topbar.component";
     }
 
     <div
-      class="grid min-h-[100dvh] grid-cols-1 bg-base lg:h-[100dvh] lg:grid-cols-[auto_1fr]"
+      class="grid min-h-[100dvh] grid-cols-1 bg-canvas lg:h-[100dvh] lg:grid-cols-[auto_1fr]"
     >
       <!-- Sidebar -->
       <app-sidebar

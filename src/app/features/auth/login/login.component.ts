@@ -49,7 +49,7 @@ function sanitizeAuthError(rawMessage: string): string {
   imports: [FormsModule],
   template: `
     <div
-      class="flex min-h-[100dvh] items-center justify-center bg-base bg-[image:var(--gradient-subtle)] p-4"
+      class="flex min-h-[100dvh] items-center justify-center bg-canvas bg-[image:var(--gradient-subtle)] p-4"
     >
       <div
         class="w-full max-w-[420px] rounded-xl border border-border-subtle bg-surface p-8 shadow-lg"

@@ -52,7 +52,7 @@ import { LayoutDrawerService } from '@core/services/layout-drawer.service';
 
     <div
       data-drawer-panel
-      class="relative z-10 flex h-full w-full flex-col overflow-hidden rounded-tl-2xl border-border-subtle bg-base lg:rounded-tr-2xl lg:border-x lg:border-t"
+      class="relative z-10 flex h-full w-full flex-col overflow-hidden rounded-tl-2xl border-border-subtle bg-canvas lg:rounded-tr-2xl lg:border-x lg:border-t"
       style="min-height: 0; will-change: transform;"
       role="dialog"
       [attr.aria-label]="title()"

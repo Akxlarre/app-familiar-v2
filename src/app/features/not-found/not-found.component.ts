@@ -13,7 +13,7 @@ import { RouterLink } from "@angular/router";
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [RouterLink],
   template: `
-    <div class="flex min-h-[100dvh] items-center justify-center bg-base p-4">
+    <div class="flex min-h-[100dvh] items-center justify-center bg-canvas p-4">
       <div class="max-w-[400px] text-center">
         <span
           class="bg-[image:var(--gradient-hero)] bg-clip-text font-display text-[6rem] font-bold leading-none text-transparent"

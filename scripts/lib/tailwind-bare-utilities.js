@@ -110,6 +110,59 @@ export function findReservedTailwindClassCollisions(scssContent, reserved = TAIL
   return [...defined].filter((name) => reservedSet.has(name)).sort();
 }
 
+// ── ARCH-26: token de @theme que pisa una utilidad nativa ───────────────────
+//
+// La misma falla que ARCH-22, del otro lado. ARCH-22 mira los nombres de clase
+// del DS; esto mira los nombres de TOKEN en el bloque @theme.
+//
+// Caso real: `--color-base: var(--bg-base)`. Tailwind genera `text-base` como
+// utilidad de COLOR, y le gana a la `text-base` nativa de tamaño de fuente. El
+// resultado fue texto pintado del color del fondo de la app: los inputs del
+// login quedaron en 1.15:1 — invisibles, en producción, sin que nada fallara.
+//
+// El compilador no lo ve, los tests no lo ven y el ojo tampoco si el fondo del
+// contenedor da la casualidad de tener contraste. Sólo se ve midiendo el color
+// que el navegador pinta de verdad.
+
+/** Sufijos de escala que ya usan las utilidades nativas de cada prefijo. */
+export const ESCALAS_NATIVAS = {
+  text: ['xs', 'sm', 'base', 'lg', 'xl', '2xl', '3xl', '4xl', '5xl', '6xl', '7xl', '8xl', '9xl'],
+  border: ['0', '2', '4', '8'],
+  ring: ['0', '1', '2', '4', '8'],
+  divide: ['0', '2', '4', '8'],
+  outline: ['0', '1', '2', '4', '8'],
+};
+
+/** Prefijos de utility que Tailwind genera para cada `--color-*`. */
+const PREFIJOS_DE_COLOR = Object.keys(ESCALAS_NATIVAS);
+
+/** Nombres de token declarados en el bloque @theme. */
+export function extraerTokensDeColor(cssContent) {
+  const bloque = cssContent.match(/@theme\s*\{([\s\S]*?)\n\}/);
+  if (!bloque) return [];
+  const nombres = [];
+  const re = /--color-([\w-]+)\s*:/g;
+  let m;
+  while ((m = re.exec(bloque[1])) !== null) nombres.push(m[1]);
+  return nombres;
+}
+
+/**
+ * Devuelve los tokens que colisionan, con la utilidad exacta que rompen.
+ * Data in → data out: sin fs, sin console.
+ */
+export function findThemeTokenCollisions(cssContent) {
+  const out = [];
+  for (const token of extraerTokensDeColor(cssContent)) {
+    for (const prefijo of PREFIJOS_DE_COLOR) {
+      if (ESCALAS_NATIVAS[prefijo].includes(token)) {
+        out.push({ token: `--color-${token}`, utilidad: `${prefijo}-${token}`, prefijo });
+      }
+    }
+  }
+  return out;
+}
+
 // ── CLI standalone (no depende del wiring en architect.js) ───────────────────
 import { readFileSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';

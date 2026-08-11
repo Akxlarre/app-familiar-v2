@@ -153,8 +153,8 @@
   /* Tipografía — jerarquía de texto
      NUNCA usar para fondos ni acciones */
   --text-primary: #09090b;
-  --text-secondary: #52525b;
-  --text-muted: #a1a1aa;
+  --text-secondary: #3f3f46;
+  --text-muted: #52525b;
   --text-disabled: #d4d4d8;
 
   /* Bordes */
@@ -178,15 +178,15 @@
   /* Estados semánticos
      state-* = resultado de acciones del sistema
      ("guardado con éxito", "error de formulario", "información") */
-  --state-success: #16a34a;
+  --state-success: #15803d;
   --state-success-bg: #f0fdf4;
   --state-success-border: #bbf7d0;
 
-  --state-warning: #d97706;
+  --state-warning: #b45309;
   --state-warning-bg: #fffbeb;
   --state-warning-border: #fde68a;
 
-  --state-error: #dc2626;
+  --state-error: #b91c1c;
   --state-error-bg: #fef2f2;
   --state-error-border: #fecaca;
 
@@ -239,8 +239,11 @@
    ────────────────────────────────────────── */
 
   /* ── Botón primario ── */
-  --btn-primary-bg: var(--ds-brand);
-  --btn-primary-bg-hover: var(--color-primary-hover);
+  /* El botón NO usa --ds-brand directo: sky-500 con texto blanco da 2.77:1 y no
+     pasa AA. Usa el tono profundo de la misma marca (5.93:1). --ds-brand queda
+     intacto para iconos, acentos y gradientes, donde no hay texto encima. */
+  --btn-primary-bg: var(--color-primary-dark);
+  --btn-primary-bg-hover: #075985;
   --btn-primary-text: var(--color-primary-text);
   --btn-primary-radius: var(--radius-md);
   --btn-primary-padding-x: var(--space-4);
@@ -369,8 +372,8 @@
 
   /* ── Capa 2: Tipografía ── */
   --text-primary: #f4f4f5;
-  --text-secondary: #a1a1aa;
-  --text-muted: #71717a;
+  --text-secondary: #d4d4d8;
+  --text-muted: #a1a1aa;
   --text-disabled: #52525b;
 
   /* ── Capa 2: Bordes ──
@@ -419,6 +422,13 @@
   --accent-border: rgba(56, 189, 248, 0.25);
   --accent-glow: rgba(56, 189, 248, 0.25);
   --shadow-focus: 0 0 0 3px rgba(56, 189, 248, 0.3);
+
+  /* Botón primario en oscuro: se INVIERTE. Un celeste oscuro con texto blanco
+     da 2.77:1; el celeste claro de la marca con texto casi negro da 9.29:1.
+     En un tema oscuro el acento brillante va de fondo, no de texto. */
+  --btn-primary-bg: var(--ds-brand);
+  --btn-primary-bg-hover: var(--color-primary-hover);
+  --btn-primary-text: #09090b;
 
   --gradient-primary: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
   --gradient-hero: linear-gradient(
@@ -506,7 +516,7 @@ body {
 
    JERARQUÍA DE SUPERFICIES (dark mode):
    Delta mínimo +2.5% L entre cada nivel.
-   bg-base → bg-surface → bg-elevated → bg-subtle
+   bg-canvas → bg-surface → bg-elevated → bg-subtle
 
    EASING DISPONIBLE:
    --ease-standard  Transiciones generales de UI

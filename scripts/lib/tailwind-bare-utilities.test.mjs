@@ -2,9 +2,11 @@
  * Micro-suite de tailwind-bare-utilities.js. Sin framework:
  * `node scripts/lib/tailwind-bare-utilities.test.mjs`. Exit 1 si algún caso falla.
  */
+import { readFileSync } from 'node:fs';
 import {
   extractDefinedClassNames,
   findReservedTailwindClassCollisions,
+  findThemeTokenCollisions,
 } from './tailwind-bare-utilities.js';
 
 let failures = 0;
@@ -79,6 +81,40 @@ check(
     ',',
   ) === 'mi-clase-inventada',
 );
+
+
+// ── ARCH-26: tokens de @theme que pisan una utilidad nativa ──────────────────
+
+const colisiones = (css) => findThemeTokenCollisions(css);
+
+// El caso real: --color-base hacía que text-base pintara COLOR en vez de tamaño,
+// y los inputs del login quedaron en 1.15:1 — invisibles, en producción.
+const caso = colisiones('@theme {\n  --color-base: var(--bg-base);\n  --color-surface: white;\n}');
+check('detecta --color-base, que rompe text-base',
+  caso.length === 1 && caso[0].token === '--color-base' && caso[0].utilidad === 'text-base');
+
+check('no marca tokens que no chocan con ninguna escala',
+  colisiones('@theme {\n  --color-canvas: red;\n  --color-surface: white;\n  --color-brand: blue;\n}').length === 0);
+
+const escala = colisiones('@theme {\n  --color-sm: red;\n  --color-xl: blue;\n  --color-2xl: green;\n}')
+  .map((c) => c.utilidad);
+check('detecta toda la escala tipográfica, no sólo base',
+  ['text-sm', 'text-xl', 'text-2xl'].every((u) => escala.includes(u)));
+
+const anchos = colisiones('@theme {\n  --color-2: red;\n}').map((c) => c.prefijo);
+check('detecta colisiones de anchos de borde y ring',
+  anchos.includes('border') && anchos.includes('ring'));
+
+check('sin bloque @theme no explota',
+  colisiones(':root { --color-base: red; }').length === 0);
+
+// Regresión del bug: si alguien vuelve a poner --color-base, esto falla.
+const real = findThemeTokenCollisions(
+  readFileSync(new URL('../../src/tailwind.css', import.meta.url), 'utf8'),
+);
+check('el @theme real del proyecto no tiene colisiones',
+  real.length === 0);
+if (real.length > 0) console.error('   →', real.map((x) => `${x.token} rompe ${x.utilidad}`).join(', '));
 
 if (failures > 0) {
   console.error(`\n${failures} caso(s) fallidos`);

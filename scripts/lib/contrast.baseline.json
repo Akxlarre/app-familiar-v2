@@ -1,18 +1,4 @@
 {
   "nota": "Deuda de contraste tolerada. Cada entrada es un par que HOY no pasa AA. Bajar esta lista es el objetivo; crecerla es una regresión.",
-  "toleradas": [
-    "claro:--text-muted:--bg-base",
-    "claro:--text-muted:--bg-surface",
-    "claro:--text-muted:--bg-subtle",
-    "claro:--state-success:--state-success-bg",
-    "claro:--state-warning:--state-warning-bg",
-    "claro:--state-error:--state-error-bg",
-    "claro:--state-success:--bg-surface",
-    "claro:--state-warning:--bg-surface",
-    "claro:--btn-primary-text:--btn-primary-bg",
-    "oscuro:--text-muted:--bg-base",
-    "oscuro:--text-muted:--bg-surface",
-    "oscuro:--text-muted:--bg-subtle",
-    "oscuro:--btn-primary-text:--btn-primary-bg"
-  ]
+  "toleradas": []
 }

@@ -33,7 +33,11 @@
   --color-brand-text: var(--color-primary-text);
 
   /* ── Superficies ── */
-  --color-base: var(--bg-base);
+  /* `canvas`, no `base`: un token --color-base hace que Tailwind genere una
+     utilidad de COLOR `text-base` que le gana a la de tamaño de fuente. El
+     resultado era texto pintado del color del fondo de la app — los inputs del
+     login quedaban en 1.15:1, ilegibles. Ver ARCH-26. */
+  --color-canvas: var(--bg-base);
   --color-surface: var(--bg-surface);
   --color-elevated: var(--bg-elevated);
   --color-subtle: var(--bg-subtle);

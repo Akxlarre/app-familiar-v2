@@ -57,6 +57,12 @@
 
 > `.kpi-label` es alias **deprecado** de `.micro-label`. Sigue funcionando; no usar en código nuevo.
 >
+> ⚠️ **Los tokens del `@theme` también colisionan.** `--color-base` hacía que Tailwind generara
+> `text-base` como utilidad de COLOR, ganándole a la nativa de tamaño de fuente: el texto se
+> pintaba del color del fondo de la app y los inputs del login quedaron en 1.15:1, invisibles en
+> producción. El alias se llama `canvas` (`bg-canvas`); la custom property sigue siendo
+> `--bg-base`. ARCH-26 lo bloquea.
+>
 > ⚠️ Al crear una clase del DS, no le pongas el nombre de una utilidad "pelada" de Tailwind
 > (`.truncate`, `.overline`, …): Tailwind genera su propia regla homónima en `@layer utilities`
 > que **se suma** a la tuya en vez de reemplazarla. ARCH-22 lo bloquea.
@@ -118,10 +124,10 @@ la necesidad se resuelve con lo que ya hay.
 
 | Token | Usos | Valor |
 |-------|------|-------|
-| `--text-muted` | 24 | `#71717a` |
+| `--text-muted` | 24 | `#a1a1aa` |
 | `--border-subtle` | 19 | `rgba(255, 255, 255, 0.04)` |
 | `--color-primary-text` | 16 | `#ffffff` |
-| `--text-secondary` | 14 | `#a1a1aa` |
+| `--text-secondary` | 14 | `#d4d4d8` |
 | `--transition-color` | 11 | `—` |
 | `--bg-subtle` | 11 | `#2d2d30` |
 | `--color-primary` | 10 | `#38bdf8` |
