@@ -1,6 +1,6 @@
 -- spec:
 --   tables_added: [integraciones_email, parsers_email, capturas]
---   columns_added: [origen, origen_ref, payload, interpretado, estado, motivo, intentos]
+--   columns_added: [origen, origen_ref, payload, interpretado, estado, motivo, intentos, ultimo_error]
 --   views_added: [mis_integraciones_email]
 --   breaking: false
 --   description: "El espinazo: todo lo que produce datos sin tipeo, con una sola bandeja de revisión."
@@ -35,6 +35,10 @@ CREATE TABLE IF NOT EXISTS public.integraciones_email (
   estado         TEXT NOT NULL DEFAULT 'activa'
                  CHECK (estado IN ('activa', 'expirada', 'revocada')),
   ultima_sync    TIMESTAMPTZ,
+  -- Por qué falló la última sincronización. Una integración que se rompe sin
+  -- decir por qué obliga a mirar logs del servidor para algo que el usuario
+  -- puede resolver solo (reconectar la cuenta).
+  ultimo_error   TEXT,
   created_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   updated_at     TIMESTAMPTZ NOT NULL DEFAULT now(),
   UNIQUE (profile_id, email)
@@ -117,7 +121,7 @@ CREATE POLICY integraciones_email_delete ON public.integraciones_email
 CREATE OR REPLACE VIEW public.mis_integraciones_email
 WITH (security_invoker = true) AS
   SELECT id, household_id, profile_id, proveedor, email, carpeta, estado,
-         ultima_sync, created_at,
+         ultima_sync, ultimo_error, created_at,
          (refresh_token IS NOT NULL) AS conectada
     FROM public.integraciones_email
    WHERE profile_id = auth.uid();
@@ -131,7 +135,7 @@ CREATE POLICY integraciones_email_select ON public.integraciones_email
 
 REVOKE ALL ON public.integraciones_email FROM authenticated;
 GRANT SELECT (id, household_id, profile_id, proveedor, email, carpeta, estado,
-              ultima_sync, created_at, refresh_token)
+              ultima_sync, ultimo_error, created_at, refresh_token)
   ON public.integraciones_email TO authenticated;
 GRANT DELETE ON public.integraciones_email TO authenticated;
 

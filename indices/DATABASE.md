@@ -211,6 +211,7 @@ corre 21 casos de aislamiento con tres usuarios en dos hogares.
 | `carpeta` | TEXT | NO | `'INBOX'` | — |
 | `estado` | TEXT | NO | `'activa'` | — |
 | `ultima_sync` | TIMESTAMPTZ | sí | — | — |
+| `ultimo_error` | TEXT | sí | — | — |
 | `created_at` | TIMESTAMPTZ | NO | `now()` | — |
 | `updated_at` | TIMESTAMPTZ | NO | `now()` | — |
 
@@ -313,6 +314,7 @@ corre 21 casos de aislamiento con tres usuarios en dos hogares.
 | `create_household` | `(p_nombre TEXT)` |
 | `get_my_household_id` | `()` |
 | `handle_new_user` | `()` |
+| `incrementar_aciertos_alias` | `(p_alias_id UUID)` |
 | `join_household_by_code` | `(p_code TEXT)` |
 
 
