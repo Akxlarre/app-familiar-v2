@@ -32,9 +32,9 @@ export const ORDEN_DE_DESTINOS = ['hoy', 'plata', 'casa', 'cuerpo', 'ajustes'] a
 export type IdDeDestino = (typeof ORDEN_DE_DESTINOS)[number];
 
 /**
- * Hoy — el único destino con contenido por ahora.
+ * Los destinos que ya tienen contenido.
  *
- * Los otros cuatro se declaran junto a su spec, no acá: tenerlos definidos y
+ * Los que faltan se declaran junto a su spec, no acá: tenerlos definidos y
  * comentados sería la misma lista de promesas, sólo que en otro archivo.
  */
 export const DESTINO_HOY: Destino = {
@@ -42,4 +42,11 @@ export const DESTINO_HOY: Destino = {
   label: 'Hoy',
   icon: 'home',
   routerLink: '/app/hoy',
+};
+
+export const DESTINO_PLATA: Destino = {
+  id: 'plata',
+  label: 'Plata',
+  icon: 'wallet',
+  routerLink: '/app/plata',
 };

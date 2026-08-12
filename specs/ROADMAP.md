@@ -52,8 +52,8 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 | ID | Título | Entrada | Prioridad | Estado | REQ |
 |----|--------|---------|-----------|--------|-----|
 | 0003 | Navegación y secciones | — | P0 | `done` | RNF-02, RNF-06 |
-| 0004 | Del registro al primer movimiento | 🟡 una vez | P0 | `draft` | REQ-001, REQ-010 |
-| 0005 | La pantalla de la plata | 🟢 | P0 | `draft` | REQ-011, REQ-013 |
+| 0004 | Del registro al primer movimiento | 🟡 una vez | P0 | `in_progress` | REQ-001, REQ-010 |
+| 0005 | La pantalla de la plata | 🟢 | P0 | `in_progress` | REQ-011, REQ-013 |
 | 0006 | Cuentas y tarjetas de crédito | 🟡 una vez | P1 | `draft` | REQ-030 |
 | 0007 | Compras en cuotas | 🟢 | P1 | `draft` | REQ-031 |
 | 0008 | Presupuestos | 🟡 mensual | P2 | `draft` | REQ-032 |
@@ -171,6 +171,13 @@ una vez: la 0023 (gasto compartido) se archivó antes de construirse.
 
 | ID | Título | % tareas | Última edición |
 |----|--------|----------|----------------|
+| 0004 | Del registro al primer movimiento | 12/18 · pasos 1 y 2 cerrados | 2026-08-12 |
+| 0005 | La pantalla de la plata | — | 2026-08-12 |
+
+> **0004 está detenida por dependencia externa, no por scope.** Los pasos 3 y 4 necesitan
+> credenciales de Google y un edge runtime que este entorno no puede correr. `hogarGuard` sigue
+> **sin cablear** a propósito: con el onboarding incompleto, mandaría a todo usuario nuevo a un
+> camino sin salida.
 
 ---
 

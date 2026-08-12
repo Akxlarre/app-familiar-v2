@@ -29,6 +29,7 @@ import {
   Receipt,
   ShoppingCart,
   CreditCard,
+  Wallet,
   Lock,
   LayoutDashboard,
   Plus,
@@ -92,7 +93,7 @@ import {
 
 import { routes } from "./app.routes";
 import { DESTINO_REGISTRADO } from "@core/services/navegacion.service";
-import { DESTINO_HOY } from "@core/models/destino.model";
+import { DESTINO_HOY, DESTINO_PLATA } from "@core/models/destino.model";
 import { FUENTE_DE_PENDIENTES } from "@core/models/pendiente.model";
 import { BandejaPendientes } from "@features/bandeja/bandeja.pendientes";
 import { provideCoreAuth } from "@core/auth/provide-core-auth";
@@ -130,6 +131,7 @@ export const appConfig: ApplicationConfig = {
     // spec aterrice, y hasta entonces no aparecen. Un menú de promesas es lo
     // que hacía que el usuario entrara a pantallas vacías y dejara de abrir v1.
     { provide: DESTINO_REGISTRADO, useValue: DESTINO_HOY, multi: true },
+    { provide: DESTINO_REGISTRADO, useValue: DESTINO_PLATA, multi: true },
 
     // ── Fuentes de pendientes ──────────────────────────────────────────────
     // Cada dominio se registra a sí mismo. Hoy no importa a ninguno: agregar un
@@ -163,6 +165,7 @@ export const appConfig: ApplicationConfig = {
         Receipt,
         ShoppingCart,
         CreditCard,
+        Wallet,
         Lock,
         LayoutDashboard,
         Plus,

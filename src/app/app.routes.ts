@@ -66,6 +66,21 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/bandeja/bandeja.component').then((m) => m.BandejaComponent),
       },
+      // Plata. Sus subsecciones —cuentas, cuotas, presupuestos— llegan con sus
+      // specs (0006-0008); hoy la sección ES la lista de movimientos.
+      {
+        path: 'plata',
+        title: 'Plata',
+        children: [
+          { path: '', redirectTo: 'movimientos', pathMatch: 'full' },
+          {
+            path: 'movimientos',
+            loadComponent: () =>
+              import('./features/plata/movimientos.component').then((m) => m.MovimientosComponent),
+          },
+        ],
+      },
+
       // TODO: Añade tus feature routes aquí
 
       // El not-found va DENTRO del shell: una ruta mal escrita no puede dejar al
