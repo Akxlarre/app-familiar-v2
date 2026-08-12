@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 
 import { MovimientosRepository } from '@core/repositories/movimientos.repository';
+import { ToastService } from '@core/services/toast.service';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { Movimiento } from '@core/models/movimiento.model';
 import { PlataFacade } from './plata.facade';
@@ -34,7 +35,10 @@ function montar(opciones: {
     }),
   };
   TestBed.configureTestingModule({
-    providers: [{ provide: MovimientosRepository, useValue: repo }],
+    providers: [
+      { provide: MovimientosRepository, useValue: repo },
+      { provide: ToastService, useValue: { success: vi.fn(), error: vi.fn() } },
+    ],
   });
   return { facade: TestBed.inject(PlataFacade), repo };
 }
@@ -151,5 +155,92 @@ describe('PlataFacade', () => {
 
     expect(facade.filtro().texto).toBe('');
     expect(facade.filtro().desde).toBe('2026-07-01');
+  });
+});
+
+describe('PlataFacade — corregir y aprender', () => {
+  function conCorreccion(opciones: { falla?: boolean; afectados?: number } = {}) {
+    const repo = {
+      pagina: vi.fn(async () => [mov(1)]),
+      resumen: vi.fn(async () => RESUMEN),
+      porCategoria: vi.fn(async () => []),
+      categorias: vi.fn(async () => [{ id: 'c1', nombre: 'Supermercado', icono: null }]),
+      origen: vi.fn(async () => ({
+        remitente: 'banco@x.cl', asunto: 'Compra', extracto: 'texto', fechaCaptura: '2026-08-12T00:00:00Z',
+      })),
+      contarMismoComercio: vi.fn(async () => 3),
+      recategorizar: vi.fn(async () => {
+        if (opciones.falla) throw new ErrorDeBd('relation "movimientos" does not exist', '42P01');
+        return opciones.afectados ?? 1;
+      }),
+      borrar: vi.fn(async () => true),
+    };
+    const toast = { success: vi.fn(), error: vi.fn() };
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: MovimientosRepository, useValue: repo },
+        { provide: ToastService, useValue: toast },
+      ],
+    });
+    return { facade: TestBed.inject(PlataFacade), repo, toast };
+  }
+
+  it('recategorizar recarga la lista: los números del hero cambian con la corrección', async () => {
+    const { facade, repo } = conCorreccion();
+    await facade.cargar();
+    const antes = repo.pagina.mock.calls.length;
+
+    await facade.recategorizar('m1', 'c1', false, false);
+
+    expect(repo.pagina.mock.calls.length).toBeGreaterThan(antes);
+  });
+
+  it('avisa cuántos movimientos cambió cuando fueron varios', async () => {
+    const { facade, toast } = conCorreccion({ afectados: 4 });
+    await facade.recategorizar('m1', 'c1', true, true);
+
+    expect(toast.success).toHaveBeenCalledWith('4 movimientos actualizados');
+  });
+
+  it('el error de guardar nunca filtra el texto crudo de la base', async () => {
+    const { facade } = conCorreccion({ falla: true });
+    const fallo = await facade.recategorizar('m1', 'c1', false, false);
+
+    expect(fallo).toBeTruthy();
+    expect(fallo).not.toContain('relation');
+  });
+
+  it('si el conteo de pasados falla, devuelve 0 en vez de romper', async () => {
+    // Sin conteo no se ofrece aplicar a los pasados: preguntarlo a ciegas es
+    // justo lo que AC11 evita.
+    const { facade, repo } = conCorreccion();
+    repo.contarMismoComercio.mockRejectedValueOnce(new Error('falló'));
+
+    expect(await facade.contarMismoComercio('m1', 'c1')).toBe(0);
+  });
+
+  it('si el origen no carga, devuelve null y la corrección sigue disponible', async () => {
+    const { facade, repo } = conCorreccion();
+    repo.origen.mockRejectedValueOnce(new Error('falló'));
+
+    expect(await facade.origenDe('cap1')).toBeNull();
+  });
+
+  it('borrar avisa que el correo volvió a la bandeja', async () => {
+    // RN-09: una captura nunca se pierde, y el usuario tiene que saberlo para
+    // no creer que borró el correo también.
+    const { facade, toast } = conCorreccion();
+    await facade.borrar('m1');
+
+    expect(toast.success).toHaveBeenCalledWith('Movimiento borrado. El correo volvió a la bandeja.');
+  });
+
+  it('borrar un movimiento cargado a mano no promete una bandeja que no existe', async () => {
+    const { facade, repo, toast } = conCorreccion();
+    repo.borrar.mockResolvedValueOnce(false);
+
+    await facade.borrar('m1');
+
+    expect(toast.success).toHaveBeenCalledWith('Movimiento borrado');
   });
 });

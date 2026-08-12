@@ -3,7 +3,13 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '@core/services/supabase.service';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { Movimiento, TipoDeMovimiento } from '@core/models/movimiento.model';
-import type { FiltroMovimientos, GastoPorCategoria, ResumenPeriodo } from '@core/models/plata.model';
+import type {
+  Categoria,
+  FiltroMovimientos,
+  GastoPorCategoria,
+  OrigenDelMovimiento,
+  ResumenPeriodo,
+} from '@core/models/plata.model';
 import { conPorcentaje } from '@core/models/plata.model';
 
 /** Fila cruda de `movimientos`, con los nombres de columna de la BD. */
@@ -126,5 +132,84 @@ export class MovimientosRepository {
         movimientos: r['movimientos'] as number,
       })),
     );
+  }
+
+  /** Las categorías del hogar, para el selector. */
+  async categorias(): Promise<Categoria[]> {
+    const { data, error } = await this.client
+      .from('categorias_gasto')
+      .select('id, nombre, icono')
+      .order('nombre');
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return ((data ?? []) as Array<Record<string, unknown>>).map((r) => ({
+      id: r['id'] as string,
+      nombre: r['nombre'] as string,
+      icono: (r['icono'] as string | null) ?? null,
+    }));
+  }
+
+  /** El correo del que nació el movimiento (AC5). */
+  async origen(capturaId: string): Promise<OrigenDelMovimiento | null> {
+    const { data, error } = await this.client
+      .from('capturas')
+      .select('payload, created_at')
+      .eq('id', capturaId)
+      .maybeSingle();
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    if (!data) return null;
+
+    const fila = data as { payload: Record<string, string> | null; created_at: string };
+    return {
+      remitente: fila.payload?.['remitente'] ?? null,
+      asunto: fila.payload?.['asunto'] ?? null,
+      extracto: fila.payload?.['extracto'] ?? null,
+      fechaCaptura: fila.created_at,
+    };
+  }
+
+  /**
+   * Cuántos OTROS movimientos comparten comercio y cambiarían de categoría.
+   *
+   * El número va a la vista antes de aceptar (AC11): "también aplicar a los 14
+   * anteriores de JUMBO" deja evaluar; preguntarlo a ciegas, no.
+   */
+  async contarMismoComercio(movimientoId: string, categoriaId: string): Promise<number> {
+    const { data, error } = await this.client.rpc('contar_mismo_comercio', {
+      p_movimiento_id: movimientoId,
+      p_categoria_id: categoriaId,
+    });
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return (data as number) ?? 0;
+  }
+
+  /** Corrige la categoría y, si se pide, aprende el comercio. Devuelve cuántos cambió. */
+  async recategorizar(
+    movimientoId: string,
+    categoriaId: string,
+    recordar: boolean,
+    aplicarPasados: boolean,
+  ): Promise<number> {
+    const { data, error } = await this.client.rpc('recategorizar_movimiento', {
+      p_movimiento_id: movimientoId,
+      p_categoria_id: categoriaId,
+      p_recordar: recordar,
+      p_aplicar_pasados: aplicarPasados,
+    });
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return (data as number) ?? 0;
+  }
+
+  /** Borra el movimiento. Su captura vuelve a la bandeja (AC12, RN-09). */
+  async borrar(movimientoId: string): Promise<boolean> {
+    const { data, error } = await this.client.rpc('borrar_movimiento', {
+      p_movimiento_id: movimientoId,
+    });
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return (data as boolean) ?? false;
   }
 }

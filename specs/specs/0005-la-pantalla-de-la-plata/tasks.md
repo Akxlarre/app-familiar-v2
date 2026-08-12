@@ -29,13 +29,29 @@
 
 ---
 
-## Fase 2 — Corregir y aprender
+## Fase 2 — Corregir y aprender  ✅
 
-- [ ] **T2.1** — Drawer de detalle con el correo de origen (AC5)
-- [ ] **T2.2** — Cambiar categoría, guardado inmediato (AC9)
-- [ ] **T2.3** — "Recordar este comercio" → alias (AC10)
-- [ ] **T2.4** — Ofrecer aplicar a los pasados, **con el conteo a la vista** (AC11, R-04)
-- [ ] **T2.5** — Borrar un movimiento devuelve su captura a revisable (AC12, RN-09)
+- [x] **T2.1** — Drawer de detalle con el correo de origen (AC5)
+  - El origen falla en silencio a propósito: es contexto, no el dato. Que no cargue no puede
+    impedir corregir la categoría.
+- [x] **T2.2** — Cambiar categoría (AC9)
+- [x] **T2.3** — "Recordar este comercio" → alias (AC10)
+- [x] **T2.4** — Aplicar a los pasados **con el conteo a la vista** (AC11, R-04)
+  - El conteo excluye los que ya tienen la categoría destino: ofrecer "aplicar a 14" cuando 12 ya
+    están bien infla el número y hace que el usuario acepte creyendo que arregla más de lo que
+    arregla.
+- [x] **T2.5** — Borrar devuelve la captura a la bandeja (AC12, RN-09)
+  - Y lo **dice**: sin avisarlo, el usuario cree que borró el correo también.
+- [x] **T2.6** — Los tres RPCs en SQL, no en el cliente
+  - Agrupar "los otros del mismo comercio" exige normalizar igual que `normalizar_comercio`.
+    Reimplementarlo en TypeScript sería una segunda versión del pedazo del que depende TODO el
+    aprendizaje, y el día que difieran los alias dejarían de aplicarse en silencio.
+  - Ninguno es `SECURITY DEFINER`: RLS ya filtra por hogar y `authenticated` tiene los privilegios
+    (fix-001). Elevar permisos "para simplificar" es cómo se filtran datos entre hogares.
+- [x] **T2.7** — **QA en navegador del ciclo completo** — 14 comprobaciones
+  - Corregir un JUMBO desde la UI aplicó el cambio a los 4, aprendió el alias, y
+    `categoria_para_comercio` confirma que un correo nuevo de JUMBO **ya llegaría categorizado**.
+    Es REQ-013 funcionando de punta a punta.
 
 ## Fase 3 — Filtros
 
@@ -60,6 +76,10 @@
       `undefined !== valor` también: dos de ellas pasaban justo cuando el hero **no** renderizaba.
       Un selector equivocado convirtió los tests en tautologías que confirmaban lo contrario de lo
       que decían medir. Corregidas exigiendo que el valor exista y tenga formato.
+- [x] **TD4** — El drawer inyectaba `MovimientosRepository` y `ToastService` directamente, y
+      ARCH-02 lo bloqueó. La corrección no fue cosmética: mover la lógica al facade puso la
+      recarga de la lista donde corresponde, y el callback `alGuardar` que había inventado para
+      avisarle al padre dejó de hacer falta — ataba el drawer a esta pantalla.
 - [x] **TD3** — Un comentario del repositorio afirmaba "paginado por rango y no por offset"
       cuando `range` **es** offset. Corregido antes de que envejeciera como verdad, con la
       condición explícita bajo la cual habría que pasar a un cursor.

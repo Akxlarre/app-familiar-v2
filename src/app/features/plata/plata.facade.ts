@@ -1,8 +1,10 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { MovimientosRepository } from '@core/repositories/movimientos.repository';
+import { ToastService } from '@core/services/toast.service';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
 import type { Movimiento } from '@core/models/movimiento.model';
+import type { Categoria, OrigenDelMovimiento } from '@core/models/plata.model';
 import {
   agruparPorDia,
   moverPeriodo,
@@ -16,6 +18,15 @@ import {
 const POR_PAGINA = 50;
 
 /**
+ * Mensajes que los RPCs levantan con `RAISE EXCEPTION` a propósito. Están
+ * escritos para el usuario; deben coincidir textualmente con el SQL.
+ */
+const MENSAJES_DEL_RPC = [
+  'Hay que elegir una categoría',
+  'Movimiento inexistente o de otro hogar',
+] as const;
+
+/**
  * PlataFacade — la lista, los números y los filtros.
  *
  * Los tres bloques —lista, resumen y reparto— se piden juntos pero fallan por
@@ -25,6 +36,7 @@ const POR_PAGINA = 50;
 @Injectable({ providedIn: 'root' })
 export class PlataFacade {
   private readonly repo = inject(MovimientosRepository);
+  private readonly toast = inject(ToastService);
 
   private readonly _filtro = signal<FiltroMovimientos>({
     ...periodoDelMes(),
@@ -42,6 +54,7 @@ export class PlataFacade {
   private readonly _error = signal<string | null>(null);
   private readonly _hayMas = signal(false);
   private readonly _cargado = signal(false);
+  private readonly _categoriasDelHogar = signal<readonly Categoria[]>([]);
 
   /**
    * Cada carga lleva su número. Cambiar de filtro rápido produce respuestas
@@ -58,6 +71,8 @@ export class PlataFacade {
   readonly cargandoMas = this._cargandoMas.asReadonly();
   readonly error = this._error.asReadonly();
   readonly hayMas = this._hayMas.asReadonly();
+
+  readonly categoriasDelHogar = this._categoriasDelHogar.asReadonly();
 
   readonly dias = computed(() => agruparPorDia(this._movimientos()));
 
@@ -120,11 +135,93 @@ export class PlataFacade {
     }
   }
 
+  /** Las categorías del hogar. Se piden una vez: es una lista corta y estable. */
+  async cargarCategorias(): Promise<void> {
+    if (this._categoriasDelHogar().length > 0) return;
+    try {
+      this._categoriasDelHogar.set(await this.repo.categorias());
+    } catch {
+      // Sin categorías el selector queda vacío, pero la lista se sigue viendo.
+      this._categoriasDelHogar.set([]);
+    }
+  }
+
   async moverMes(meses: number): Promise<void> {
     await this.cargar(moverPeriodo(this._filtro().desde, meses));
   }
 
   async limpiarFiltros(): Promise<void> {
     await this.cargar({ cuentaId: null, categoriaId: null, tipo: null, texto: '' });
+  }
+
+  // ── Corregir y aprender (AC5, AC9–AC12) ───────────────────────────────────
+  //
+  // Vive acá y no en el drawer porque un componente vista no habla con el
+  // repositorio (ARCH-02). Además, el que recarga la lista tras un cambio es
+  // este facade: el drawer no la conoce.
+
+  /**
+   * El correo del que nació el movimiento (AC5).
+   *
+   * Devuelve `null` si falla: el origen es contexto, no el dato. Que no cargue
+   * no puede impedir corregir la categoría.
+   */
+  async origenDe(capturaId: string): Promise<OrigenDelMovimiento | null> {
+    try {
+      return await this.repo.origen(capturaId);
+    } catch {
+      return null;
+    }
+  }
+
+  /** Cuántos OTROS movimientos del mismo comercio cambiarían (AC11). */
+  async contarMismoComercio(movimientoId: string, categoriaId: string): Promise<number> {
+    try {
+      return await this.repo.contarMismoComercio(movimientoId, categoriaId);
+    } catch {
+      // Sin conteo no se ofrece aplicar a los pasados: preguntarlo a ciegas es
+      // justo lo que AC11 evita.
+      return 0;
+    }
+  }
+
+  /**
+   * Corrige la categoría y, si se pide, aprende el comercio.
+   *
+   * Devuelve el mensaje de error o `null` si salió bien. Recarga la lista al
+   * terminar: los números del hero cambian con la corrección.
+   */
+  async recategorizar(
+    movimientoId: string,
+    categoriaId: string,
+    recordar: boolean,
+    aplicarPasados: boolean,
+  ): Promise<string | null> {
+    try {
+      const afectados = await this.repo.recategorizar(
+        movimientoId, categoriaId, recordar, aplicarPasados,
+      );
+      this.toast.success(
+        afectados > 1 ? `${afectados} movimientos actualizados` : 'Movimiento actualizado',
+      );
+      await this.cargar();
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo guardar.', MENSAJES_DEL_RPC);
+    }
+  }
+
+  /** Borra el movimiento; su captura vuelve a la bandeja (AC12, RN-09). */
+  async borrar(movimientoId: string): Promise<string | null> {
+    try {
+      const volvioABandeja = await this.repo.borrar(movimientoId);
+      this.toast.success(
+        volvioABandeja ? 'Movimiento borrado. El correo volvió a la bandeja.' : 'Movimiento borrado',
+      );
+      await this.cargar();
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo borrar.', MENSAJES_DEL_RPC);
+    }
   }
 }

@@ -89,3 +89,24 @@ export function conPorcentaje(
   if (total === 0) return filas.map((f) => ({ ...f, porcentaje: 0 }));
   return filas.map((f) => ({ ...f, porcentaje: Math.round((f.total / total) * 1000) / 10 }));
 }
+
+/** Una categoría de gasto del hogar. */
+export interface Categoria {
+  id: string;
+  nombre: string;
+  icono: string | null;
+}
+
+/**
+ * El correo del que nació un movimiento (AC5).
+ *
+ * Se muestra para que el usuario pueda confiar en un dato que nadie escribió:
+ * ver el correo original es lo que convierte "la app dice que gasté 15.990" en
+ * "el banco dice que gasté 15.990".
+ */
+export interface OrigenDelMovimiento {
+  remitente: string | null;
+  asunto: string | null;
+  extracto: string | null;
+  fechaCaptura: string;
+}

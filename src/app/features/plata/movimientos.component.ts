@@ -10,6 +10,8 @@ import { BentoGridLayoutDirective } from '@core/directives/bento-grid-layout.dir
 import { BentoRevealDirective } from '@core/directives/bento-reveal.directive';
 import type { SectionHeroKpi } from '@core/models/section-hero.model';
 import type { Movimiento } from '@core/models/movimiento.model';
+import { LayoutDrawerFacadeService } from '@core/services/layout-drawer.facade.service';
+import { DetalleMovimientoComponent } from './detalle-movimiento.component';
 import { PlataFacade } from './plata.facade';
 
 /**
@@ -148,7 +150,13 @@ import { PlataFacade } from './plata.facade';
 
               <ul class="divide-y divide-border-subtle">
                 @for (mov of dia.movimientos; track mov.id) {
-                  <li class="flex items-center gap-3 py-3">
+                  <li>
+                  <button
+                    type="button"
+                    class="flex w-full cursor-pointer items-center gap-3 border-none bg-transparent py-3 text-left transition-colors hover:bg-subtle"
+                    (click)="abrirDetalle(mov)"
+                    [attr.data-llm-action]="'ver-movimiento'"
+                  >
                     <!-- El color y la posición dicen el tipo sin leer el signo (AC2) -->
                     <span
                       class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full"
@@ -172,6 +180,7 @@ import { PlataFacade } from './plata.facade';
                       class="row-value shrink-0"
                       [class.text-success]="mov.tipo === 'ingreso'"
                     >{{ signo(mov) }}{{ mov.monto | number: '1.0-0' }}</span>
+                  </button>
                   </li>
                 }
               </ul>
@@ -196,6 +205,7 @@ import { PlataFacade } from './plata.facade';
 })
 export class MovimientosComponent implements OnInit {
   protected readonly facade = inject(PlataFacade);
+  private readonly drawer = inject(LayoutDrawerFacadeService);
 
   protected readonly bajada = computed(() =>
     this.facade.resumen()?.movimientos === 0
@@ -234,6 +244,24 @@ export class MovimientosComponent implements OnInit {
 
   ngOnInit(): void {
     void this.facade.cargar();
+    void this.facade.cargarCategorias();
+  }
+
+  /**
+   * Abre el detalle en el drawer del shell, que empuja el contenido en vez de
+   * taparlo. El callback recarga la lista: el drawer no la conoce, y hacer que
+   * la conociera lo ataría a esta pantalla.
+   */
+  protected abrirDetalle(movimiento: Movimiento): void {
+    this.drawer.open(
+      DetalleMovimientoComponent,
+      movimiento.comercio ?? 'Movimiento',
+      'wallet',
+      [],
+      // Sin callback de recarga: el facade la hace solo tras guardar. Pasarlo
+      // ataría el drawer a esta pantalla.
+      { movimiento, categorias: this.facade.categoriasDelHogar() },
+    );
   }
 
   protected recargar(): void {
