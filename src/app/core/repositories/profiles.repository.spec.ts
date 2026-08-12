@@ -53,10 +53,13 @@ describe('ProfilesRepository', () => {
       expect(clientMock.from).toHaveBeenCalledWith('profiles');
     });
 
-    it('should select display_name, avatar_url and role columns', async () => {
+    it('no pide columnas que la tabla no tiene', async () => {
+      // Pedía `role`, que `profiles` no tiene: este hogar no tiene jerarquía
+      // (REQ-001) y el ROADMAP archivó el rol de administrador. PostgREST
+      // devolvía 400 en cada carga de perfil, y este test lo daba por bueno.
       await repo.findById('user-123');
       const selectMock = clientMock.from('profiles').select;
-      expect(selectMock).toHaveBeenCalledWith('display_name, avatar_url, role');
+      expect(selectMock).toHaveBeenCalledWith('display_name, avatar_url');
     });
 
     it('should filter by the given userId', async () => {

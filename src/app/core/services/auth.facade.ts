@@ -71,7 +71,11 @@ export class AuthFacade {
       id: authUser.id,
       name,
       email: authUser.email ?? "",
-      role: profile?.role === "admin" ? "admin" : "member",
+      // Siempre "member": este hogar no tiene jerarquía. REQ-001 dice dos
+      // personas con los mismos permisos, y el ROADMAP archivó el rol de
+      // administrador a propósito. `profiles` no tiene columna `role` — pedirla
+      // devolvía 400 en cada carga de perfil.
+      role: "member",
       initials: getInitialsFromDisplayName(name),
       avatarUrl: profile?.avatar_url ?? undefined,
     };

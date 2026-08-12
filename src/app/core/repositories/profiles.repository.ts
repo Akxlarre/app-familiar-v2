@@ -9,7 +9,6 @@ import { SupabaseService } from '@core/services/supabase.service';
 export interface ProfileRow {
   display_name: string | null;
   avatar_url:   string | null;
-  role:         string | null;
 }
 
 /**
@@ -32,7 +31,7 @@ export class ProfilesRepository {
     try {
       const { data } = await this.client
         .from('profiles')
-        .select('display_name, avatar_url, role')
+        .select('display_name, avatar_url')
         .eq('id', userId)
         .maybeSingle();
       return data ?? null;
