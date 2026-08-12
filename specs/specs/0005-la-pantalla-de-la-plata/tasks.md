@@ -1,7 +1,7 @@
 # Tasks 0005 — La pantalla de la plata
 
 > **Spec:** [spec.md](./spec.md)
-> **Status:** in_progress
+> **Status:** done
 > **Created:** 2026-08-12
 
 ---
@@ -74,11 +74,15 @@
     y AC-E3 de la spec 0003. No es así — dependen de que exista una segunda subsección, no de
     esta spec. Siguen diferidos, ahora a la **0006**.
 
-## Fase 4 — Cierre
+## Fase 4 — Cierre  ✅
 
-- [ ] **T4.1** — AC-E4: 5.000 movimientos dentro del presupuesto de RNF-02
-      → **cierra AC-E1 de la spec 0002**
-- [ ] **T4.2** — `acceptance.md`, ROADMAP, `.active`
+- [x] **T4.1** — AC-E4: 5.032 movimientos → **primer render en 0,5 s y 12,4 kB**
+      → **cierra también AC-E1 de la spec 0002**, diferido desde entonces por no haber ninguna
+      pantalla con ese volumen.
+  - Lo medido no es si Postgres aguanta —el plan usa el índice y resuelve en 0,6 ms— sino que la
+    **pantalla no se traiga el conjunto completo**. La consulta mayor devuelve 50 filas, no 5.032.
+- [x] **T4.2** — `acceptance.md` con evidencia por AC: **17 de 19**
+- [x] **T4.3** — ROADMAP y `.active`
 
 ---
 
@@ -91,6 +95,11 @@
       `undefined !== valor` también: dos de ellas pasaban justo cuando el hero **no** renderizaba.
       Un selector equivocado convirtió los tests en tautologías que confirmaban lo contrario de lo
       que decían medir. Corregidas exigiendo que el valor exista y tenga formato.
+- [x] **TD6** — **El perfil se pedía 3 veces por carga.** `onAuthStateChange` dispara varias
+      veces por sesión (INITIAL_SESSION, SIGNED_IN, TOKEN_REFRESHED) y `getUser()` suma la suya.
+      Lo destapó contar las consultas REST en la prueba de volumen. Un caché por sí solo bajó de 3
+      a 2 —las dos primeras corren en paralelo y ambas ven el caché vacío—, así que hizo falta
+      **deduplicar la promesa en vuelo** para llegar a una.
 - [x] **TD5** — **`CREATE OR REPLACE` no reemplaza cuando cambia la firma**: crea una segunda
       función con el mismo nombre. Con las dos vivas, la llamada de dos argumentos se volvió
       ambigua (`function is not unique`) y habría roto a todos los clientes existentes. Agregar

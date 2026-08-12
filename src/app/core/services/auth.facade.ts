@@ -44,6 +44,7 @@ export class AuthFacade {
         await this.loadUserFromSession(session.user);
       } else if (event === "SIGNED_OUT") {
         this._currentUser.set(null);
+    this.perfilCargadoDe = null;
       }
     });
 
@@ -55,12 +56,49 @@ export class AuthFacade {
       .finally(() => resolveReady());
   }
 
-  private async loadUserFromSession(authUser: {
+  /**
+   * De qué usuario ya se cargó el perfil.
+   *
+   * `onAuthStateChange` dispara varias veces por sesión —INITIAL_SESSION,
+   * SIGNED_IN, TOKEN_REFRESHED— y `getUser()` suma la suya, así que el perfil
+   * se pedía tres veces por carga. Lo destapó el test de volumen de la spec
+   * 0005, contando las consultas que la app hace de verdad.
+   */
+  private perfilCargadoDe: string | null = null;
+
+  /**
+   * La carga en curso, para que dos disparadores simultáneos compartan una sola
+   * consulta.
+   *
+   * `getUser()` y `onAuthStateChange` arrancan a la vez, así que ambos veían el
+   * caché vacío y pedían el perfil por su cuenta: un caché por sí solo baja de
+   * tres consultas a dos, no a una.
+   */
+  private cargaEnVuelo: Promise<void> | null = null;
+
+  private loadUserFromSession(authUser: {
+    id: string;
+    email?: string;
+    user_metadata?: Record<string, unknown>;
+  }): Promise<void> {
+    // El perfil sólo cambia cuando el usuario lo edita, y eso pasa por
+    // `refreshProfile()`. Un TOKEN_REFRESHED no trae datos nuevos.
+    if (this.perfilCargadoDe === authUser.id && this._currentUser()) return Promise.resolve();
+    if (this.cargaEnVuelo) return this.cargaEnVuelo;
+
+    this.cargaEnVuelo = this.cargarPerfil(authUser).finally(() => {
+      this.cargaEnVuelo = null;
+    });
+    return this.cargaEnVuelo;
+  }
+
+  private async cargarPerfil(authUser: {
     id: string;
     email?: string;
     user_metadata?: Record<string, unknown>;
   }): Promise<void> {
     const profile = await this.profilesRepo.findById(authUser.id);
+    this.perfilCargadoDe = authUser.id;
 
     const name =
       profile?.display_name ??

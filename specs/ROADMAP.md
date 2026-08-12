@@ -53,7 +53,7 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 |----|--------|---------|-----------|--------|-----|
 | 0003 | Navegación y secciones | — | P0 | `done` | RNF-02, RNF-06 |
 | 0004 | Del registro al primer movimiento | 🟡 una vez | P0 | `in_progress` | REQ-001, REQ-010 |
-| 0005 | La pantalla de la plata | 🟢 | P0 | `in_progress` | REQ-011, REQ-013 |
+| 0005 | La pantalla de la plata | 🟢 | P0 | `done` | REQ-011, REQ-013 |
 | 0006 | Cuentas y tarjetas de crédito | 🟡 una vez | P1 | `draft` | REQ-030 |
 | 0007 | Compras en cuotas | 🟢 | P1 | `draft` | REQ-031 |
 | 0008 | Presupuestos | 🟡 mensual | P2 | `draft` | REQ-032 |
@@ -172,7 +172,6 @@ una vez: la 0023 (gasto compartido) se archivó antes de construirse.
 | ID | Título | % tareas | Última edición |
 |----|--------|----------|----------------|
 | 0004 | Del registro al primer movimiento | 12/18 · pasos 1 y 2 cerrados | 2026-08-12 |
-| 0005 | La pantalla de la plata | — | 2026-08-12 |
 
 > **0004 está detenida por dependencia externa, no por scope.** Los pasos 3 y 4 necesitan
 > credenciales de Google y un edge runtime que este entorno no puede correr. `hogarGuard` sigue
@@ -185,6 +184,7 @@ una vez: la 0023 (gasto compartido) se archivó antes de construirse.
 
 | ID | Título | Cerrada | Verificada por |
 |----|--------|---------|----------------|
+| 0005 | La pantalla de la plata | 2026-08-12 | 475 tests + QA contra Supabase real ([acceptance.md](specs/0005-la-pantalla-de-la-plata/acceptance.md)). 17/19 AC. Cierra **AC-E1 de la 0002**: 5.032 movimientos con primer render en 0,5 s y 12,4 kB |
 | 0003 | Navegación y secciones | 2026-08-12 | 405 tests + QA en navegador ([acceptance.md](specs/0003-navegacion-y-secciones/acceptance.md)). 11/15 AC; 4 diferidos por dependencia real. Destapó 9 defectos, entre ellos una entrada de menú muerta desde el primer commit |
 | 0002 | Lenguaje de pantallas — el contrato de UI | 2026-08-12 | 359 tests + 18 comprobaciones en navegador ([acceptance.md](specs/0002-lenguaje-de-pantallas/acceptance.md)). Destapó 8 defectos del boilerplate, entre ellos los inputs del login en 1.15:1 |
 
