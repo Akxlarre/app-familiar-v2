@@ -45,7 +45,11 @@ AS $$
   WHERE fecha >= p_desde AND fecha <= p_hasta;
 $$;
 
-COMMENT ON FUNCTION public.resumen_del_periodo IS
+-- Con la firma explícita, no por prolijidad: sin ella `COMMENT ON FUNCTION`
+-- falla con "function name is not unique" apenas exista otra sobrecarga del
+-- mismo nombre — que es justo lo que agrega la migración 060000. Una migración
+-- vieja no puede volverse irreproducible porque una nueva sume una sobrecarga.
+COMMENT ON FUNCTION public.resumen_del_periodo(DATE, DATE) IS
   'Gastado, ingresado y saldo del período. STABLE y sin SECURITY DEFINER: RLS filtra por hogar.';
 
 -- ─── El reparto por categoría ────────────────────────────────────────────────
@@ -71,7 +75,7 @@ AS $$
   ORDER BY SUM(m.monto) DESC;
 $$;
 
-COMMENT ON FUNCTION public.gasto_por_categoria IS
+COMMENT ON FUNCTION public.gasto_por_categoria(DATE, DATE) IS
   'Reparto de gastos por categoría en un período, de mayor a menor. Sólo gastos: el sueldo taparía el resto.';
 
 GRANT EXECUTE ON FUNCTION public.resumen_del_periodo(DATE, DATE) TO authenticated;

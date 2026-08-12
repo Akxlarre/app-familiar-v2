@@ -2,6 +2,7 @@ import { Injectable, inject } from '@angular/core';
 
 import { SupabaseService } from '@core/services/supabase.service';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
+import type { IntegracionEmail } from '@core/models/integracion.model';
 
 /**
  * IntegracionesRepository — la casilla de correo conectada.
@@ -38,6 +39,71 @@ export class IntegracionesRepository {
     if (!r.ok || !r.email) throw new ErrorDeBd('La función no confirmó la conexión');
     return r.email;
   }
+
+  /** La casilla del usuario, o null si todavía no conectó ninguna. */
+  async mia(): Promise<IntegracionEmail | null> {
+    const { data, error } = await this.client
+      .from('mis_integraciones_email')
+      .select('id, email, carpeta, estado, conectada, ultima_sync, ultimo_error')
+      .maybeSingle();
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return data ? aDominio(data as FilaIntegracion) : null;
+  }
+
+  /**
+   * Cambia la etiqueta que se vigila (AC8).
+   *
+   * `carpeta` es la única columna que el cliente puede escribir: el GRANT es por
+   * columna justamente para que este método no pueda tocar una credencial ni por
+   * error de tipeo.
+   */
+  async cambiarCarpeta(id: string, carpeta: string): Promise<void> {
+    const { error } = await this.client
+      .from('integraciones_email')
+      .update({ carpeta })
+      .eq('id', id);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+
+  /**
+   * Desconecta la casilla (AC9): se borra la fila y con ella los dos tokens.
+   *
+   * Borrar y no marcar `estado='revocada'`: dejar la fila conserva el refresh
+   * token, y "desconectado" tiene que significar que la credencial ya no existe.
+   * Las capturas ya creadas no dependen de esta fila y sobreviven.
+   */
+  async desconectar(id: string): Promise<void> {
+    const { error } = await this.client
+      .from('integraciones_email')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+}
+
+interface FilaIntegracion {
+  id: string;
+  email: string;
+  carpeta: string;
+  estado: IntegracionEmail['estado'];
+  conectada: boolean;
+  ultima_sync: string | null;
+  ultimo_error: string | null;
+}
+
+function aDominio(fila: FilaIntegracion): IntegracionEmail {
+  return {
+    id: fila.id,
+    email: fila.email,
+    carpeta: fila.carpeta,
+    estado: fila.estado,
+    conectada: fila.conectada,
+    ultimaSync: fila.ultima_sync,
+    ultimoError: fila.ultimo_error,
+  };
 }
 
 /**

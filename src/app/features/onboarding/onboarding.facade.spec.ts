@@ -5,6 +5,7 @@ import { HogaresRepository } from '@core/repositories/hogares.repository';
 import { IntegracionesRepository } from '@core/repositories/integraciones.repository';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { EstadoDeOnboarding, Hogar } from '@core/models/hogar.model';
+import type { IntegracionEmail } from '@core/models/integracion.model';
 import { OnboardingFacade } from './onboarding.facade';
 
 const HOGAR: Hogar = {
@@ -21,6 +22,7 @@ function montar(opciones: {
   alCrear?: () => Promise<Hogar>;
   alUnirse?: () => Promise<Hogar>;
   alConectar?: () => Promise<string>;
+  alCambiarCarpeta?: (id: string, carpeta: string) => Promise<void>;
 }) {
   const estados = [...(opciones.estados ?? [NADA])];
   const repo = {
@@ -29,8 +31,20 @@ function montar(opciones: {
     crear: vi.fn(opciones.alCrear ?? (async () => HOGAR)),
     unirse: vi.fn(opciones.alUnirse ?? (async () => HOGAR)),
   };
+  let integracion: IntegracionEmail | null = {
+    id: 'i1', email: 'yo@gmail.com', carpeta: 'INBOX', estado: 'activa',
+    conectada: true, ultimaSync: null, ultimoError: null,
+  };
   const integraciones = {
     conectarGmail: vi.fn(opciones.alConectar ?? (async () => 'yo@gmail.com')),
+    mia: vi.fn(async () => integracion),
+    cambiarCarpeta: vi.fn(
+      opciones.alCambiarCarpeta ??
+        (async (_id: string, carpeta: string) => {
+          integracion = integracion ? { ...integracion, carpeta } : null;
+        }),
+    ),
+    desconectar: vi.fn(async () => { integracion = null; }),
   };
   TestBed.configureTestingModule({
     providers: [
@@ -162,14 +176,91 @@ describe('OnboardingFacade', () => {
       expect(integraciones.conectarGmail).toHaveBeenCalledWith('4/abc', 'http://localhost:4200/onboarding');
     });
 
-    it('conectado, el paso avanza porque la base lo dice', async () => {
+    it('tras conectar se queda en el paso 3 para mostrar la casilla', async () => {
+      // Mismo motivo que el invite_code en AC2: el paso derivado salta a 'listo'
+      // apenas la base dice que hay correo, y la casilla conectada —más la
+      // etiqueta que AC8 pide poder elegir— desaparecían sin verse.
       const { facade } = montar({ estados: [CON_CUENTA, CONECTADO] });
       await facade.initialize();
       expect(facade.paso()).toBe('correo');
 
       await facade.conectarCorreo('4/abc', 'http://x/onboarding');
 
+      expect(facade.paso()).toBe('correo');
+      expect(facade.integracion()?.email).toBe('yo@gmail.com');
+      expect(facade.esperandoConfirmacion()).toBe(true);
+    });
+
+    it('recién al continuar se pasa al paso 4', async () => {
+      const { facade } = montar({ estados: [CON_CUENTA, CONECTADO] });
+      await facade.initialize();
+      await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      facade.avanzar();
+
       expect(facade.paso()).toBe('listo');
+    });
+
+    it('si el canje falla no se retiene nada: la pantalla vuelve a ofrecer conectar', async () => {
+      // Con el paso retenido y sin integración, el usuario quedaría mirando una
+      // confirmación vacía en vez del botón que necesita.
+      const { facade } = montar({
+        estados: [CON_CUENTA],
+        alConectar: async () => { throw new ErrorDeBd('invalid_grant'); },
+      });
+      await facade.initialize();
+
+      await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      expect(facade.paso()).toBe('correo');
+      expect(facade.esperandoConfirmacion()).toBe(false);
+      expect(facade.integracion()).toBeNull();
+    });
+
+    it('cambiar la carpeta relee lo que quedó, no lo que se pidió', async () => {
+      // AC8. Si el UPDATE lo rechaza el GRANT por columna o RLS, la pantalla
+      // tiene que mostrar la carpeta real y no la elegida.
+      const { facade, integraciones } = montar({ estados: [CON_CUENTA, CONECTADO] });
+      await facade.initialize();
+      await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      expect(await facade.cambiarCarpeta('CATEGORY_UPDATES')).toBeNull();
+
+      expect(integraciones.cambiarCarpeta).toHaveBeenCalledWith('i1', 'CATEGORY_UPDATES');
+      expect(facade.integracion()?.carpeta).toBe('CATEGORY_UPDATES');
+    });
+
+    it('un UPDATE rechazado no deja la pantalla mintiendo', async () => {
+      const { facade } = montar({
+        estados: [CON_CUENTA, CONECTADO],
+        alCambiarCarpeta: async () => {
+          throw new ErrorDeBd('permission denied for table integraciones_email', '42501');
+        },
+      });
+      await facade.initialize();
+      await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      const mensaje = await facade.cambiarCarpeta('CATEGORY_UPDATES');
+
+      expect(mensaje).not.toBeNull();
+      expect(mensaje).not.toContain('integraciones_email');
+      expect(facade.integracion()?.carpeta).toBe('INBOX');
+    });
+
+    it('desconectar devuelve el paso al correo', async () => {
+      // AC9. El estado vuelve a decir que no hay correo y el paso derivado
+      // regresa solo: no hay que moverlo a mano.
+      const { facade, integraciones } = montar({ estados: [CON_CUENTA, CONECTADO, CON_CUENTA] });
+      await facade.initialize();
+      await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+      facade.avanzar();
+      expect(facade.paso()).toBe('listo');
+
+      expect(await facade.desconectarCorreo()).toBeNull();
+
+      expect(integraciones.desconectar).toHaveBeenCalledWith('i1');
+      expect(facade.integracion()).toBeNull();
+      expect(facade.paso()).toBe('correo');
     });
 
     it('el fallo se devuelve en vez de tomar la pantalla entera', async () => {

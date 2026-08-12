@@ -5,6 +5,7 @@ import { HogaresRepository } from '@core/repositories/hogares.repository';
 import { IntegracionesRepository } from '@core/repositories/integraciones.repository';
 import type { BancoDelCatalogo, NuevaCuenta } from '@core/models/banco.model';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
+import type { IntegracionEmail } from '@core/models/integracion.model';
 import {
   numeroDePaso,
   pasoActual,
@@ -87,10 +88,13 @@ export class OnboardingFacade {
   private readonly _error = signal<string | null>(null);
   private readonly _guardando = signal(false);
 
+  private readonly _integracion = signal<IntegracionEmail | null>(null);
+
   readonly hogar = this._hogar.asReadonly();
   readonly cargando = this._cargando.asReadonly();
   readonly guardando = this._guardando.asReadonly();
   readonly error = this._error.asReadonly();
+  readonly integracion = this._integracion.asReadonly();
 
   /**
    * Paso retenido: el derivado avanza en cuanto la base cambia, y hay pasos que
@@ -133,6 +137,15 @@ export class OnboardingFacade {
       const estado = await this.repo.estadoDeOnboarding();
       this._estado.set(estado);
       if (estado.tieneHogar) this._hogar.set(await this.repo.miHogar());
+      // Acá NO se relee la integración, aunque parezca lo natural: con el correo
+      // conectado el onboarding está completo, y `onboardingGuard` manda a Hoy
+      // antes de que este código corra (AC-E2). La casilla conectada sólo se ve
+      // en la misma sesión en que se conectó, vía el paso retenido.
+      //
+      // Consecuencia que hay que resolver fuera de esta spec: **desconectar el
+      // correo (AC9) queda sin puerta de entrada** apenas el usuario recarga.
+      // Es un control de privacidad y su lugar es una pantalla de configuración,
+      // no un paso de onboarding que ya no se puede volver a ver.
     } catch (e) {
       this._error.set(mensajeSeguroDeBd(e, 'No se pudo cargar tu configuración.'));
     } finally {
@@ -187,16 +200,72 @@ export class OnboardingFacade {
    */
   async conectarCorreo(code: string, redirectUri: string): Promise<string | null> {
     this._guardando.set(true);
+    // Mismo motivo que al crear el hogar: apenas la base dice que hay correo
+    // conectado, el paso derivado salta a 'listo' y la casilla que quedó
+    // conectada —y la etiqueta que se vigila, que AC8 pide poder elegir—
+    // desaparecen sin que el usuario las vea.
+    this._retenido.set('correo');
     try {
       await this.integraciones.conectarGmail(code, redirectUri);
       // Releer y no asumir: el paso siguiente sale de lo que la base dice.
       this._estado.set(await this.repo.estadoDeOnboarding());
+      this._integracion.set(await this.integraciones.mia());
       return null;
     } catch (e) {
+      // Sin conexión no hay nada que retener: que la pantalla vuelva a ofrecer
+      // el consentimiento en vez de quedarse en un paso "confirmado" vacío.
+      this._retenido.set(null);
       const crudo = e instanceof Error ? e.message : '';
       const conocido = MENSAJES_DE_GMAIL.find(([fragmento]) => crudo.includes(fragmento));
       if (conocido) return conocido[1];
       return mensajeSeguroDeBd(e, 'No se pudo conectar tu correo. Intentá de nuevo.');
+    } finally {
+      this._guardando.set(false);
+    }
+  }
+
+  /**
+   * Cambia la etiqueta que se vigila (AC8).
+   *
+   * Relee la integración en vez de escribir el valor optimista: si RLS o el
+   * GRANT por columna rechazan el UPDATE, la pantalla tiene que mostrar la
+   * carpeta que quedó de verdad y no la que se pidió.
+   */
+  async cambiarCarpeta(carpeta: string): Promise<string | null> {
+    const actual = this._integracion();
+    if (!actual) return 'No hay ninguna casilla conectada.';
+
+    this._guardando.set(true);
+    try {
+      await this.integraciones.cambiarCarpeta(actual.id, carpeta);
+      this._integracion.set(await this.integraciones.mia());
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo cambiar la carpeta.');
+    } finally {
+      this._guardando.set(false);
+    }
+  }
+
+  /**
+   * Desconecta la casilla (AC9).
+   *
+   * Al terminar, el estado vuelve a decir que no hay correo y el paso derivado
+   * regresa solo a 'correo' — no hace falta moverlo a mano.
+   */
+  async desconectarCorreo(): Promise<string | null> {
+    const actual = this._integracion();
+    if (!actual) return null;
+
+    this._guardando.set(true);
+    try {
+      await this.integraciones.desconectar(actual.id);
+      this._integracion.set(null);
+      this._retenido.set(null);
+      this._estado.set(await this.repo.estadoDeOnboarding());
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo desconectar el correo.');
     } finally {
       this._guardando.set(false);
     }

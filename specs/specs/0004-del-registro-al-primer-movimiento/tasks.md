@@ -54,15 +54,29 @@
 
 ---
 
-## Fase 4 — Paso 3: tu correo  ·  *bloqueada por credenciales*
+## Fase 4 — Paso 3: tu correo
 
-- [ ] **T4.1** — `PasoCorreoComponent`: consentimiento y elección de carpeta (AC5, AC8)
-- [ ] **T4.2** — Desconectar borra los tokens (AC9)
-- [ ] **T4.3** — Sin refresh token **no se guarda la integración** (AC7)
+- [x] **T4.1** — `PasoCorreoComponent`: consentimiento y elección de carpeta (AC5, AC8)
+      - `consentimiento-google.utils.ts`, 12 tests. `access_type=offline` y `prompt=consent` no
+        son opcionales: sin ellos Google da un token que muere en una hora y ningún refresh.
+      - `state` en `sessionStorage` contra CSRF; `code` y `state` salen de la URL al terminar.
+      - Migración `20260812080000`: policy de UPDATE + `GRANT UPDATE (carpeta)`. Por columna,
+        para que ni un error de tipeo del cliente pueda escribir una credencial.
+      - Las etiquetas de Gmail son una lista cerrada: escribirlas a mano falla en silencio —una
+        etiqueta mal tipeada no da error, simplemente no trae ningún correo nunca.
+- [x] **T4.2** — Desconectar borra los tokens (AC9)
+      - Se borra la fila y no se marca `estado='revocada'`: dejarla conserva el refresh token, y
+        "desconectado" tiene que significar que la credencial ya no existe.
+- [x] **T4.3** — Sin refresh token **no se guarda la integración** (AC7)
+      - Ya lo hacía la edge function. Lo que faltaba era traducir su mensaje: los de Google
+        hablan de `prompt=consent` y de nombres de variables de entorno.
 
-> Se puede construir; **no se puede verificar acá**. Faltan `GOOGLE_CLIENT_ID`/`SECRET`, y el
-> edge runtime no arranca en este entorno (baja paquetes de npm y el proxy TLS le da
-> `UnknownIssuer`).
+> **Verificado:** el par client_id + client_secret contra el endpoint real de Google (pasa de
+> `invalid_client` a `invalid_grant`), el redirect URI autorizado (`:4292`), y AC8/AC9 por
+> PostgREST con el JWT del usuario — el UPDATE llega a Postgres, y escribir o leer el
+> `refresh_token` se rechaza con 400 y 403. Ver `docs/CONECTAR-GMAIL.md`.
+>
+> **No verificado:** completar el consentimiento. Exige entrar a una cuenta de Google real.
 
 ---
 
@@ -96,3 +110,13 @@
       exactamente lo que AC2 pide y el diseño derivado, por sí solo, rompía. De ahí el **paso
       retenido**: lo que ya está hecho se puede seguir mostrando hasta que el usuario confirme.
       Lo encontró el navegador, no los tests: los tests verificaban el paso, no lo que se ve.
+- [x] **TD3** — El mismo problema, en el paso 3: apenas la base dice que hay correo conectado, el
+      paso derivado salta a "listo" y la casilla conectada —más la etiqueta que AC8 pide poder
+      elegir— desaparecían. Se retiene igual que el hogar.
+- [ ] **TD4** — **AC9 se queda sin puerta de entrada.** `onboardingGuard` manda a Hoy exactamente
+      cuando el paso es "listo" (AC-E2), así que desconectar el correo sólo es alcanzable en la
+      misma sesión en que se conectó: quien recarga no puede volver nunca. Es un control de
+      privacidad y su lugar es una pantalla de configuración, no un paso de onboarding.
+      **Consecuencia para la fase 5:** el paso 4 tiene el mismo problema — es un resumen de la
+      corrida recién hecha y por diseño no se puede volver a ver. Hay que decidirlo antes de
+      construir `PasoListoComponent`, o se construye una pantalla que casi nadie va a ver.

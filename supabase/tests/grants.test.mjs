@@ -171,4 +171,47 @@ describe('Privilegios de tabla', () => {
 
     assert.equal(fila, 'true');
   });
+
+  test('el usuario puede cambiar la carpeta que se vigila', async (t) => {
+    if (!disponible) return t.skip();
+
+    // AC8. Sin el GRANT la policy de UPDATE no se evalúa nunca: es el mismo modo
+    // de fallar que fix-001, y se ve igual de poco.
+    const [fila] = await sql(`
+      SELECT has_column_privilege('authenticated','public.integraciones_email','carpeta','UPDATE')::text;`);
+
+    assert.equal(fila, 'true');
+  });
+
+  test('el UPDATE del cliente NO alcanza a ninguna credencial', async (t) => {
+    if (!disponible) return t.skip();
+
+    // Lo que hace que el GRANT por columna sirva de algo. Un `GRANT UPDATE` a
+    // secas dejaría al cliente escribir el refresh_token, y entonces daría igual
+    // habérselo ocultado para leer.
+    //
+    // `profile_id` va en la lista porque poder reasignarlo es regalarle la
+    // casilla a otra cuenta. La policy lo frena con WITH CHECK, pero el
+    // privilegio no tiene por qué existir en primer lugar.
+    const prohibidas = ['refresh_token', 'access_token', 'expira_en', 'profile_id', 'household_id', 'email'];
+    const filas = await sql(`
+      SELECT col FROM unnest(ARRAY[${prohibidas.map((c) => `'${c}'`).join(',')}]) AS col
+       WHERE has_column_privilege('authenticated','public.integraciones_email',col,'UPDATE');`);
+
+    assert.deepEqual(filas, [], `authenticated escribe columnas que no debería: ${filas.join(', ')}`);
+  });
+
+  test('la policy de UPDATE tiene WITH CHECK, no sólo USING', async (t) => {
+    if (!disponible) return t.skip();
+
+    // Con `USING` solo se puede leer la fila propia y dejarla apuntando a otro
+    // perfil en el mismo UPDATE. `USING` decide qué filas se tocan; `WITH CHECK`,
+    // en qué estado pueden quedar — y sin el segundo la salida no se revisa.
+    const [fila] = await sql(`
+      SELECT (with_check IS NOT NULL)::text FROM pg_policies
+       WHERE schemaname='public' AND tablename='integraciones_email'
+         AND policyname='integraciones_email_update';`);
+
+    assert.equal(fila, 'true');
+  });
 });
