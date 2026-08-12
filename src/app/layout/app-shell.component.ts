@@ -13,6 +13,8 @@ import { LayoutService } from "@core/services/layout.service";
 import { GsapAnimationsService } from "@core/services/gsap-animations.service";
 import { SidebarComponent } from "./sidebar.component";
 import { LayoutDrawerComponent } from './layout-drawer.component';
+import { BottomNavComponent } from './bottom-nav.component';
+import { FocusOnNavigationDirective } from '@core/directives/focus-on-navigation.directive';
 import { TopbarComponent } from "./topbar.component";
 
 /**
@@ -31,7 +33,14 @@ import { TopbarComponent } from "./topbar.component";
   selector: "app-shell",
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [RouterOutlet, SidebarComponent, TopbarComponent, LayoutDrawerComponent],
+  imports: [
+    RouterOutlet,
+    SidebarComponent,
+    TopbarComponent,
+    LayoutDrawerComponent,
+    BottomNavComponent,
+    FocusOnNavigationDirective,
+  ],
   template: `
     <!-- Backdrop mobile drawer -->
     @if (layout.sidebarOpen()) {
@@ -72,9 +81,13 @@ import { TopbarComponent } from "./topbar.component";
             propiedades, ninguna container query matchea y el grid colapsa a
             su layout base (1 columna) en cualquier ancho de pantalla.
           -->
+          <!-- appFocusOnNavigation: tras cada navegación el foco va al <h1> de
+               la pantalla nueva. Sin esto el foco se queda en el enlace pulsado
+               y quien navega con teclado cambia de pantalla sin enterarse. -->
           <main
             #contentEl
-            class="overflow-y-auto p-6 transition-[view-transition-name:main-content]"
+            appFocusOnNavigation
+            class="overflow-y-auto p-6 pb-24 transition-[view-transition-name:main-content] lg:pb-6"
             style="view-transition-name: main-content; container-type: inline-size; container-name: layoutmain;"
             role="main"
             tabindex="-1"
@@ -87,6 +100,10 @@ import { TopbarComponent } from "./topbar.component";
              mobile. Su ancho lo anima GSAP; en reposo mide 0 y no ocupa nada. -->
         <app-layout-drawer />
       </div>
+
+      <!-- Bajo 1024px: los destinos, bajo el pulgar. Va fuera del contenedor de
+           <main> para que el drawer abierto no la angoste ni la desplace. -->
+      <app-bottom-nav />
     </div>
   `,
   host: { style: "display: contents;" },

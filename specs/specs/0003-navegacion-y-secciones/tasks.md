@@ -40,40 +40,40 @@
 - [x] **T1.2** — `Pendiente`, `FuenteDePendientes` y el token multi
   - **AC ref:** AC10
   - **DoD:**
-    - [ ] `core/models/pendiente.model.ts` con los tres artefactos
-    - [ ] Documentado **por qué** es un token multi y no una lista: agregar un módulo no puede obligar a tocar Hoy
+    - [x] `core/models/pendiente.model.ts` con los tres artefactos
+    - [x] Documentado **por qué** es un token multi y no una lista: agregar un módulo no puede obligar a tocar Hoy
 
 - [x] **T1.3** — `PendientesService` con aislamiento de fallos
   - **AC ref:** AC10, "estados especiales"
   - **DoD:**
-    - [ ] Agrega todas las fuentes registradas, ordenadas por `prioridad`
-    - [ ] `allSettled`, no `all`
-    - [ ] Expone qué fuentes fallaron, para que Hoy lo muestre por bloque
-    - [ ] Test: dos fuentes OK + una que rechaza → las dos siguen y la caída se reporta
-    - [ ] Test: cero fuentes registradas → lista vacía, sin reventar
+    - [x] Agrega todas las fuentes registradas, ordenadas por `prioridad`
+    - [x] `allSettled`, no `all`
+    - [x] Expone qué fuentes fallaron, para que Hoy lo muestre por bloque
+    - [x] Test: dos fuentes OK + una que rechaza → las dos siguen y la caída se reporta
+    - [x] Test: cero fuentes registradas → lista vacía, sin reventar
 
 - [x] **T1.4** — `NavegacionService`: el menú derivado
   - **AC ref:** AC2, AC4
   - **DoD:**
-    - [ ] `destinos()` computa **sólo** los que tienen contenido registrado
-    - [ ] El orden canónico (Hoy · Plata · Casa · Cuerpo · Ajustes) vive acá, aunque falten
-    - [ ] Test: con 1 destino registrado devuelve 1; con 3, los 3 en orden
-    - [ ] Test: un destino sin ruta declarada **no** sale
+    - [x] `destinos()` computa **sólo** los que tienen contenido registrado
+    - [x] El orden canónico (Hoy · Plata · Casa · Cuerpo · Ajustes) vive acá, aunque falten
+    - [x] Test: con 1 destino registrado devuelve 1; con 3, los 3 en orden
+    - [x] Test: un destino sin ruta declarada **no** sale
 
 - [x] **T1.5** — `MenuConfigService` pasa a adaptador
   - **DoD:**
-    - [ ] Sin lista hardcodeada; delega en `NavegacionService`
-    - [ ] `SidebarComponent` sigue funcionando sin cambios de API
-    - [ ] NAV-01 en verde
+    - [x] Sin lista hardcodeada; delega en `NavegacionService`
+    - [x] `SidebarComponent` sigue funcionando sin cambios de API
+    - [x] NAV-01 en verde
 
 - [x] **T1.6** — La bandeja como **fuente** de pendientes
   - **AC ref:** AC10
   - **Por qué:** la spec es explícita en que la bandeja no es un destino sino un pendiente.
   - **DoD:**
-    - [ ] `features/bandeja/bandeja.pendientes.ts` implementa `FuenteDePendientes`
-    - [ ] Registrada en `app.config.ts` como `multi: true`
-    - [ ] Devuelve el número exacto de capturas sin resolver y la ruta a la bandeja
-    - [ ] Test con el facade mockeado
+    - [x] `features/bandeja/bandeja.pendientes.ts` implementa `FuenteDePendientes`
+    - [x] Registrada en `app.config.ts` como `multi: true`
+    - [x] Devuelve el número exacto de capturas sin resolver y la ruta a la bandeja
+    - [x] Test con el facade mockeado
 
 ---
 
@@ -82,45 +82,61 @@
 - [x] **T2.1** — `HoyFacade`
   - **AC ref:** AC10, AC11
   - **DoD:**
-    - [ ] Inyecta `PendientesService`, **nunca** facades de dominio (ARCH-02)
-    - [ ] Expone pendientes + últimos movimientos + estado por bloque
-    - [ ] Test del estado vacío y del estado con fallo parcial
+    - [x] Inyecta `PendientesService`, **nunca** facades de dominio (ARCH-02)
+    - [x] Expone pendientes + últimos movimientos + estado por bloque
+    - [x] Test del estado vacío y del estado con fallo parcial
 
 - [x] **T2.2** — `HoyComponent` con las cinco piezas
   - **AC ref:** AC9, AC10, AC11, AC12
   - **DoD:**
-    - [ ] Hero slim con banda de KPIs; filas con `.item-title` / `.micro-label`
-    - [ ] **Sin nada pendiente:** mensaje explícito, no una grilla de ceros (AC9)
-    - [ ] Pendientes primero, con cantidad exacta y acceso directo (AC10)
-    - [ ] Últimos movimientos sin entrar a Plata (AC11)
-    - [ ] Lugar reservado para las preguntas de despensa (AC12) — sin fuente todavía
-    - [ ] `data-llm-action` en los controles
+    - [x] Hero slim con banda de KPIs; filas con `.item-title` / `.micro-label`
+    - [x] **Sin nada pendiente:** mensaje explícito, no una grilla de ceros (AC9)
+    - [x] Pendientes primero, con cantidad exacta y acceso directo (AC10)
+    - [x] Últimos movimientos sin entrar a Plata (AC11)
+    - [x] Lugar reservado para las preguntas de despensa (AC12) — sin fuente todavía
+    - [x] `data-llm-action` en los controles
 
-- [ ] **T2.3** — Rutas: `/app` → Hoy, not-found dentro del shell, `hogarGuard`
+- [~] **T2.3** — Rutas: `/app` → Hoy, not-found dentro del shell, `hogarGuard`
   - **AC ref:** AC1, AC-E1, AC-E2
   - **DoD:**
-    - [ ] `/app` aterriza en Hoy, no en dashboard
-    - [ ] Ruta comodín **hija de `/app`**: el not-found conserva la navegación (AC-E2)
-    - [ ] `hogarGuard` manda a onboarding a un usuario sin hogar (AC-E1)
-    - [ ] Tests del guard en sus dos ramas
+    - [x] `/app` aterriza en Hoy, no en dashboard (AC1)
+    - [x] Ruta comodín **hija de `/app`**: el not-found conserva la navegación (AC-E2)
+    - [~] `hogarGuard` → **diferido a la spec 0004**
+    - [~] Tests del guard → con el guard
+  - **Por qué se difiere AC-E1:** el guard redirige a onboarding, y el onboarding **es la spec
+    0004**. Construirlo ahora deja dos malas salidas: apuntar a una ruta inexistente (el usuario
+    sin hogar cae en el not-found, peor que hoy) o inventar una pantalla de promesa para que el
+    guard tenga a dónde ir. Un guard sin destino es código sin llamador — lo mismo que se evitó
+    en TD1 al no escribir el listado de movimientos antes que su pantalla.
 
 ---
 
 ## Fase 3 — Navegación
 
-- [ ] **T3.1** — `BottomNavComponent`
+- [x] **T3.1** — `BottomNavComponent`
   - **AC ref:** AC6
   - **DoD:**
-    - [ ] Aparece bajo 1024px según el `tier` del **contenedor** (LayoutService), no una media query suelta
-    - [ ] Marca el destino activo; nombre accesible en cada botón (A11Y-03)
-    - [ ] El shell reserva su alto: no tapa el contenido del bento fill-screen
+    - [x] Aparece bajo 1024px — **corrección sobre el plan:** por breakpoint de VIEWPORT
+          (`lg:hidden`), no por el `tier` del contenedor. El tier mide `<main>`, que el drawer
+          angosta; la barra tiene que seguir abajo con el drawer abierto, así que su umbral es
+          el de la pantalla y no el del contenedor
+    - [x] Marca el destino activo con `aria-current="page"`, y sigue marcándolo dentro de una
+          subsección (`/app/plata/cuentas` sigue siendo Plata)
+    - [x] Cada destino lleva texto visible junto al icono: no depende de `aria-label` (A11Y-03)
+    - [x] El shell reserva su alto (`pb-24 lg:pb-6` en `<main>`) y respeta `safe-area-inset-bottom`
+    - [x] Sin destinos registrados **no se dibuja**: una barra vacía ocuparía alto a cambio de nada
+    - [x] Toma los destinos de `NavegacionService`, no una lista propia: dos listas de lo mismo
+          se desincronizan, y ésta es la que más se mira
 
-- [ ] **T3.2** — Foco al `<h1>` al navegar
+- [x] **T3.2** — Foco al `<h1>` al navegar
   - **AC ref:** AC8
   - **DoD:**
-    - [ ] Directiva que mueve el foco tras cada `NavigationEnd`
-    - [ ] No roba el foco en la primera carga
-    - [ ] Test unitario
+    - [x] Directiva que mueve el foco al `<h1>` tras cada `NavigationEnd`
+    - [x] No roba el foco en la primera carga: la directiva nace con el shell y el
+          `NavigationEnd` inicial ya ocurrió
+    - [x] `tabindex="-1"` para que sea enfocable por código sin entrar en la tabulación, y
+          `preventScroll` porque el contrato App-like ya deja la pantalla arriba
+    - [x] 4 tests, incluido el de una pantalla sin encabezado
 
 ---
 
