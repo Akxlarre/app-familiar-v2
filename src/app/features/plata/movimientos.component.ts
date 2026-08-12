@@ -1,5 +1,8 @@
-import { ChangeDetectionStrategy, Component, OnInit, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { DatePipe, DecimalPipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { IconComponent } from '@shared/components/icon/icon.component';
 import { SectionHeroComponent } from '@shared/components/section-hero/section-hero.component';
@@ -10,9 +13,12 @@ import { BentoGridLayoutDirective } from '@core/directives/bento-grid-layout.dir
 import { BentoRevealDirective } from '@core/directives/bento-reveal.directive';
 import type { SectionHeroKpi } from '@core/models/section-hero.model';
 import type { Movimiento } from '@core/models/movimiento.model';
+import type { FiltroMovimientos } from '@core/models/plata.model';
+import { moverPeriodo } from '@core/models/plata.model';
 import { LayoutDrawerFacadeService } from '@core/services/layout-drawer.facade.service';
 import { DetalleMovimientoComponent } from './detalle-movimiento.component';
 import { PlataFacade } from './plata.facade';
+import { aQueryParams, desdeQueryParams, mismoFiltro } from './filtros-url.utils';
 
 /**
  * MovimientosComponent — la pantalla que justifica el proyecto.
@@ -31,6 +37,7 @@ import { PlataFacade } from './plata.facade';
   imports: [
     DatePipe,
     DecimalPipe,
+    FormsModule,
     IconComponent,
     SectionHeroComponent,
     EmptyStateComponent,
@@ -82,12 +89,97 @@ import { PlataFacade } from './plata.facade';
             </button>
           </div>
 
-          @if (facade.resumen(); as resumen) {
-            <span class="text-sm text-text-muted">
-              {{ resumen.movimientos }} {{ resumen.movimientos === 1 ? 'movimiento' : 'movimientos' }}
-            </span>
-          }
+          <div class="flex flex-wrap items-center gap-2">
+            @if (facade.resumen(); as resumen) {
+              <span class="text-sm text-text-muted">
+                {{ resumen.movimientos }} {{ resumen.movimientos === 1 ? 'movimiento' : 'movimientos' }}
+              </span>
+            }
+            <button
+              type="button"
+              class="btn-ghost"
+              [attr.aria-expanded]="mostrarFiltros()"
+              (click)="mostrarFiltros.set(!mostrarFiltros())"
+              data-llm-action="abrir-filtros"
+            >
+              <app-icon name="search" [size]="14" [ariaHidden]="true" />
+              Filtrar
+              @if (facade.hayFiltrosAplicados()) { <span class="text-brand">•</span> }
+            </button>
+          </div>
         </div>
+
+        @if (mostrarFiltros()) {
+          <div class="flex flex-wrap items-end gap-3 border-b border-border-subtle px-4 py-3">
+            <div class="flex min-w-[9rem] flex-1 flex-col gap-1">
+              <label for="f-texto" class="field-label">Comercio</label>
+              <input
+                id="f-texto"
+                type="search"
+                class="field-input"
+                placeholder="jumbo"
+                [ngModel]="facade.filtro().texto"
+                (ngModelChange)="filtrarPorTexto($event)"
+                data-llm-description="Filter movements by merchant name"
+              />
+            </div>
+
+            <div class="flex min-w-[9rem] flex-1 flex-col gap-1">
+              <label for="f-categoria" class="field-label">Categoría</label>
+              <select
+                id="f-categoria"
+                class="field-input"
+                [ngModel]="facade.filtro().categoriaId ?? ''"
+                (ngModelChange)="aplicar({ categoriaId: $event || null })"
+              >
+                <option value="">Todas</option>
+                @for (cat of facade.categoriasDelHogar(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.nombre }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="flex min-w-[9rem] flex-1 flex-col gap-1">
+              <label for="f-cuenta" class="field-label">Cuenta</label>
+              <select
+                id="f-cuenta"
+                class="field-input"
+                [ngModel]="facade.filtro().cuentaId ?? ''"
+                (ngModelChange)="aplicar({ cuentaId: $event || null })"
+              >
+                <option value="">Todas</option>
+                @for (cuenta of facade.cuentasDelHogar(); track cuenta.id) {
+                  <option [value]="cuenta.id">{{ cuenta.nombre }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="flex min-w-[8rem] flex-1 flex-col gap-1">
+              <label for="f-tipo" class="field-label">Tipo</label>
+              <select
+                id="f-tipo"
+                class="field-input"
+                [ngModel]="facade.filtro().tipo ?? ''"
+                (ngModelChange)="aplicar({ tipo: $event || null })"
+              >
+                <option value="">Todos</option>
+                <option value="gasto">Gastos</option>
+                <option value="ingreso">Ingresos</option>
+              </select>
+            </div>
+
+            @if (facade.hayFiltrosAplicados()) {
+              <button
+                type="button"
+                class="btn-ghost"
+                (click)="limpiar()"
+                data-llm-action="limpiar-filtros"
+              >
+                Limpiar
+              </button>
+            }
+          </div>
+        }
 
         <div class="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-3">
           @if (facade.cargando()) {
@@ -206,6 +298,13 @@ import { PlataFacade } from './plata.facade';
 export class MovimientosComponent implements OnInit {
   protected readonly facade = inject(PlataFacade);
   private readonly drawer = inject(LayoutDrawerFacadeService);
+  private readonly router = inject(Router);
+  private readonly ruta = inject(ActivatedRoute);
+
+  protected readonly mostrarFiltros = signal(false);
+
+  /** Para no disparar una consulta por cada tecla. */
+  private tecleo?: ReturnType<typeof setTimeout>;
 
   protected readonly bajada = computed(() =>
     this.facade.resumen()?.movimientos === 0
@@ -243,8 +342,44 @@ export class MovimientosComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    void this.facade.cargar();
     void this.facade.cargarCategorias();
+
+    // La URL es la fuente de verdad del filtro (AC14). Escuchar los params en
+    // vez de cargar y después navegar hace que el botón "atrás" del navegador
+    // funcione solo: cada estado de filtro es una entrada del historial.
+    this.ruta.queryParams.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const desdeUrl = desdeQueryParams(params as Record<string, string | undefined>);
+      if (this.primeraCarga || !mismoFiltro(desdeUrl, this.facade.filtro())) {
+        this.primeraCarga = false;
+        this.mostrarFiltros.set(this.mostrarFiltros() || tieneFiltros(desdeUrl));
+        void this.facade.cargar(desdeUrl);
+      }
+    });
+  }
+
+  private primeraCarga = true;
+  private readonly destroyRef = inject(DestroyRef);
+
+  /** Navegar, no cargar: el efecto de los query params dispara la carga. */
+  protected aplicar(cambio: Partial<FiltroMovimientos>): void {
+    const nuevo = { ...this.facade.filtro(), ...cambio };
+    void this.router.navigate([], {
+      relativeTo: this.ruta,
+      queryParams: aQueryParams(nuevo),
+      queryParamsHandling: 'merge',
+      // Reemplazar y no apilar: escribir en un campo no puede dejar veinte
+      // entradas en el historial del navegador.
+      replaceUrl: !!cambio.texto || cambio.texto === '',
+    });
+  }
+
+  protected filtrarPorTexto(texto: string): void {
+    clearTimeout(this.tecleo);
+    this.tecleo = setTimeout(() => this.aplicar({ texto }), 350);
+  }
+
+  protected limpiar(): void {
+    this.aplicar({ cuentaId: null, categoriaId: null, tipo: null, texto: '' });
   }
 
   /**
@@ -273,10 +408,15 @@ export class MovimientosComponent implements OnInit {
   }
 
   protected mesAnterior(): void {
-    void this.facade.moverMes(-1);
+    this.aplicar(moverPeriodo(this.facade.filtro().desde, -1));
   }
 
   protected mesSiguiente(): void {
-    void this.facade.moverMes(1);
+    this.aplicar(moverPeriodo(this.facade.filtro().desde, 1));
   }
+}
+
+/** Si un filtro trae algo puesto, para abrir la barra al entrar por una URL con filtros. */
+function tieneFiltros(f: FiltroMovimientos): boolean {
+  return !!(f.cuentaId || f.categoriaId || f.tipo || f.texto.trim());
 }

@@ -53,11 +53,26 @@
     `categoria_para_comercio` confirma que un correo nuevo de JUMBO **ya llegaría categorizado**.
     Es REQ-013 funcionando de punta a punta.
 
-## Fase 3 — Filtros
+## Fase 3 — Filtros  ✅
 
-- [ ] **T3.1** — Filtros por cuenta, categoría, tipo y texto (AC13)
-- [ ] **T3.2** — Los filtros viven en la URL (AC14)
-- [ ] **T3.3** — Tabs de subsección de Plata → **cierra AC3, AC7 y AC-E3 de la spec 0003**
+- [x] **T3.1** — Filtros por cuenta, categoría, tipo y texto (AC13, AC15)
+  - **Los agregados también reciben el filtro.** Antes sumaban el período entero: con un filtro
+    puesto, el hero decía una cosa y la lista otra — y el usuario filtra justamente para saber
+    cuánto es *eso*.
+  - El texto se compara con `ILIKE` en los tres lugares. Filtrar distinto en la lista y en los
+    agregados es el mismo bug, sólo que más difícil de ver.
+- [x] **T3.2** — Los filtros viven en la URL (AC14)
+  - **La URL es la fuente de verdad**: la pantalla escucha los query params en vez de cargar y
+    después navegar. Con eso el botón "atrás" del navegador funciona solo, sin código.
+  - El mes en curso no se escribe: es el default y ensuciaría la URL de quien nunca filtró.
+  - El texto va con `replaceUrl`: escribir en un campo no puede dejar veinte entradas en el
+    historial.
+- [~] **T3.3** — Tabs de subsección de Plata → **NO se puede cerrar todavía**
+  - Plata tiene **una sola** subsección hasta que existan Cuentas (0006), Cuotas (0007) y
+    Presupuestos (0008). Poner tabs ahora sería inventar las promesas que AC4 de la 0003 prohíbe.
+  - **Corrección sobre lo que dije al cerrar la fase 1:** anuncié que esta fase cerraría AC3, AC7
+    y AC-E3 de la spec 0003. No es así — dependen de que exista una segunda subsección, no de
+    esta spec. Siguen diferidos, ahora a la **0006**.
 
 ## Fase 4 — Cierre
 
@@ -76,6 +91,11 @@
       `undefined !== valor` también: dos de ellas pasaban justo cuando el hero **no** renderizaba.
       Un selector equivocado convirtió los tests en tautologías que confirmaban lo contrario de lo
       que decían medir. Corregidas exigiendo que el valor exista y tenga formato.
+- [x] **TD5** — **`CREATE OR REPLACE` no reemplaza cuando cambia la firma**: crea una segunda
+      función con el mismo nombre. Con las dos vivas, la llamada de dos argumentos se volvió
+      ambigua (`function is not unique`) y habría roto a todos los clientes existentes. Agregar
+      parámetros opcionales a un RPC exige `DROP` explícito de la versión anterior. Sólo se ve
+      ejecutando: el SQL se aplica sin quejarse.
 - [x] **TD4** — El drawer inyectaba `MovimientosRepository` y `ToastService` directamente, y
       ARCH-02 lo bloqueó. La corrección no fue cosmética: mover la lógica al facade puso la
       recarga de la lista donde corresponde, y el callback `alGuardar` que había inventado para

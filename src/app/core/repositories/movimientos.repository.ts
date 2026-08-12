@@ -99,11 +99,21 @@ export class MovimientosRepository {
     return ((data ?? []) as MovimientoRow[]).map(aDominio);
   }
 
-  /** Los tres números del período. Los suma la base (AC6). */
-  async resumen(desde: string, hasta: string): Promise<ResumenPeriodo> {
+  /**
+   * Los tres números, **sobre lo filtrado** (AC6, AC13).
+   *
+   * Recibe el filtro completo y no sólo el período: con un filtro puesto, un
+   * hero que suma todo el mes dice una cosa mientras la lista dice otra, y el
+   * usuario filtró justamente para saber cuánto es eso.
+   */
+  async resumen(filtro: FiltroMovimientos): Promise<ResumenPeriodo> {
     const { data, error } = await this.client.rpc('resumen_del_periodo', {
-      p_desde: desde,
-      p_hasta: hasta,
+      p_desde: filtro.desde,
+      p_hasta: filtro.hasta,
+      p_cuenta_id: filtro.cuentaId,
+      p_categoria_id: filtro.categoriaId,
+      p_tipo: filtro.tipo,
+      p_texto: filtro.texto.trim() || null,
     });
 
     if (error) throw new ErrorDeBd(error.message, error.code);
@@ -116,11 +126,14 @@ export class MovimientosRepository {
     };
   }
 
-  /** El reparto por categoría, de mayor a menor (AC7). */
-  async porCategoria(desde: string, hasta: string): Promise<GastoPorCategoria[]> {
+  /** El reparto por categoría, de mayor a menor y sobre lo filtrado (AC7, AC13). */
+  async porCategoria(filtro: FiltroMovimientos): Promise<GastoPorCategoria[]> {
     const { data, error } = await this.client.rpc('gasto_por_categoria', {
-      p_desde: desde,
-      p_hasta: hasta,
+      p_desde: filtro.desde,
+      p_hasta: filtro.hasta,
+      p_cuenta_id: filtro.cuentaId,
+      p_categoria_id: filtro.categoriaId,
+      p_texto: filtro.texto.trim() || null,
     });
 
     if (error) throw new ErrorDeBd(error.message, error.code);

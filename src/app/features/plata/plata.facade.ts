@@ -5,6 +5,8 @@ import { ToastService } from '@core/services/toast.service';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
 import type { Movimiento } from '@core/models/movimiento.model';
 import type { Categoria, OrigenDelMovimiento } from '@core/models/plata.model';
+import type { Cuenta } from '@core/models/banco.model';
+import { BancosRepository } from '@core/repositories/bancos.repository';
 import {
   agruparPorDia,
   moverPeriodo,
@@ -37,6 +39,7 @@ const MENSAJES_DEL_RPC = [
 export class PlataFacade {
   private readonly repo = inject(MovimientosRepository);
   private readonly toast = inject(ToastService);
+  private readonly bancos = inject(BancosRepository);
 
   private readonly _filtro = signal<FiltroMovimientos>({
     ...periodoDelMes(),
@@ -55,6 +58,7 @@ export class PlataFacade {
   private readonly _hayMas = signal(false);
   private readonly _cargado = signal(false);
   private readonly _categoriasDelHogar = signal<readonly Categoria[]>([]);
+  private readonly _cuentasDelHogar = signal<readonly Cuenta[]>([]);
 
   /**
    * Cada carga lleva su número. Cambiar de filtro rápido produce respuestas
@@ -73,6 +77,7 @@ export class PlataFacade {
   readonly hayMas = this._hayMas.asReadonly();
 
   readonly categoriasDelHogar = this._categoriasDelHogar.asReadonly();
+  readonly cuentasDelHogar = this._cuentasDelHogar.asReadonly();
 
   readonly dias = computed(() => agruparPorDia(this._movimientos()));
 
@@ -94,8 +99,8 @@ export class PlataFacade {
     const f = this._filtro();
     const [pagina, resumen, categorias] = await Promise.allSettled([
       this.repo.pagina(f, POR_PAGINA),
-      this.repo.resumen(f.desde, f.hasta),
-      this.repo.porCategoria(f.desde, f.hasta),
+      this.repo.resumen(f),
+      this.repo.porCategoria(f),
     ]);
 
     // Llegó tarde: hay otra carga más nueva en curso.
@@ -135,14 +140,27 @@ export class PlataFacade {
     }
   }
 
-  /** Las categorías del hogar. Se piden una vez: es una lista corta y estable. */
+  /**
+   * Categorías y cuentas del hogar, para los selectores. Se piden una vez: son
+   * listas cortas y estables.
+   *
+   * Fallan en silencio: sin ellas los selectores quedan vacíos, pero la lista
+   * se sigue viendo — que es lo que el usuario vino a mirar.
+   */
   async cargarCategorias(): Promise<void> {
-    if (this._categoriasDelHogar().length > 0) return;
-    try {
-      this._categoriasDelHogar.set(await this.repo.categorias());
-    } catch {
-      // Sin categorías el selector queda vacío, pero la lista se sigue viendo.
-      this._categoriasDelHogar.set([]);
+    if (this._categoriasDelHogar().length === 0) {
+      try {
+        this._categoriasDelHogar.set(await this.repo.categorias());
+      } catch {
+        this._categoriasDelHogar.set([]);
+      }
+    }
+    if (this._cuentasDelHogar().length === 0) {
+      try {
+        this._cuentasDelHogar.set(await this.bancos.cuentas());
+      } catch {
+        this._cuentasDelHogar.set([]);
+      }
     }
   }
 
