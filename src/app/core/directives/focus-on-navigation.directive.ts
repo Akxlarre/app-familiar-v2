@@ -1,7 +1,7 @@
 import { Directive, ElementRef, inject } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router } from '@angular/router';
-import { filter } from 'rxjs';
+import { filter, skip } from 'rxjs';
 
 /**
  * Mueve el foco del teclado al encabezado de la pantalla nueva tras navegar.
@@ -24,10 +24,15 @@ export class FocusOnNavigationDirective {
     inject(Router)
       .events.pipe(
         filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+        // Se salta la navegación que montó el shell. Creí que no hacía falta —el
+        // shell se crea antes del NavigationEnd, razoné— y la captura del
+        // navegador mostró el anillo de foco sobre el <h1> nada más cargar: el
+        // shell es un `loadComponent` de la ruta, así que el evento llega
+        // DESPUÉS de construirlo. Robar el foco al abrir la app le pone un
+        // anillo a quien usa mouse y anuncia un cambio que no hubo.
+        skip(1),
         takeUntilDestroyed(),
       )
-      // No hay caso de "primera carga" que excluir: la directiva se crea con el
-      // shell, y el NavigationEnd inicial ya ocurrió antes de que exista.
       .subscribe(() => this.enfocarEncabezado());
   }
 

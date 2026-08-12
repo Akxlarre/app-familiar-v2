@@ -40,10 +40,28 @@ async function montar() {
 }
 
 describe('FocusOnNavigationDirective', () => {
+  it('NO roba el foco en la carga inicial', async () => {
+    // La primera navegación es la que monta el shell. Enfocar ahí le pone un
+    // anillo de foco a quien usa mouse y anuncia un cambio de pantalla que no
+    // hubo. Este test nació de una captura del navegador: el código afirmaba en
+    // un comentario que esto no pasaba, y pasaba.
+    const { fixture, router } = await montar();
+
+    await router.navigateByUrl('/hoy');
+    fixture.detectChanges();
+    await tick();
+
+    expect((document.activeElement as HTMLElement)?.tagName).not.toBe('H1');
+  });
+
   it('lleva el foco al h1 de la pantalla nueva', async () => {
     // Sin esto el foco se queda en el enlace del menú y quien navega con
     // teclado cambia de pantalla sin enterarse.
     const { fixture, router } = await montar();
+
+    await router.navigateByUrl('/bandeja'); // la que monta el shell
+    fixture.detectChanges();
+    await tick();
 
     await router.navigateByUrl('/hoy');
     fixture.detectChanges();
@@ -54,6 +72,10 @@ describe('FocusOnNavigationDirective', () => {
 
   it('vuelve a moverlo en cada navegación, no sólo en la primera', async () => {
     const { fixture, router } = await montar();
+
+    await router.navigateByUrl('/sin-h1'); // la que monta el shell
+    fixture.detectChanges();
+    await tick();
 
     await router.navigateByUrl('/hoy');
     fixture.detectChanges();
@@ -69,6 +91,10 @@ describe('FocusOnNavigationDirective', () => {
   it('hace el encabezado enfocable sin meterlo en el orden de tabulación', async () => {
     const { fixture, router } = await montar();
 
+    await router.navigateByUrl('/bandeja'); // la que monta el shell
+    fixture.detectChanges();
+    await tick();
+
     await router.navigateByUrl('/hoy');
     fixture.detectChanges();
     await tick();
@@ -78,6 +104,10 @@ describe('FocusOnNavigationDirective', () => {
 
   it('una pantalla sin encabezado no rompe nada', async () => {
     const { fixture, router } = await montar();
+
+    await router.navigateByUrl('/hoy'); // la que monta el shell
+    fixture.detectChanges();
+    await tick();
 
     await router.navigateByUrl('/sin-h1');
     fixture.detectChanges();

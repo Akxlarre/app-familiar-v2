@@ -51,7 +51,7 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 
 | ID | Título | Entrada | Prioridad | Estado | REQ |
 |----|--------|---------|-----------|--------|-----|
-| 0003 | Navegación y secciones | — | P0 | `draft` | RNF-02, RNF-06 |
+| 0003 | Navegación y secciones | — | P0 | `done` | RNF-02, RNF-06 |
 | 0004 | Del registro al primer movimiento | 🟡 una vez | P0 | `draft` | REQ-001, REQ-010 |
 | 0005 | La pantalla de la plata | 🟢 | P0 | `draft` | REQ-011, REQ-013 |
 | 0006 | Cuentas y tarjetas de crédito | 🟡 una vez | P1 | `draft` | REQ-030 |
@@ -178,6 +178,7 @@ una vez: la 0023 (gasto compartido) se archivó antes de construirse.
 
 | ID | Título | Cerrada | Verificada por |
 |----|--------|---------|----------------|
+| 0003 | Navegación y secciones | 2026-08-12 | 405 tests + QA en navegador ([acceptance.md](specs/0003-navegacion-y-secciones/acceptance.md)). 11/15 AC; 4 diferidos por dependencia real. Destapó 9 defectos, entre ellos una entrada de menú muerta desde el primer commit |
 | 0002 | Lenguaje de pantallas — el contrato de UI | 2026-08-12 | 359 tests + 18 comprobaciones en navegador ([acceptance.md](specs/0002-lenguaje-de-pantallas/acceptance.md)). Destapó 8 defectos del boilerplate, entre ellos los inputs del login en 1.15:1 |
 
 ---

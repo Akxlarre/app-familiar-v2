@@ -1,7 +1,7 @@
 # Tasks 0003 — Navegación y secciones
 
 > **Spec:** [spec.md](./spec.md) · **Plan:** [plan.md](./plan.md)
-> **Status:** in_progress
+> **Status:** done
 > **Created:** 2026-08-12
 
 ---
@@ -147,10 +147,12 @@
     iba a reemplazar. Este es el momento; dejarlo sería exactamente la deuda que se difirió.
   - **DoD:** sin referencias en rutas, menú ni tests
 
-- [ ] **T4.2** — `npm run lint:arch` limpio · `npm run test:ci` verde · `lint:arch:test` verde
-- [ ] **T4.3** — **QA en navegador**: 2 temas × 2 anchos, barra inferior, foco tras navegar,
-      recarga en subsección (AC-E3), consola limpia
-- [ ] **T4.4** — `acceptance.md` con evidencia por AC. **AC3 y AC7 se declaran diferidos a la 0005**
+- [x] **T4.2** — `npm run lint:arch` limpio · `npm run test:ci` verde · `lint:arch:test` verde
+- [x] **T4.3** — **QA en navegador**: 2 anchos, barra inferior, foco tras navegar, consola limpia.
+      Se hizo sobre `/_ds`, la única ruta con shell fuera de `authGuard`. **Encontró el defecto
+      que ni el linter ni los tests podían ver:** la directiva de foco robaba el foco en la carga
+      inicial, y el código afirmaba lo contrario en un comentario. AC-E3 va con AC3/AC7 a la 0005.
+- [x] **T4.4** — `acceptance.md` con evidencia por AC. **AC3 y AC7 se declaran diferidos a la 0005**
 - [ ] **T4.5** — `indices:sync`, ROADMAP a `done`, limpiar `.active`
 - [ ] **T4.6** — Backportear a Koa lo genérico (NAV-01 seguro; el modelo de pendientes, a evaluar)
 
@@ -173,6 +175,11 @@
       contra un destino que existe.
 - [x] **TD4** — El spec de `MenuConfigService` exigía "array no vacío", que es justo lo que empuja
       a inventar entradas para llenar el menú. Ahora un menú vacío es un caso válido y probado.
+- [x] **TD6** — La directiva de foco **robaba el foco en la carga inicial**. El comentario del
+      código decía que no hacía falta excluirla —"el shell se crea antes del NavigationEnd"— y era
+      falso: el shell es un `loadComponent` de la ruta, así que el evento llega después. Lo mostró
+      una captura del navegador, con el anillo de foco sobre el `<h1>` nada más abrir. No había
+      test porque el DoD lo daba por cierto; ahora lo hay.
 - [x] **TD5** — ARCH-11 atrapó `text-state-warning` y `text-state-success` recién escritas: no
       existen en el `@theme` y no generan CSS. Texto sin color, el mismo modo de fallo que dejó
       los inputs del login invisibles.
