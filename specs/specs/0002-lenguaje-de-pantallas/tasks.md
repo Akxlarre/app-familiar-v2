@@ -129,25 +129,26 @@
 - [x] **T4.1** — `npm run lint:arch` limpio (0 errores)
 - [x] **T4.2** — `npm run test:ci` verde
 - [x] **T4.3** — `npm run lint:arch:test` verde (guardrails nuevos)
-- [ ] **T4.4** — **QA en navegador** de `/app/_ds` — la lección de esta sesión es que compilar no alcanza
+- [x] **T4.4** — **QA en navegador** de `/app/_ds` — la lección de esta sesión es que compilar no alcanza
   - **DoD:** matriz completa, con evidencia en `acceptance.md`
-    - [ ] 4 estados × 2 temas
-    - [ ] ≥1024px: llena el viewport, el documento no scrollea (AC1)
-    - [ ] <1024px: la página scrollea nativamente (AC2)
-    - [ ] Drawer abierto: empuja el contenido y el bento se compacta (AC4)
-    - [ ] `prefers-reduced-motion: reduce`: sin animaciones, sin callbacks perdidos (AC11)
-    - [ ] Consola limpia, sin 4xx en red
+    - [x] 4 estados × 2 temas
+    - [x] ≥1024px: llena el viewport, el documento no scrollea (AC1)
+    - [x] <1024px: la página scrollea nativamente (AC2)
+    - [x] Drawer abierto: empuja el contenido y el bento se compacta (AC4)
+    - [x] `prefers-reduced-motion: reduce`: sin animaciones, sin callbacks perdidos (AC11)
+    - [x] Consola limpia, sin 4xx en red
 
-- [ ] **T4.5** — `/spec-verify`
-  - **DoD:** cada AC en `acceptance.md` con su evidencia (test, commit o captura)
+- [x] **T4.5** — `acceptance.md` con evidencia por AC
+  - **DoD:** 16 de 17 AC verificados. **AC-E1 (500 filas) queda sin verificar**: ninguna pantalla
+    tiene ese volumen todavía; se mide con la lista de movimientos (spec 0005).
 
 ---
 
 ## Fase 5 — Cierre
 
-- [ ] **T5.1** — `npm run indices:sync`
-- [ ] **T5.2** — Marcar 0002 como `done` en `ROADMAP.md`
-- [ ] **T5.3** — Limpiar `specs/.active`
+- [x] **T5.1** — `npm run indices:sync`
+- [x] **T5.2** — Marcar 0002 como `done` en `ROADMAP.md`
+- [x] **T5.3** — Limpiar `specs/.active`
 - [ ] **T5.4** — Backportear a Koa lo que sea genérico: `contrast-check.js`, ARCH-24,
       `screen-contract.md` y el arreglo del path-scope. Verificar con un Full Scaffold real.
 

@@ -1,6 +1,6 @@
 # Spec 0002 — Lenguaje de pantallas: el contrato de UI
 
-> **Status:** in_progress
+> **Status:** done
 > **Created:** 2026-08-11
 > **Owner:** Benjamín
 > **Priority:** P0
@@ -157,3 +157,4 @@ No toca persistencia.
 
 - 2026-08-11 — draft inicial.
 - 2026-08-11 — decisiones cerradas en sesión de `grill_me`; aprobada y activada.
+- 2026-08-12 — **cerrada.** 16/17 AC con evidencia en `acceptance.md`; AC-E1 declarado sin verificar.

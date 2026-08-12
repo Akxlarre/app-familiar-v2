@@ -51,7 +51,6 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 
 | ID | Título | Entrada | Prioridad | Estado | REQ |
 |----|--------|---------|-----------|--------|-----|
-| 0002 | Lenguaje de pantallas — el contrato de UI | — | P0 | `draft` | RNF-06 |
 | 0003 | Navegación y secciones | — | P0 | `draft` | RNF-02, RNF-06 |
 | 0004 | Del registro al primer movimiento | 🟡 una vez | P0 | `draft` | REQ-001, REQ-010 |
 | 0005 | La pantalla de la plata | 🟢 | P0 | `draft` | REQ-011, REQ-013 |
@@ -179,6 +178,7 @@ una vez: la 0023 (gasto compartido) se archivó antes de construirse.
 
 | ID | Título | Cerrada | Verificada por |
 |----|--------|---------|----------------|
+| 0002 | Lenguaje de pantallas — el contrato de UI | 2026-08-12 | 359 tests + 18 comprobaciones en navegador ([acceptance.md](specs/0002-lenguaje-de-pantallas/acceptance.md)). Destapó 8 defectos del boilerplate, entre ellos los inputs del login en 1.15:1 |
 
 ---
 
