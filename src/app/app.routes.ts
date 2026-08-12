@@ -71,12 +71,19 @@ export const routes: Routes = [
       {
         path: 'plata',
         title: 'Plata',
+        loadComponent: () =>
+          import('./features/plata/plata-shell.component').then((m) => m.PlataShellComponent),
         children: [
           { path: '', redirectTo: 'movimientos', pathMatch: 'full' },
           {
             path: 'movimientos',
             loadComponent: () =>
               import('./features/plata/movimientos.component').then((m) => m.MovimientosComponent),
+          },
+          {
+            path: 'cuentas',
+            loadComponent: () =>
+              import('./features/plata/cuentas.component').then((m) => m.CuentasComponent),
           },
         ],
       },

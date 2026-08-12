@@ -3,6 +3,8 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '@core/services/supabase.service';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { BancoDelCatalogo, Cuenta, NuevaCuenta, TipoDeCuenta } from '@core/models/banco.model';
+import type { CuentaCompleta, DetalleCredito, EstadoDeCuenta } from '@core/models/cuenta.model';
+import { periodoDeFacturacion } from '@core/models/cuenta.model';
 
 interface PlantillaRow {
   id: string;
@@ -131,4 +133,161 @@ export class BancosRepository {
 
     if (errInsert) throw new ErrorDeBd(errInsert.message, errInsert.code);
   }
+
+  /**
+   * Las cuentas con su detalle de crédito y lo usado en el período.
+   *
+   * El usado se **deriva** de los movimientos, nunca es columna: un saldo
+   * guardado se pudre igual que `calories_target` en v1, y basta un borrado
+   * para que mienta hasta que alguien lo recalcule a mano.
+   *
+   * Cada tarjeta usa **su** período de facturación, no el mes calendario: un
+   * corte el 15 significa que lo comprado el 20 pertenece al período siguiente,
+   * y mostrarlo contra el mes daría un cupo usado que no coincide con el que
+   * cobra el banco.
+   */
+  async cuentasCompletas(incluirArchivadas = false): Promise<CuentaCompleta[]> {
+    let query = this.client
+      .from('cuentas')
+      .select('id, nombre, tipo, banco, last4, estado, detalle_credito(cupo_total, dia_facturacion, dia_vencimiento)')
+      .order('created_at');
+
+    if (!incluirArchivadas) query = query.eq('estado', 'activa');
+
+    const { data, error } = await query;
+    if (error) throw new ErrorDeBd(error.message, error.code);
+
+    const filas = (data ?? []) as Array<Record<string, unknown>>;
+    if (filas.length === 0) return [];
+
+    const [usados, parsers] = await Promise.all([
+      this.usadoPorCuenta(filas),
+      this.parsersPorCuenta(),
+    ]);
+
+    return filas.map((r) => {
+      const detalle = this.aDetalleCredito(r['detalle_credito']);
+      return {
+        id: r['id'] as string,
+        nombre: r['nombre'] as string,
+        tipo: r['tipo'] as TipoDeCuenta,
+        banco: (r['banco'] as string | null) ?? null,
+        last4: (r['last4'] as string | null) ?? null,
+        estado: r['estado'] as EstadoDeCuenta,
+        credito: detalle,
+        usadoEnPeriodo: usados.get(r['id'] as string) ?? 0,
+        parsersVinculados: parsers.get(r['id'] as string) ?? 0,
+      };
+    });
+  }
+
+  /** PostgREST devuelve la relación 1-1 como objeto o como array según el caso. */
+  private aDetalleCredito(bruto: unknown): DetalleCredito | null {
+    const d = (Array.isArray(bruto) ? bruto[0] : bruto) as Record<string, unknown> | null | undefined;
+    if (!d) return null;
+    return {
+      cupoTotal: (d['cupo_total'] as number | null) ?? null,
+      diaFacturacion: (d['dia_facturacion'] as number | null) ?? null,
+      diaVencimiento: (d['dia_vencimiento'] as number | null) ?? null,
+    };
+  }
+
+  /**
+   * Lo gastado por cada cuenta en SU período.
+   *
+   * Una consulta por cuenta y no una sola agrupada: cada tarjeta tiene un rango
+   * de fechas distinto, así que no hay un `GROUP BY` que las cubra a todas. Con
+   * las cuentas de un hogar —unas pocas— el costo es despreciable; si algún día
+   * fueran decenas, esto pasa a un RPC.
+   */
+  private async usadoPorCuenta(filas: Array<Record<string, unknown>>): Promise<Map<string, number>> {
+    const usados = new Map<string, number>();
+
+    await Promise.all(
+      filas.map(async (r) => {
+        const detalle = this.aDetalleCredito(r['detalle_credito']);
+        const { desde, hasta } = detalle?.diaFacturacion
+          ? periodoDeFacturacion(detalle.diaFacturacion)
+          : periodoDelMesActual();
+
+        const { data } = await this.client
+          .from('movimientos')
+          .select('monto')
+          .eq('cuenta_id', r['id'] as string)
+          .eq('tipo', 'gasto')
+          .gte('fecha', desde)
+          .lte('fecha', hasta);
+
+        usados.set(
+          r['id'] as string,
+          ((data ?? []) as Array<{ monto: number }>).reduce((s, m) => s + m.monto, 0),
+        );
+      }),
+    );
+
+    return usados;
+  }
+
+  /** Cuántos parsers apuntan a cada cuenta. Cero significa cargos que no entran solos. */
+  private async parsersPorCuenta(): Promise<Map<string, number>> {
+    const { data } = await this.client.from('parsers_email').select('cuenta_id');
+    const conteo = new Map<string, number>();
+    for (const p of (data ?? []) as Array<{ cuenta_id: string | null }>) {
+      if (p.cuenta_id) conteo.set(p.cuenta_id, (conteo.get(p.cuenta_id) ?? 0) + 1);
+    }
+    return conteo;
+  }
+
+  /** Parsers del hogar sin cuenta: sus capturas quedan atascadas (AC11). */
+  async parsersSinCuenta(): Promise<number> {
+    const { count, error } = await this.client
+      .from('parsers_email')
+      .select('id', { count: 'exact', head: true })
+      .is('cuenta_id', null);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return count ?? 0;
+  }
+
+  /** Archiva en vez de borrar: los movimientos históricos no se pueden perder (AC4). */
+  async archivar(cuentaId: string): Promise<void> {
+    const { error } = await this.client
+      .from('cuentas')
+      .update({ estado: 'archivada' })
+      .eq('id', cuentaId);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+
+  async reactivar(cuentaId: string): Promise<void> {
+    const { error } = await this.client
+      .from('cuentas')
+      .update({ estado: 'activa' })
+      .eq('id', cuentaId);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+
+  /** Guarda el detalle de crédito de una tarjeta. */
+  async guardarCredito(cuentaId: string, detalle: DetalleCredito): Promise<void> {
+    const { error } = await this.client.from('detalle_credito').upsert({
+      cuenta_id: cuentaId,
+      cupo_total: detalle.cupoTotal,
+      dia_facturacion: detalle.diaFacturacion,
+      dia_vencimiento: detalle.diaVencimiento,
+    });
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+}
+
+/** El mes en curso, para las cuentas que no facturan por corte. */
+function periodoDelMesActual(): { desde: string; hasta: string } {
+  const hoy = new Date();
+  const iso = (d: Date) =>
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  return {
+    desde: iso(new Date(hoy.getFullYear(), hoy.getMonth(), 1)),
+    hasta: iso(new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)),
+  };
 }
