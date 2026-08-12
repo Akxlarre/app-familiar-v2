@@ -27,6 +27,8 @@ import {
   Download,
   Inbox,
   Receipt,
+  ShoppingCart,
+  CreditCard,
   Lock,
   LayoutDashboard,
   Plus,
@@ -89,6 +91,10 @@ import {
 } from "lucide-angular";
 
 import { routes } from "./app.routes";
+import { DESTINO_REGISTRADO } from "@core/services/navegacion.service";
+import { DESTINO_HOY } from "@core/models/destino.model";
+import { FUENTE_DE_PENDIENTES } from "@core/models/pendiente.model";
+import { BandejaPendientes } from "@features/bandeja/bandeja.pendientes";
 import { provideCoreAuth } from "@core/auth/provide-core-auth";
 import { GlobalErrorHandler } from "@core/errors/global-error-handler";
 
@@ -116,6 +122,19 @@ export const appConfig: ApplicationConfig = {
     }),
     provideCoreAuth(),
     { provide: LOCALE_ID, useValue: "es" },
+
+    // ── Navegación: los destinos que HOY tienen contenido ──────────────────
+    // La spec 0003 enumera cinco secciones y prohíbe mostrar las que todavía no
+    // existen (AC4). Las dos cosas conviven porque el menú se deriva de acá:
+    // Plata, Casa, Cuerpo y Ajustes se encienden agregando su línea cuando su
+    // spec aterrice, y hasta entonces no aparecen. Un menú de promesas es lo
+    // que hacía que el usuario entrara a pantallas vacías y dejara de abrir v1.
+    { provide: DESTINO_REGISTRADO, useValue: DESTINO_HOY, multi: true },
+
+    // ── Fuentes de pendientes ──────────────────────────────────────────────
+    // Cada dominio se registra a sí mismo. Hoy no importa a ninguno: agregar un
+    // módulo nunca obliga a tocar la pantalla que los junta.
+    { provide: FUENTE_DE_PENDIENTES, useExisting: BandejaPendientes, multi: true },
     // Atrapa excepciones no manejadas y las muestra saneadas en un toast,
     // en vez de dejar la app congelada sin señal para el usuario.
     { provide: ErrorHandler, useClass: GlobalErrorHandler },
@@ -142,6 +161,8 @@ export const appConfig: ApplicationConfig = {
         Download,
         Inbox,
         Receipt,
+        ShoppingCart,
+        CreditCard,
         Lock,
         LayoutDashboard,
         Plus,

@@ -30,3 +30,16 @@ export interface Destino {
 export const ORDEN_DE_DESTINOS = ['hoy', 'plata', 'casa', 'cuerpo', 'ajustes'] as const;
 
 export type IdDeDestino = (typeof ORDEN_DE_DESTINOS)[number];
+
+/**
+ * Hoy — el único destino con contenido por ahora.
+ *
+ * Los otros cuatro se declaran junto a su spec, no acá: tenerlos definidos y
+ * comentados sería la misma lista de promesas, sólo que en otro archivo.
+ */
+export const DESTINO_HOY: Destino = {
+  id: 'hoy',
+  label: 'Hoy',
+  icon: 'home',
+  routerLink: '/app/hoy',
+};

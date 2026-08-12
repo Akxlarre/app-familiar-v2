@@ -34,13 +34,18 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./layout/app-shell.component').then((m) => m.AppShellComponent),
     children: [
-      // Ruta por defecto → dashboard
-      { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+      // Se aterriza en Hoy, no en un menú ni en una pantalla de selección: la app
+      // responde "¿hay algo que hacer?" sin que nadie tenga que elegir dónde
+      // mirar (spec 0003, AC1).
+      { path: '', redirectTo: 'hoy', pathMatch: 'full' },
       {
-        path: 'dashboard',
-        loadComponent: () =>
-          import('./features/dashboard/dashboard.component').then((m) => m.DashboardComponent),
+        path: 'hoy',
+        title: 'Hoy',
+        loadComponent: () => import('./features/hoy/hoy.component').then((m) => m.HoyComponent),
       },
+      // La bandeja NO es un destino del menú: es un pendiente, y se llega desde
+      // Hoy. Ponerla en la navegación la convertiría en un lugar al que hay que
+      // ir a trabajar.
       {
         path: 'bandeja',
         title: 'Bandeja',
@@ -48,6 +53,14 @@ export const routes: Routes = [
           import('./features/bandeja/bandeja.component').then((m) => m.BandejaComponent),
       },
       // TODO: Añade tus feature routes aquí
+
+      // El not-found va DENTRO del shell: una ruta mal escrita no puede dejar al
+      // usuario sin navegación para volver (spec 0003, AC-E2).
+      {
+        path: '**',
+        loadComponent: () =>
+          import('./features/not-found/not-found.component').then((m) => m.NotFoundComponent),
+      },
     ],
   },
 

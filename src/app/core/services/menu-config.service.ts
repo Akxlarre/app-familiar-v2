@@ -1,42 +1,33 @@
-import { Injectable, computed } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 
-/** Item de navegación lateral. `icon` es el nombre kebab-case de Lucide. */
-export interface NavItem {
-  label: string;
-  /** Nombre kebab-case de lucide.dev (ej: 'layout-dashboard', 'settings') */
-  icon: string;
-  routerLink: string;
-}
+import { NavegacionService } from '@core/services/navegacion.service';
+import type { Destino } from '@core/models/destino.model';
 
 /**
- * MenuConfigService - Configuración del menú de navegación lateral.
+ * Item de navegación lateral.
  *
- * Para añadir rutas: agrega un NavItem a la lista.
- * Íconos: usa el nombre kebab-case de lucide.dev.
- * Los íconos deben estar registrados en provideIcons() en app.config.ts.
+ * Es el mismo contrato que `Destino`: se conserva el alias para que el sidebar
+ * no tenga que hablar del modelo de navegación.
  */
-@Injectable({
-  providedIn: 'root',
-})
-export class MenuConfigService {
+export type NavItem = Destino;
 
-  readonly menuItems = computed<NavItem[]>(() => {
-    return [
-      {
-        label: 'Dashboard',
-        icon: 'layout-dashboard',
-        routerLink: '/app/dashboard',
-      },
-      {
-        label: 'Bandeja',
-        icon: 'inbox',
-        routerLink: '/app/bandeja',
-      },
-      {
-        label: 'Configuración',
-        icon: 'settings',
-        routerLink: '/app/settings',
-      },
-    ];
-  });
+/**
+ * MenuConfigService — adaptador sobre `NavegacionService`.
+ *
+ * **Ya no tiene una lista de items.** La tenía, y con ella una entrada a
+ * `/app/settings` que nunca existió como ruta: el usuario hacía clic y caía en
+ * el not-found. Ese es el modo de fallar de una lista escrita a mano — no se
+ * rompe, se desincroniza, y nada avisa.
+ *
+ * Ahora el menú se deriva de los destinos registrados, y NAV-01 verifica en
+ * cada auditoría que cada entrada resuelva a una ruta declarada.
+ *
+ * Para agregar una sección se registra su `Destino` (ver `DESTINO_REGISTRADO`).
+ * Acá no hay nada que tocar nunca más.
+ */
+@Injectable({ providedIn: 'root' })
+export class MenuConfigService {
+  private readonly navegacion = inject(NavegacionService);
+
+  readonly menuItems = this.navegacion.destinos;
 }

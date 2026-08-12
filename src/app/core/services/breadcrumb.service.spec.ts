@@ -2,6 +2,8 @@ import { Component } from "@angular/core";
 import { TestBed } from "@angular/core/testing";
 import { provideRouter, Router } from "@angular/router";
 import { BreadcrumbService } from "./breadcrumb.service";
+import { DESTINO_REGISTRADO } from "./navegacion.service";
+import { DESTINO_HOY } from "@core/models/destino.model";
 
 @Component({ standalone: true, template: "" })
 class StubPage {}
@@ -17,6 +19,9 @@ describe("BreadcrumbService", () => {
           { path: "", component: StubPage },
           { path: "**", component: StubPage },
         ]),
+        // El breadcrumb deriva del menú, y el menú de los destinos registrados.
+        // Sin registrar ninguno, no hay contra qué comparar la URL.
+        { provide: DESTINO_REGISTRADO, useValue: DESTINO_HOY, multi: true },
       ],
     });
     service = TestBed.inject(BreadcrumbService);
@@ -41,18 +46,20 @@ describe("BreadcrumbService", () => {
     expect(service.breadcrumb().items.length).toBe(0);
   });
 
-  it("breadcrumb items should contain the matched menu label for '/app/settings'", async () => {
-    // Las rutas del menú viven bajo /app (ver MenuConfigService): navegar a
-    // '/settings' no matchea ninguna entrada y el breadcrumb sale vacío.
-    await router.navigateByUrl("/app/settings");
+  it("breadcrumb items should contain the matched destino label", async () => {
+    // Antes este test navegaba a /app/settings y esperaba "Configuración" — una
+    // entrada de menú que nunca tuvo ruta. Verificaba el comportamiento de un
+    // enlace muerto; ahora verifica el de un destino que existe de verdad.
+    await router.navigateByUrl("/app/hoy");
     const items = service.breadcrumb().items;
     expect(items.length).toBe(1);
-    expect(items[0].label).toBe("Configuración");
+    expect(items[0].label).toBe("Hoy");
   });
 
   it("the active breadcrumb item should have no routerLink (current page)", async () => {
-    await router.navigateByUrl("/settings");
+    await router.navigateByUrl("/app/hoy");
     const last = service.breadcrumb().items.at(-1);
+    expect(last).toBeDefined();
     expect(last?.routerLink).toBeUndefined();
   });
 
