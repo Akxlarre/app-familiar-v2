@@ -116,12 +116,16 @@ describe('PlataFacade', () => {
     // Cambiar de filtro rápido produce respuestas fuera de orden. Sin descartar
     // las viejas, la lista termina mostrando el resultado de un filtro que el
     // usuario ya cambió.
-    let resolverPrimera: ((v: Movimiento[]) => void) | null = null;
+    // En un objeto y no en un `let`: TypeScript no ve la asignación de adentro
+    // del callback y estrecha la variable a `null`, con lo que `resolverPrimera?.()`
+    // se volvía una llamada sobre `never` — o sea, la línea que hace correr esta
+    // prueba estaba tipada como inalcanzable.
+    const pendiente: { resolver?: (v: Movimiento[]) => void } = {};
     let llamadas = 0;
     const { facade } = montar({
       pagina: async () => {
         llamadas++;
-        if (llamadas === 1) return new Promise<Movimiento[]>((r) => { resolverPrimera = r; });
+        if (llamadas === 1) return new Promise<Movimiento[]>((r) => { pendiente.resolver = r; });
         return [mov(99)];
       },
     });
@@ -129,7 +133,7 @@ describe('PlataFacade', () => {
     const primera = facade.cargar({ texto: 'viejo' });
     const segunda = facade.cargar({ texto: 'nuevo' });
     await segunda;
-    resolverPrimera?.([mov(1), mov(2), mov(3)]);
+    pendiente.resolver?.([mov(1), mov(2), mov(3)]);
     await primera;
 
     expect(facade.movimientos()).toHaveLength(1);

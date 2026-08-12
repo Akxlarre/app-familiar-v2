@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 
 import { HogaresRepository } from '@core/repositories/hogares.repository';
+import { IntegracionesRepository } from '@core/repositories/integraciones.repository';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { EstadoDeOnboarding, Hogar } from '@core/models/hogar.model';
 import { OnboardingFacade } from './onboarding.facade';
@@ -19,6 +20,7 @@ function montar(opciones: {
   estados?: EstadoDeOnboarding[];
   alCrear?: () => Promise<Hogar>;
   alUnirse?: () => Promise<Hogar>;
+  alConectar?: () => Promise<string>;
 }) {
   const estados = [...(opciones.estados ?? [NADA])];
   const repo = {
@@ -27,10 +29,16 @@ function montar(opciones: {
     crear: vi.fn(opciones.alCrear ?? (async () => HOGAR)),
     unirse: vi.fn(opciones.alUnirse ?? (async () => HOGAR)),
   };
+  const integraciones = {
+    conectarGmail: vi.fn(opciones.alConectar ?? (async () => 'yo@gmail.com')),
+  };
   TestBed.configureTestingModule({
-    providers: [{ provide: HogaresRepository, useValue: repo }],
+    providers: [
+      { provide: HogaresRepository, useValue: repo },
+      { provide: IntegracionesRepository, useValue: integraciones },
+    ],
   });
-  return { facade: TestBed.inject(OnboardingFacade), repo };
+  return { facade: TestBed.inject(OnboardingFacade), repo, integraciones };
 }
 
 describe('OnboardingFacade', () => {
@@ -138,5 +146,80 @@ describe('OnboardingFacade', () => {
     await facade.unirse('  bcdfgh  ');
 
     expect(repo.unirse).toHaveBeenCalledWith('BCDFGH');
+  });
+
+  describe('conectar el correo', () => {
+    const CON_CUENTA: EstadoDeOnboarding = {
+      tieneHogar: true, tieneCuenta: true, tieneCorreoConectado: false,
+    };
+    const CONECTADO: EstadoDeOnboarding = { ...CON_CUENTA, tieneCorreoConectado: true };
+
+    it('el redirect_uri viaja al canje: Google lo exige idéntico al del consentimiento', async () => {
+      const { facade, integraciones } = montar({ estados: [CON_CUENTA, CONECTADO] });
+      await facade.initialize();
+
+      expect(await facade.conectarCorreo('4/abc', 'http://localhost:4200/onboarding')).toBeNull();
+      expect(integraciones.conectarGmail).toHaveBeenCalledWith('4/abc', 'http://localhost:4200/onboarding');
+    });
+
+    it('conectado, el paso avanza porque la base lo dice', async () => {
+      const { facade } = montar({ estados: [CON_CUENTA, CONECTADO] });
+      await facade.initialize();
+      expect(facade.paso()).toBe('correo');
+
+      await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      expect(facade.paso()).toBe('listo');
+    });
+
+    it('el fallo se devuelve en vez de tomar la pantalla entera', async () => {
+      // `_error` lo pinta el contenedor como error-state con botón de recargar, y
+      // recargar acá no sirve: el código de Google se usa una sola vez. Lo que el
+      // usuario necesita es el botón de volver a pedir el consentimiento.
+      const { facade } = montar({
+        estados: [CON_CUENTA],
+        alConectar: async () => { throw new ErrorDeBd('Edge Function returned a non-2xx status code'); },
+      });
+      await facade.initialize();
+
+      expect(await facade.conectarCorreo('4/abc', 'http://x/onboarding')).not.toBeNull();
+      expect(facade.error()).toBeNull();
+      expect(facade.paso()).toBe('correo');
+    });
+
+    it('sin refresh_token se dice qué hacer, no "error inesperado"', async () => {
+      // Es el fallo recuperable más probable —pasa cuando el usuario ya había
+      // autorizado antes— y el mensaje del servidor habla de prompt=consent, que
+      // no le dice nada a nadie.
+      const { facade } = montar({
+        estados: [CON_CUENTA],
+        alConectar: async () => {
+          throw new ErrorDeBd(
+            'Google no entregó refresh_token. Reintentá el consentimiento con prompt=consent&access_type=offline.',
+          );
+        },
+      });
+      await facade.initialize();
+
+      const mensaje = await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      expect(mensaje).toContain('Volvé a intentarlo');
+      expect(mensaje).not.toContain('prompt=consent');
+    });
+
+    it('la falta de configuración del servidor no se disfraza de error del usuario', async () => {
+      const { facade } = montar({
+        estados: [CON_CUENTA],
+        alConectar: async () => {
+          throw new ErrorDeBd('Gmail sin configurar: faltan GOOGLE_CLIENT_ID o GOOGLE_CLIENT_SECRET');
+        },
+      });
+      await facade.initialize();
+
+      const mensaje = await facade.conectarCorreo('4/abc', 'http://x/onboarding');
+
+      expect(mensaje).toContain('No es algo que puedas resolver');
+      expect(mensaje).not.toContain('GOOGLE_CLIENT_SECRET');
+    });
   });
 });

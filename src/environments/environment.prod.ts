@@ -26,6 +26,10 @@
  */
 export const environment = {
   production: true,
+  // Se inyecta en el build con `scripts/set-env.js`. No es un secreto.
+  google: {
+    clientId: '',
+  },
   supabase: {
     // Reemplazar por el script set-env.js en CI — no usar process.env directamente
     url: "",

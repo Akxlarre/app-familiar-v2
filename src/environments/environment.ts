@@ -8,6 +8,14 @@
  */
 export const environment = {
   production: false,
+  /**
+   * El client ID de OAuth **no es un secreto**: viaja en la URL del
+   * consentimiento y Google lo trata como público. El client_secret sí lo es y
+   * vive sólo en los secretos de las edge functions, nunca acá.
+   */
+  google: {
+    clientId: '998095256823-abraa5ccd0op7it7p1e6j46p2grfelm3.apps.googleusercontent.com',
+  },
   supabase: {
     url: "http://127.0.0.1:54321",
     anonKey:

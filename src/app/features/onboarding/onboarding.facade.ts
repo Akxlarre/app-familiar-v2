@@ -2,6 +2,7 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 
 import { BancosRepository } from '@core/repositories/bancos.repository';
 import { HogaresRepository } from '@core/repositories/hogares.repository';
+import { IntegracionesRepository } from '@core/repositories/integraciones.repository';
 import type { BancoDelCatalogo, NuevaCuenta } from '@core/models/banco.model';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
 import {
@@ -25,6 +26,49 @@ const MENSAJES_DEL_RPC = [
 ] as const;
 
 /**
+ * Lo que devuelve `gmail-oauth`, traducido.
+ *
+ * Sus mensajes están escritos para quien opera el sistema —nombran variables de
+ * entorno y parámetros de OAuth— así que no se muestran tal cual: acá se
+ * convierten en algo que le diga al usuario si esto lo puede resolver él o no.
+ * La clave es un fragmento del mensaje del servidor, no el mensaje entero.
+ */
+const MENSAJES_DE_GMAIL: ReadonlyArray<readonly [string, string]> = [
+  [
+    'Gmail sin configurar',
+    'La conexión con Google todavía no está configurada en el servidor. No es algo que puedas resolver desde acá.',
+  ],
+  [
+    'refresh_token',
+    'Google no entregó el permiso permanente. Volvé a intentarlo y aceptá el acceso cuando te lo pida.',
+  ],
+  [
+    'no pertenece a un hogar',
+    'Todavía no tenés un hogar. Volvé al primer paso y creá uno.',
+  ],
+  [
+    'dirección de la casilla',
+    'Se conectó con Google pero no se pudo leer tu dirección de correo. Intentá de nuevo.',
+  ],
+  // Los dos rechazos de Google que NO se arreglan reintentando. Sin
+  // distinguirlos, un "intentá de nuevo" manda a reintentar para siempre algo
+  // que ninguna cantidad de reintentos va a cambiar.
+  [
+    'redirect_uri_mismatch',
+    'La dirección de retorno no coincide con la autorizada en Google. Hay que corregirla en la configuración del proyecto.',
+  ],
+  [
+    'invalid_client',
+    'Las credenciales de Google del servidor no son válidas. No es algo que puedas resolver desde acá.',
+  ],
+  // Éste sí: el código de Google dura minutos y se usa una sola vez.
+  [
+    'invalid_grant',
+    'El permiso de Google venció antes de usarse. Volvé a intentarlo.',
+  ],
+];
+
+/**
  * OnboardingFacade — el camino del registro al primer movimiento.
  *
  * El paso actual **se deriva** del estado real en cada carga. No hay progreso
@@ -35,6 +79,7 @@ const MENSAJES_DEL_RPC = [
 export class OnboardingFacade {
   private readonly repo = inject(HogaresRepository);
   private readonly bancos = inject(BancosRepository);
+  private readonly integraciones = inject(IntegracionesRepository);
 
   private readonly _estado = signal<EstadoDeOnboarding | null>(null);
   private readonly _hogar = signal<Hogar | null>(null);
@@ -128,6 +173,33 @@ export class OnboardingFacade {
     return this.guardar(async () => {
       await this.bancos.crearCuentaConParsers(hogar.id, cuenta);
     }, 'No se pudo crear la cuenta.');
+  }
+
+  /**
+   * Canjea el código del consentimiento y deja la casilla conectada.
+   *
+   * Devuelve el mensaje del fallo en vez de ponerlo en `_error`: ese lo pinta el
+   * contenedor como pantalla completa con un botón de recargar, y acá recargar
+   * no sirve —el código de Google se usa una sola vez—. Lo que el usuario
+   * necesita es volver a pedir el consentimiento, que es el botón del paso.
+   *
+   * @returns `null` si quedó conectada; el mensaje a mostrar si falló.
+   */
+  async conectarCorreo(code: string, redirectUri: string): Promise<string | null> {
+    this._guardando.set(true);
+    try {
+      await this.integraciones.conectarGmail(code, redirectUri);
+      // Releer y no asumir: el paso siguiente sale de lo que la base dice.
+      this._estado.set(await this.repo.estadoDeOnboarding());
+      return null;
+    } catch (e) {
+      const crudo = e instanceof Error ? e.message : '';
+      const conocido = MENSAJES_DE_GMAIL.find(([fragmento]) => crudo.includes(fragmento));
+      if (conocido) return conocido[1];
+      return mensajeSeguroDeBd(e, 'No se pudo conectar tu correo. Intentá de nuevo.');
+    } finally {
+      this._guardando.set(false);
+    }
   }
 
   async unirse(codigo: string): Promise<boolean> {

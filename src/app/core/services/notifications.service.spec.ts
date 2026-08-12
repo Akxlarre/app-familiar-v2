@@ -20,19 +20,23 @@ describe("NotificationsService", () => {
 
   it("markAsRead() should mark the given notification as read", () => {
     const unread = service.notifications().find((n) => !n.read);
-    if (!unread) return pending("No hay notificaciones sin leer en el fixture");
+    // `pending()` es de Jasmine y acá no existe: la línea era un ReferenceError
+    // esperando a que el fixture cambiara. Y saltarse el test tampoco era lo
+    // correcto — un fixture sin notificaciones sin leer deja esta prueba sin
+    // nada que probar, y eso hay que verlo, no esconderlo.
+    expect(unread, "el fixture debe traer al menos una sin leer").toBeDefined();
 
-    service.markAsRead(unread.id);
-    const updated = service.notifications().find((n) => n.id === unread.id);
+    service.markAsRead(unread!.id);
+    const updated = service.notifications().find((n) => n.id === unread!.id);
     expect(updated?.read).toBe(true);
   });
 
   it("markAsRead() should decrement unreadCount by 1", () => {
     const unread = service.notifications().find((n) => !n.read);
-    if (!unread) return pending("No hay notificaciones sin leer en el fixture");
+    expect(unread, "el fixture debe traer al menos una sin leer").toBeDefined();
 
     const before = service.unreadCount();
-    service.markAsRead(unread.id);
+    service.markAsRead(unread!.id);
     expect(service.unreadCount()).toBe(before - 1);
   });
 

@@ -57,6 +57,18 @@ Este proyecto usa **Vitest** como test runner (no Karma/Jasmine).
 - `npm run test` — tests interactivos (watch mode)
 - `npm run test:ci` — tests sin watch, verbose (para CI y auto-validación)
 - `npm run test:coverage` — genera reporte de cobertura en `coverage/`
+- `npm run typecheck` — comprobación de tipos de `src/` y de los specs
+
+### `npx tsc --noEmit` NO comprueba nada en este proyecto
+
+El `tsconfig.json` raíz es *solution-style*: `"files": []` más `references` a
+`tsconfig.app.json` y `tsconfig.spec.json`. `tsc --noEmit -p tsconfig.json`
+compila **cero archivos** y sale con código 0.
+
+Es el peor modo de fallar de un chequeo: da verde sin haber mirado nada, así que
+parece que se verificó. Usa `npm run typecheck`, que apunta a los proyectos
+hijos. Los specs son un proyecto aparte y hay que chequearlos aparte — es donde
+se acumulan los tipos podridos, porque los tests pasan igual.
 
 ### Mocking con Vitest
 - `vi.fn()` para crear mock functions

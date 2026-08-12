@@ -7,7 +7,10 @@ import { BaseFacade } from './base.facade';
 
 @Injectable({ providedIn: 'root' })
 class TestFacade extends BaseFacade<string[]> {
-  fetchData = vi.fn<[], Promise<string[]>>().mockResolvedValue(['a', 'b', 'c']);
+  // `vi.fn<[Args], Return>` es la firma de Vitest 1.x. Desde la 2 el parámetro
+  // es la función entera; con la forma vieja el mock quedaba tipado `never` y
+  // ningún `mockResolvedValueOnce` de este archivo comprobaba su tipo.
+  fetchData = vi.fn<() => Promise<string[]>>().mockResolvedValue(['a', 'b', 'c']);
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

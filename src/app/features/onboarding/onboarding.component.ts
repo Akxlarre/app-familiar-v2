@@ -5,6 +5,7 @@ import { ErrorStateComponent } from '@shared/components/error-state/error-state.
 import { SkeletonBlockComponent } from '@shared/components/skeleton-block/skeleton-block.component';
 import { OnboardingFacade } from './onboarding.facade';
 import { PasoBancoComponent } from './paso-banco.component';
+import { PasoCorreoComponent } from './paso-correo.component';
 import { PasoHogarComponent } from './paso-hogar.component';
 
 /**
@@ -27,6 +28,7 @@ import { PasoHogarComponent } from './paso-hogar.component';
     SkeletonBlockComponent,
     PasoHogarComponent,
     PasoBancoComponent,
+    PasoCorreoComponent,
   ],
   template: `
     <div class="flex min-h-[100dvh] items-center justify-center bg-canvas p-4">
@@ -56,11 +58,12 @@ import { PasoHogarComponent } from './paso-hogar.component';
           @switch (facade.paso()) {
             @case ('hogar') { <app-paso-hogar /> }
             @case ('banco') { <app-paso-banco /> }
+            @case ('correo') { <app-paso-correo /> }
             @default {
-              <!-- Los pasos 3 y 4 dependen de credenciales de Google y de un
-                   edge runtime que este entorno no puede correr. Se construyen
-                   cuando existan; hasta entonces el guard de /app sigue sin
-                   cablearse para que nadie quede atascado a mitad de camino. -->
+              <!-- El paso 4 —la primera lectura del correo— depende del edge
+                   runtime, que este entorno no puede correr. Hasta que exista, el
+                   guard de /app sigue sin cablearse para que nadie quede atascado
+                   a mitad de camino. -->
               <div class="flex flex-col items-center gap-3 py-8 text-center">
                 <app-icon name="check-circle" [size]="32" [ariaHidden]="true" />
                 <p class="m-0 text-sm text-text-secondary">
