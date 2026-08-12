@@ -145,7 +145,7 @@ tenga las rules y skills presentes **sin tener que leerlas manualmente**.
 
 ## Linter Arquitectónico Completo (`architect.js` v2.0)
 
-El linter AST se ejecuta con `npm run lint:arch` y valida **16 reglas**.
+El linter AST se ejecuta con `npm run lint:arch` y valida **24 reglas**.
 
 Analiza los `.ts`, los `.scss` y **los templates `template:` inline**, no solo los
 `.html`: el boilerplate no tiene un solo archivo `.html`, así que sin eso las reglas
@@ -174,6 +174,8 @@ de markup no auditarían nada.
 | ARCH-21 | Clase `.bento-*` definida sin aprobar en `scripts/lib/bento-classes.allowlist.json`. Freno contra el sprawl del grid — ver el árbol de decisión en `indices/STYLES.md` |
 | ARCH-22 | Una clase del DS con el nombre de una utilidad "pelada" de Tailwind. Tailwind genera SU regla homónima en `@layer utilities` y **se suma** a la tuya en vez de reemplazarla |
 | ARCH-23 | Celda hija de un grid `.bento-grid--fill-screen*` que ocupa 2 filas (`.bento-hero`/`.bento-feature`/`.bento-tall` o `data-row-span="2"`). Desborda el `grid-template-rows` explícito: las filas implícitas se superponen sin lanzar ningún error — ver el patrón App-like en `.claude/rules/visual-system.md` |
+| ARCH-25 | Par texto/fondo por debajo de WCAG AA, **en cualquiera de los dos temas**. Compone los fondos semi-transparentes antes de medir. Ratcheado con `scripts/lib/contrast.baseline.json` |
+| ARCH-26 | Token del `@theme` con el nombre de un valor de escala nativa. `--color-base` genera `text-base` como utilidad de **color**, que le gana a la de tamaño: es el bug que dejó los inputs del login en 1.15:1, invisibles en producción |
 
 **Disciplina de clases (con ratchet):**
 
@@ -183,8 +185,9 @@ de markup no auditarían nada.
 | ARCH-16 | Utilities de tamaño pisando un `.btn-*` |
 | ARCH-17 | Tamaño de fuente arbitrario `text-[NNpx]` fuera de la escala |
 | ARCH-19 | Cluster tipográfico ad-hoc en vez de `.micro-label` / `.item-title` / `.section-eyebrow` |
+| ARCH-24 | Cluster de input ad-hoc (borde + fondo + padding + radio sobre un campo) en vez de `.field-input` / `.field-label` |
 
-Estas cuatro usan un **ratchet**: `scripts/lib/class-discipline.baseline.json` registra la
+Estas cinco usan un **ratchet**: `scripts/lib/class-discipline.baseline.json` registra la
 deuda tolerada por archivo y solo se reporta una **regresión** (un archivo supera su cuota).
 El proyecto solo puede mejorar. Tras limpiar deuda, fijá la mejora con
 `npm run lint:arch -- --update-ds-baseline`. Koa arranca **sin baseline**, es decir con
@@ -198,6 +201,36 @@ tolerancia cero.
 | ICON-01 | Icono usado en un template pero **no registrado** en el `LucideAngularModule.pick()` de `app.config.ts`. No rompe el build: lucide lanza en **runtime** |
 
 Los guardrails viven en `scripts/lib/` con sus propios tests: `npm run lint:arch:test`.
+
+### La invariante: toda regla registrada tiene que poder fallar
+
+`scripts/lib/rule-wiring.js` audita el linter a sí mismo. No busca violaciones en tu código:
+busca **reglas desconectadas** en `architect.js`.
+
+Existe porque el mismo fallo ocurrió dos veces con distinto disfraz:
+
+- **ARCH-24** tenía detector, tests y su llamada — y estaba fuera de `DS_RULES`, la lista fija
+  que decide qué se compara contra el baseline. Encontraba 3 hits y reportaba 0.
+- **ARCH-26** tenía detector y tests, y **no lo llamaba nadie**. Es el detector del token que
+  dejó los inputs del login ilegibles en producción.
+
+En los dos casos el linter dio verde, porque **una regla desconectada se ve exactamente igual
+que una regla que pasa**: cero hallazgos, build limpio. Esa ambigüedad es el bug.
+
+El test verifica tres cosas contra el `architect.js` real:
+
+| Falla | Qué significa |
+|---|---|
+| **Huérfana** | Está en `RULES` y no tiene ningún camino a un `reportError`. No puede fallar nunca |
+| **Fantasma** | Se reporta un ID que no está en `RULES`. El usuario ve un código sin nombre, sin doc y sin fix |
+| **Ratchet incompleto** | La regla asoma en el circuito del ratchet (`add()` → `dsCounts` → `DS_RULES`) con un eslabón roto. Cuenta en silencio |
+
+**Al agregar una regla nueva**, este test se rompe hasta que esté enchufada de punta a punta.
+Es intencional: es la única señal que distingue "no hay violaciones" de "la regla no corre".
+
+> Lo que **no** prueba: que el detector detecte bien. De eso se encarga la micro-suite de cada
+> módulo. La división es deliberada — el fallo nunca fue "el detector está mal", siempre fue
+> "el detector no está enchufado".
 
 ## Diferencia entre Hooks y Linter
 

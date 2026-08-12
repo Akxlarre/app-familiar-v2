@@ -22,6 +22,15 @@
  *   8. Prohibido colores Tailwind hardcodeados (text-red-500, bg-blue-200, etc.).
  *
  * Uso: npm run lint:arch
+ *
+ * ── Al agregar una regla ─────────────────────────────────────────────────────
+ * Registrarla en RULES **y** enchufarla hasta un reportError/reportWarning. Si es
+ * del ratchet, el circuito completo es: add() → dsCounts → DS_RULES.
+ *
+ * `scripts/lib/rule-wiring.test.mjs` falla mientras la regla no esté conectada.
+ * No es burocracia: una regla desconectada se ve idéntica a una que pasa —cero
+ * hallazgos, build limpio— y así fue como ARCH-24 y ARCH-26 estuvieron muertas
+ * sin que nadie lo notara.
  */
 
 import fs from 'fs';
