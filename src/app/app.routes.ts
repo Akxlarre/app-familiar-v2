@@ -2,6 +2,7 @@ import { Routes } from '@angular/router';
 import { environment } from '../environments/environment';
 import { authGuard } from '@core/guards/auth.guard';
 import { guestGuard } from '@core/guards/guest.guard';
+import { onboardingGuard } from '@core/guards/hogar.guard';
 // import { roleGuard } from '@core/guards/role.guard'; // ← usar para rutas por rol
 
 /**
@@ -25,6 +26,19 @@ export const routes: Routes = [
     canActivate: [guestGuard],
     loadComponent: () =>
       import('./features/auth/login/login.component').then((m) => m.LoginComponent),
+  },
+
+  // Onboarding: del registro al primer movimiento (spec 0004).
+  //
+  // Va FUERA del shell a propósito. AC1 pide que quien no terminó de
+  // configurarse no pueda llegar a ninguna otra pantalla, y la forma de
+  // garantizarlo es que la navegación no exista — no esconderla con CSS.
+  {
+    path: 'onboarding',
+    title: 'Configuración inicial',
+    canActivate: [authGuard, onboardingGuard],
+    loadComponent: () =>
+      import('./features/onboarding/onboarding.component').then((m) => m.OnboardingComponent),
   },
 
   // Rutas protegidas — envueltas en el layout AppShell
