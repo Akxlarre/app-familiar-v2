@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { environment } from '../environments/environment';
 import { authGuard } from '@core/guards/auth.guard';
 import { guestGuard } from '@core/guards/guest.guard';
-import { onboardingGuard } from '@core/guards/hogar.guard';
+import { hogarGuard, onboardingGuard } from '@core/guards/hogar.guard';
 // import { roleGuard } from '@core/guards/role.guard'; // ← usar para rutas por rol
 
 /**
@@ -42,9 +42,12 @@ export const routes: Routes = [
   },
 
   // Rutas protegidas — envueltas en el layout AppShell
+  // `hogarGuard` se cablea recién ahora, con los cuatro pasos construidos.
+  // Antes habría mandado a todo usuario nuevo a un onboarding que no podía
+  // terminar, dejándolo encerrado sin forma de salir (T6.1).
   {
     path: 'app',
-    canActivate: [authGuard],
+    canActivate: [authGuard, hogarGuard],
     loadComponent: () =>
       import('./layout/app-shell.component').then((m) => m.AppShellComponent),
     children: [

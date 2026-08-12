@@ -1,7 +1,7 @@
 # Tasks 0004 — Del registro al primer movimiento
 
 > **Spec:** [spec.md](./spec.md) · **Plan:** [plan.md](./plan.md)
-> **Status:** in_progress
+> **Status:** done
 > **Created:** 2026-08-12
 
 ---
@@ -80,22 +80,30 @@
 
 ---
 
-## Fase 5 — Paso 4: la primera corrida  ·  *bloqueada*
+## Fase 5 — Paso 4: la primera corrida
 
-- [ ] **T5.1** — Edge function `procesar-ahora` para un hogar (AC10)
-- [ ] **T5.2** — `PasoListoComponent` mostrando lo encontrado (AC11)
-- [ ] **T5.3** — Copy del caso vacío: qué se buscó y qué hacer (AC12)
+- [x] **T5.1** — Edge function `procesar-ahora` para un hogar (AC10)
+      - La corrida se extrajo a `_shared/corrida.ts`: la ejecutan el cron (todas las casillas,
+        service role) y el usuario (la suya, con su JWT). Duplicarla sería tener dos versiones
+        del pedazo más frágil del sistema, y el día que difieran las dos "funcionan".
+      - El hogar se resuelve **desde el JWT**, nunca desde el cuerpo del pedido: con service role
+        no hay RLS que frene una corrida ajena.
+- [x] **T5.2** — `PasoListoComponent` mostrando lo encontrado (AC11)
+      - Nombre y monto leídos de la base, no del conteo que devuelve la función.
+- [x] **T5.3** — Copy del caso vacío: qué se buscó y qué hacer (AC12)
+      - Carpeta, días y bancos salen de datos reales. Los días viajan desde el servidor para que
+        no haya una segunda verdad que se desincronice.
 
 ---
 
 ## Fase 6 — Cierre
 
-- [ ] **T6.1** — Cablear `hogarGuard` sobre `/app` — **a propósito, recién cuando los 4 pasos
+- [x] **T6.1** — Cablear `hogarGuard` sobre `/app` — **a propósito, recién cuando los 4 pasos
       existan**. Cablearlo ahora mandaría a todo usuario nuevo a un onboarding que no puede
       terminar, y quedaría atascado sin forma de salir.
-- [ ] **T6.2** — Declarar la tercera excepción de `screen-contract.md`: el onboarding es un
+- [x] **T6.2** — Declarar la tercera excepción de `screen-contract.md`: el onboarding es un
       formulario fuera de un drawer porque no hay shell donde montarlo.
-- [ ] **T6.3** — `acceptance.md`, ROADMAP, `.active`
+- [x] **T6.3** — `acceptance.md`, ROADMAP, `.active`
 
 ---
 
@@ -113,7 +121,9 @@
 - [x] **TD3** — El mismo problema, en el paso 3: apenas la base dice que hay correo conectado, el
       paso derivado salta a "listo" y la casilla conectada —más la etiqueta que AC8 pide poder
       elegir— desaparecían. Se retiene igual que el hogar.
-- [ ] **TD4** — **AC9 se queda sin puerta de entrada.** `onboardingGuard` manda a Hoy exactamente
+- [x] **TD4** — **AC9 se queda sin puerta de entrada.** → resuelto abriendo la **spec 0024**
+      (configuración del hogar). El paso 4, en cambio, se acepta efímero: decisión cerrada en
+      `spec.md` §9. `onboardingGuard` manda a Hoy exactamente
       cuando el paso es "listo" (AC-E2), así que desconectar el correo sólo es alcanzable en la
       misma sesión en que se conectó: quien recarga no puede volver nunca. Es un control de
       privacidad y su lugar es una pantalla de configuración, no un paso de onboarding.

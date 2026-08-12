@@ -156,9 +156,22 @@ está configurado", no vuelve.
 - [x] ¿Qué días hacia atrás mira la primera corrida? **180 días en la primera corrida, 90 en las siguientes.** El paso 4 del onboarding necesita algo que mostrar; después el cron sólo mira lo nuevo.
 - [x] ¿Se puede usar la app sin conectar correo? **Obligatorio ahora, opcional cuando exista la boleta (hito 2).** Hasta entonces, sin correo la app está literalmente vacía y dejar entrar es prometer algo que no se cumple. Cuando la boleta produzca datos, el onboarding ofrece los dos caminos y esta spec se revisa.
 - [x] ¿`onboarding_step` en la base? **No.** Se deriva del estado real; una columna de progreso miente el día que alguien desconecta su correo.
+- [x] ¿El paso 4 se puede volver a ver? **No, y está bien.** `onboardingGuard` manda a Hoy
+      exactamente cuando el paso es "listo" (AC-E2), así que el resumen sólo existe en la sesión
+      en que la corrida ocurrió. Es coherente con no persistir progreso: un resumen de "lo que
+      encontramos en tu correo" mostrado una semana después ya no describe nada — esos datos
+      están en Hoy y en Plata, que sí son permanentes. **AC11 y AC12 se leen como "al terminar
+      la primera corrida", no como una pantalla consultable.**
+- [x] ¿Y desconectar el correo (AC9)? **Se muda a la spec 0024.** El mismo guard lo deja sin
+      puerta de entrada apenas el usuario recarga, y a diferencia del resumen, esto no puede ser
+      efímero: es un control de privacidad. Acá se construye porque el onboarding lo necesita
+      —quien se equivoca de casilla tiene que poder corregirlo en el momento— pero su lugar
+      permanente es la pantalla de configuración.
 
 ---
 
 ## Changelog
 
 - 2026-08-11 — draft inicial.
+- 2026-08-12 — cerradas las dos decisiones que abrió la fase 4: el paso 4 es efímero por diseño;
+  AC9 se muda a la spec 0024 (configuración del hogar).

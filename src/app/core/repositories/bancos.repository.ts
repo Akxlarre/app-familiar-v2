@@ -233,6 +233,26 @@ export class BancosRepository {
     return usados;
   }
 
+  /**
+   * Los bancos que este hogar tiene configurados de verdad.
+   *
+   * No es el catálogo: el catálogo dice qué bancos la app **sabría** interpretar;
+   * esto dice cuáles está mirando. Decirle a alguien que se buscaron correos de
+   * nueve bancos cuando sólo hay parsers de uno es prometer una búsqueda que no
+   * ocurrió — y es justo el caso en que el usuario necesita enterarse de que su
+   * banco no está (spec 0004, AC12).
+   */
+  async bancosConfigurados(): Promise<string[]> {
+    const { data, error } = await this.client
+      .from('parsers_email')
+      .select('banco')
+      .eq('activo', true);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    const bancos = new Set(((data ?? []) as Array<{ banco: string }>).map((r) => r.banco));
+    return [...bancos].sort((a, b) => a.localeCompare(b, 'es'));
+  }
+
   /** Cuántos parsers apuntan a cada cuenta. Cero significa cargos que no entran solos. */
   private async parsersPorCuenta(): Promise<Map<string, number>> {
     const { data } = await this.client.from('parsers_email').select('cuenta_id');

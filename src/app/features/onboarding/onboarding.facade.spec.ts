@@ -1,11 +1,15 @@
 import { TestBed } from '@angular/core/testing';
 import { describe, expect, it, vi } from 'vitest';
 
+import { BancosRepository } from '@core/repositories/bancos.repository';
 import { HogaresRepository } from '@core/repositories/hogares.repository';
 import { IntegracionesRepository } from '@core/repositories/integraciones.repository';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { EstadoDeOnboarding, Hogar } from '@core/models/hogar.model';
-import type { IntegracionEmail } from '@core/models/integracion.model';
+import { CapturasRepository } from '@core/repositories/capturas.repository';
+import { MovimientosRepository } from '@core/repositories/movimientos.repository';
+import type { IntegracionEmail, ResultadoDeCorrida } from '@core/models/integracion.model';
+import type { Movimiento } from '@core/models/movimiento.model';
 import { OnboardingFacade } from './onboarding.facade';
 
 const HOGAR: Hogar = {
@@ -23,6 +27,7 @@ function montar(opciones: {
   alUnirse?: () => Promise<Hogar>;
   alConectar?: () => Promise<string>;
   alCambiarCarpeta?: (id: string, carpeta: string) => Promise<void>;
+  alCorrer?: () => Promise<ResultadoDeCorrida>;
 }) {
   const estados = [...(opciones.estados ?? [NADA])];
   const repo = {
@@ -35,6 +40,11 @@ function montar(opciones: {
     id: 'i1', email: 'yo@gmail.com', carpeta: 'INBOX', estado: 'activa',
     conectada: true, ultimaSync: null, ultimoError: null,
   };
+  const bancosRepo = {
+    catalogo: vi.fn(async () => []),
+    bancosConfigurados: vi.fn(async () => ['BancoEstado']),
+    crearCuentaConParsers: vi.fn(async () => undefined),
+  };
   const integraciones = {
     conectarGmail: vi.fn(opciones.alConectar ?? (async () => 'yo@gmail.com')),
     mia: vi.fn(async () => integracion),
@@ -45,14 +55,27 @@ function montar(opciones: {
         }),
     ),
     desconectar: vi.fn(async () => { integracion = null; }),
+    primeraCorrida: vi.fn(
+      opciones.alCorrer ??
+        (async () => ({ capturadas: 3, movimientos: 2, motivo: null, diasBuscados: 180 })),
+    ),
   };
+  const movimientos = {
+    ultimos: vi.fn(async () => [
+      { id: 'm1', comercio: 'JUMBO MAIPU', monto: 18700, tipo: 'gasto', fecha: '2026-08-10' },
+    ] as unknown as Movimiento[]),
+  };
+  const capturas = { pendientes: vi.fn(async () => [{ id: 'c1' }]) };
   TestBed.configureTestingModule({
     providers: [
       { provide: HogaresRepository, useValue: repo },
+      { provide: BancosRepository, useValue: bancosRepo },
       { provide: IntegracionesRepository, useValue: integraciones },
+      { provide: MovimientosRepository, useValue: movimientos },
+      { provide: CapturasRepository, useValue: capturas },
     ],
   });
-  return { facade: TestBed.inject(OnboardingFacade), repo, integraciones };
+  return { facade: TestBed.inject(OnboardingFacade), repo, integraciones, movimientos, capturas, bancosRepo };
 }
 
 describe('OnboardingFacade', () => {
@@ -245,6 +268,91 @@ describe('OnboardingFacade', () => {
       expect(mensaje).not.toBeNull();
       expect(mensaje).not.toContain('integraciones_email');
       expect(facade.integracion()?.carpeta).toBe('INBOX');
+    });
+
+    it('la corrida corre una sola vez aunque el componente se monte de nuevo', async () => {
+      // AC10. Se dispara sola al llegar al paso 4, y `@switch` puede volver a
+      // crear el componente: si cada montaje disparara una corrida, conectar el
+      // correo terminaría gastando la cuota de Gmail sin que nadie lo pida.
+      const { facade, integraciones } = montar({ estados: [CONECTADO] });
+      await facade.initialize();
+
+      await facade.correrPrimeraVez();
+      await facade.correrPrimeraVez();
+
+      expect(integraciones.primeraCorrida).toHaveBeenCalledTimes(1);
+    });
+
+    it('reintentar sí vuelve a correr', async () => {
+      const { facade, integraciones } = montar({ estados: [CONECTADO] });
+      await facade.initialize();
+      await facade.correrPrimeraVez();
+
+      await facade.reintentarCorrida();
+
+      expect(integraciones.primeraCorrida).toHaveBeenCalledTimes(2);
+    });
+
+    it('vacío después de mirar no es lo mismo que todavía no haber mirado', async () => {
+      // AC12. Si los dos casos dieran el mismo `corridaVacia`, la pantalla
+      // mostraría "no encontramos nada" antes de haber buscado.
+      const { facade } = montar({
+        estados: [CONECTADO],
+        alCorrer: async () => ({ capturadas: 0, movimientos: 0, motivo: null, diasBuscados: 180 }),
+      });
+      await facade.initialize();
+
+      expect(facade.corridaVacia()).toBe(false);
+
+      await facade.correrPrimeraVez();
+
+      expect(facade.corridaVacia()).toBe(true);
+      expect(facade.corrida()?.diasBuscados).toBe(180);
+    });
+
+    it('una corrida con hallazgos trae nombre y monto, no sólo el conteo', async () => {
+      // AC11. El número lo devuelve la función; lo que la pantalla muestra sale
+      // de la base, que es donde están el comercio y el monto.
+      const { facade } = montar({ estados: [CONECTADO] });
+      await facade.initialize();
+
+      await facade.correrPrimeraVez();
+
+      expect(facade.corridaVacia()).toBe(false);
+      expect(facade.encontrados().length).toBeGreaterThan(0);
+      expect(facade.encontrados()[0].comercio).toBe('JUMBO MAIPU');
+    });
+
+    it('el vacío nombra los bancos del HOGAR, no los del catálogo', async () => {
+      // AC12. El catálogo dice qué bancos la app sabría interpretar; decir que se
+      // buscaron correos de nueve cuando sólo hay parsers de uno promete una
+      // búsqueda que no ocurrió — y tapa justo el caso en que el usuario necesita
+      // enterarse de que su banco no está configurado.
+      const { facade, bancosRepo } = montar({
+        estados: [CONECTADO],
+        alCorrer: async () => ({ capturadas: 0, movimientos: 0, motivo: null, diasBuscados: 180 }),
+      });
+      await facade.initialize();
+
+      await facade.correrPrimeraVez();
+
+      expect(bancosRepo.bancosConfigurados).toHaveBeenCalled();
+      expect(facade.bancosConfigurados()).toEqual(['BancoEstado']);
+      expect(bancosRepo.catalogo).not.toHaveBeenCalled();
+    });
+
+    it('si la corrida falla, el correo sigue conectado y se puede reintentar', async () => {
+      const { facade } = montar({
+        estados: [CONECTADO],
+        alCorrer: async () => { throw new ErrorDeBd('Edge Function returned a non-2xx status code'); },
+      });
+      await facade.initialize();
+
+      await facade.correrPrimeraVez();
+
+      expect(facade.errorDeCorrida()).not.toBeNull();
+      expect(facade.corrida()).toBeNull();
+      expect(facade.error()).toBeNull();
     });
 
     it('desconectar devuelve el paso al correo', async () => {

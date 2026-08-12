@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 
 import { SupabaseService } from '@core/services/supabase.service';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
-import type { IntegracionEmail } from '@core/models/integracion.model';
+import type { IntegracionEmail, ResultadoDeCorrida } from '@core/models/integracion.model';
 
 /**
  * IntegracionesRepository — la casilla de correo conectada.
@@ -38,6 +38,33 @@ export class IntegracionesRepository {
     const r = (data ?? {}) as { ok?: boolean; email?: string };
     if (!r.ok || !r.email) throw new ErrorDeBd('La función no confirmó la conexión');
     return r.email;
+  }
+
+  /**
+   * Dispara la primera corrida sin esperar al cron (AC10).
+   *
+   * El hogar NO viaja en el pedido: lo resuelve la función desde el JWT. Si
+   * saliera de acá, cualquiera podría disparar la corrida de otro hogar.
+   */
+  async primeraCorrida(): Promise<ResultadoDeCorrida> {
+    const { data, error } = await this.client.functions.invoke('procesar-ahora', { body: {} });
+
+    if (error) throw new ErrorDeBd(await mensajeDeLaFuncion(error));
+
+    const r = (data ?? {}) as {
+      capturadas?: number;
+      movimientos?: number;
+      motivo?: string | null;
+      buscado?: { diasAtras?: number; maximo?: number };
+    };
+    return {
+      capturadas: r.capturadas ?? 0,
+      movimientos: r.movimientos ?? 0,
+      motivo: r.motivo ?? null,
+      // Los días los decide el servidor: repetirlos acá sería una segunda verdad
+      // que se desincroniza el día que alguien cambie la constante.
+      diasBuscados: r.buscado?.diasAtras ?? null,
+    };
   }
 
   /** La casilla del usuario, o null si todavía no conectó ninguna. */

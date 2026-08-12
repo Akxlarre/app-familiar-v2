@@ -25,6 +25,30 @@ export interface MensajeGmail {
   fechaInterna: Date | null;
 }
 
+/**
+ * Un fallo de Gmail que **conserva el status**.
+ *
+ * Sin él, "Gmail no listó los mensajes: …" es indistinguible entre un token que
+ * Google revocó (401 o 403, se arregla reconectando y sólo el usuario puede
+ * hacerlo) y Gmail caído o sin cuota (5xx, 429, se arregla esperando). Tratar
+ * los dos igual lleva a una de dos cosas malas: reintentar para siempre algo que
+ * está muerto, o mandar a reconectar cada vez que Google tose.
+ */
+export class ErrorDeGmail extends Error {
+  readonly status: number;
+
+  constructor(mensaje: string, status: number) {
+    super(mensaje);
+    this.name = 'ErrorDeGmail';
+    this.status = status;
+  }
+
+  /** El permiso ya no sirve: ningún reintento lo arregla. */
+  get esCredencialMuerta(): boolean {
+    return this.status === 401 || this.status === 403;
+  }
+}
+
 export function credencialesGoogle(): CredencialesGoogle | null {
   const clientId = Deno.env.get('GOOGLE_CLIENT_ID');
   const clientSecret = Deno.env.get('GOOGLE_CLIENT_SECRET');
@@ -107,7 +131,9 @@ export async function listarMensajes(
 
   const url = `${GMAIL_API}/messages?maxResults=${opciones.maximo}&q=${encodeURIComponent(q.join(' '))}`;
   const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
-  if (!res.ok) throw new Error(`Gmail no listó los mensajes: ${(await res.text()).slice(0, 200)}`);
+  if (!res.ok) {
+    throw new ErrorDeGmail(`Gmail no listó los mensajes: ${(await res.text()).slice(0, 200)}`, res.status);
+  }
 
   const data = (await res.json()) as { messages?: { id: string }[] };
   return (data.messages ?? []).map((m) => m.id);

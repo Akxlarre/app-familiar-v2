@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
 
-import { IconComponent } from '@shared/components/icon/icon.component';
 import { ErrorStateComponent } from '@shared/components/error-state/error-state.component';
 import { SkeletonBlockComponent } from '@shared/components/skeleton-block/skeleton-block.component';
 import { OnboardingFacade } from './onboarding.facade';
 import { PasoBancoComponent } from './paso-banco.component';
 import { PasoCorreoComponent } from './paso-correo.component';
+import { PasoListoComponent } from './paso-listo.component';
 import { PasoHogarComponent } from './paso-hogar.component';
 
 /**
@@ -23,12 +23,12 @@ import { PasoHogarComponent } from './paso-hogar.component';
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    IconComponent,
     ErrorStateComponent,
     SkeletonBlockComponent,
     PasoHogarComponent,
     PasoBancoComponent,
     PasoCorreoComponent,
+    PasoListoComponent,
   ],
   template: `
     <div class="flex min-h-[100dvh] items-center justify-center bg-canvas p-4">
@@ -59,19 +59,7 @@ import { PasoHogarComponent } from './paso-hogar.component';
             @case ('hogar') { <app-paso-hogar /> }
             @case ('banco') { <app-paso-banco /> }
             @case ('correo') { <app-paso-correo /> }
-            @default {
-              <!-- El paso 4 —la primera lectura del correo— depende del edge
-                   runtime, que este entorno no puede correr. Hasta que exista, el
-                   guard de /app sigue sin cablearse para que nadie quede atascado
-                   a mitad de camino. -->
-              <div class="flex flex-col items-center gap-3 py-8 text-center">
-                <app-icon name="check-circle" [size]="32" [ariaHidden]="true" />
-                <p class="m-0 text-sm text-text-secondary">
-                  Tu hogar y tu cuenta están listos. Conectar el correo llega en la próxima entrega.
-                </p>
-                <a href="/app/hoy" class="btn-primary" data-llm-action="ir-a-hoy">Ir a Hoy</a>
-              </div>
-            }
+            @default { <app-paso-listo /> }
           }
         }
       </div>

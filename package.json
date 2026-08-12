@@ -25,7 +25,8 @@
     "lint:arch:test": "node --test scripts/lib/*.test.mjs",
     "indices:sync": "node scripts/indices-sync.js",
     "check:bento": "node scripts/check-bento-classes.js",
-    "test:functions": "node --test supabase/functions/**/*.test.ts",
+    "test:functions": "deno test --allow-all --node-modules-dir=none supabase/functions/_shared/",
+    "check:functions": "deno check supabase/functions/*/index.ts",
     "db:test": "./scripts/db-test.sh"
   },
   "private": true,

@@ -15,6 +15,20 @@ export interface IntegracionEmail {
 }
 
 /**
+ * Lo que devuelve la primera corrida (spec 0004, AC10–AC12).
+ *
+ * `diasBuscados` viaja desde el servidor y no es una constante del cliente: AC12
+ * exige decir dónde se buscó cuando no se encontró nada, y ese número tiene que
+ * ser el que de verdad se usó.
+ */
+export interface ResultadoDeCorrida {
+  capturadas: number;
+  movimientos: number;
+  motivo: string | null;
+  diasBuscados: number | null;
+}
+
+/**
  * Las etiquetas de sistema de Gmail, que son fijas y no dependen de la cuenta.
  *
  * La alternativa —escribir el nombre a mano— falla en silencio: una etiqueta mal

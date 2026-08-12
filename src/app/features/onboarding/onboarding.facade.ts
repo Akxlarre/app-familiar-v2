@@ -5,7 +5,10 @@ import { HogaresRepository } from '@core/repositories/hogares.repository';
 import { IntegracionesRepository } from '@core/repositories/integraciones.repository';
 import type { BancoDelCatalogo, NuevaCuenta } from '@core/models/banco.model';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
-import type { IntegracionEmail } from '@core/models/integracion.model';
+import { CapturasRepository } from '@core/repositories/capturas.repository';
+import { MovimientosRepository } from '@core/repositories/movimientos.repository';
+import type { IntegracionEmail, ResultadoDeCorrida } from '@core/models/integracion.model';
+import type { Movimiento } from '@core/models/movimiento.model';
 import {
   numeroDePaso,
   pasoActual,
@@ -81,6 +84,8 @@ export class OnboardingFacade {
   private readonly repo = inject(HogaresRepository);
   private readonly bancos = inject(BancosRepository);
   private readonly integraciones = inject(IntegracionesRepository);
+  private readonly movimientos = inject(MovimientosRepository);
+  private readonly capturas = inject(CapturasRepository);
 
   private readonly _estado = signal<EstadoDeOnboarding | null>(null);
   private readonly _hogar = signal<Hogar | null>(null);
@@ -89,6 +94,33 @@ export class OnboardingFacade {
   private readonly _guardando = signal(false);
 
   private readonly _integracion = signal<IntegracionEmail | null>(null);
+
+  // ── El paso 4: la primera corrida ──────────────────────────────────────────
+  private readonly _corriendo = signal(false);
+  private readonly _corrida = signal<ResultadoDeCorrida | null>(null);
+  private readonly _encontrados = signal<readonly Movimiento[]>([]);
+  private readonly _pendientes = signal(0);
+  private readonly _errorDeCorrida = signal<string | null>(null);
+  private readonly _bancos = signal<readonly string[]>([]);
+
+  readonly corriendo = this._corriendo.asReadonly();
+  readonly corrida = this._corrida.asReadonly();
+  readonly encontrados = this._encontrados.asReadonly();
+  readonly pendientes = this._pendientes.asReadonly();
+  readonly errorDeCorrida = this._errorDeCorrida.asReadonly();
+  readonly bancosConfigurados = this._bancos.asReadonly();
+
+  /**
+   * La corrida terminó y no encontró nada (AC12).
+   *
+   * Se distingue de "todavía no corrió" a propósito: un vacío antes de haber
+   * mirado y un vacío después de haber mirado dicen cosas distintas, y mostrar
+   * el mismo texto para los dos es el error que AC12 prohíbe.
+   */
+  readonly corridaVacia = computed(() => {
+    const r = this._corrida();
+    return r !== null && r.capturadas === 0 && r.movimientos === 0;
+  });
 
   readonly hogar = this._hogar.asReadonly();
   readonly cargando = this._cargando.asReadonly();
@@ -222,6 +254,47 @@ export class OnboardingFacade {
     } finally {
       this._guardando.set(false);
     }
+  }
+
+  /**
+   * La primera corrida, al llegar al paso 4 (AC10).
+   *
+   * Se dispara sola: pedirle al usuario que toque un botón para que empiece a
+   * funcionar lo que acaba de autorizar es hacerle repetir el permiso que ya dio.
+   *
+   * Es idempotente por diseño —una captura ya resuelta no se vuelve a tocar—
+   * así que reintentar tras un fallo no duplica nada.
+   */
+  async correrPrimeraVez(): Promise<void> {
+    if (this._corriendo() || this._corrida() !== null) return;
+
+    this._corriendo.set(true);
+    this._errorDeCorrida.set(null);
+    try {
+      // Los bancos del HOGAR, no los del catálogo: AC12 pide decir qué se buscó,
+      // y el catálogo dice qué se sabría buscar. Se lee antes de la corrida para
+      // que el caso vacío tenga qué mostrar aunque la corrida falle.
+      this._bancos.set(await this.bancos.bancosConfigurados());
+      const resultado = await this.integraciones.primeraCorrida();
+      this._corrida.set(resultado);
+      // Lo encontrado se lee de la base, no del resultado: la corrida devuelve
+      // cuántos, y AC11 pide nombre y monto.
+      this._encontrados.set(await this.movimientos.ultimos(5));
+      this._pendientes.set((await this.capturas.pendientes()).length);
+    } catch (e) {
+      this._errorDeCorrida.set(
+        mensajeSeguroDeBd(e, 'No se pudo leer tu correo esta vez.', MENSAJES_DE_GMAIL.map(([f]) => f)),
+      );
+    } finally {
+      this._corriendo.set(false);
+    }
+  }
+
+  /** Volver a intentar tras un fallo: se limpia el resultado y se corre de nuevo. */
+  async reintentarCorrida(): Promise<void> {
+    this._corrida.set(null);
+    this._errorDeCorrida.set(null);
+    await this.correrPrimeraVez();
   }
 
   /**
