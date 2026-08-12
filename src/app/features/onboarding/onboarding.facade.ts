@@ -1,6 +1,8 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 
+import { BancosRepository } from '@core/repositories/bancos.repository';
 import { HogaresRepository } from '@core/repositories/hogares.repository';
+import type { BancoDelCatalogo, NuevaCuenta } from '@core/models/banco.model';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
 import {
   numeroDePaso,
@@ -32,6 +34,7 @@ const MENSAJES_DEL_RPC = [
 @Injectable({ providedIn: 'root' })
 export class OnboardingFacade {
   private readonly repo = inject(HogaresRepository);
+  private readonly bancos = inject(BancosRepository);
 
   private readonly _estado = signal<EstadoDeOnboarding | null>(null);
   private readonly _hogar = signal<Hogar | null>(null);
@@ -73,6 +76,9 @@ export class OnboardingFacade {
   }
 
   readonly numero = computed(() => numeroDePaso(this.paso()));
+
+  private readonly _catalogo = signal<readonly BancoDelCatalogo[]>([]);
+  readonly catalogo = this._catalogo.asReadonly();
   readonly total = PASOS_DE_ONBOARDING.length;
 
   async initialize(): Promise<void> {
@@ -95,6 +101,33 @@ export class OnboardingFacade {
     return this.guardar(async () => {
       this._hogar.set(await this.repo.crear(nombre));
     }, 'No se pudo crear el hogar.');
+  }
+
+  /** El catálogo se pide una sola vez: es una lista corta que no cambia por sesión. */
+  async cargarCatalogo(): Promise<void> {
+    if (this._catalogo().length > 0) return;
+    try {
+      this._catalogo.set(await this.bancos.catalogo());
+    } catch (e) {
+      this._error.set(mensajeSeguroDeBd(e, 'No se pudo cargar la lista de bancos.'));
+    }
+  }
+
+  /**
+   * Crea la primera cuenta y le engancha los parsers de su banco.
+   *
+   * No retiene el paso: acá no hay nada que el usuario necesite copiar, y
+   * quedarse mirando una confirmación alarga el camino al primer movimiento.
+   */
+  async crearPrimeraCuenta(cuenta: NuevaCuenta): Promise<boolean> {
+    const hogar = this._hogar();
+    if (!hogar) {
+      this._error.set('Primero hay que crear el hogar.');
+      return false;
+    }
+    return this.guardar(async () => {
+      await this.bancos.crearCuentaConParsers(hogar.id, cuenta);
+    }, 'No se pudo crear la cuenta.');
   }
 
   async unirse(codigo: string): Promise<boolean> {

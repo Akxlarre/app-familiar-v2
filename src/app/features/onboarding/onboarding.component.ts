@@ -4,6 +4,7 @@ import { IconComponent } from '@shared/components/icon/icon.component';
 import { ErrorStateComponent } from '@shared/components/error-state/error-state.component';
 import { SkeletonBlockComponent } from '@shared/components/skeleton-block/skeleton-block.component';
 import { OnboardingFacade } from './onboarding.facade';
+import { PasoBancoComponent } from './paso-banco.component';
 import { PasoHogarComponent } from './paso-hogar.component';
 
 /**
@@ -20,7 +21,13 @@ import { PasoHogarComponent } from './paso-hogar.component';
   selector: 'app-onboarding',
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [IconComponent, ErrorStateComponent, SkeletonBlockComponent, PasoHogarComponent],
+  imports: [
+    IconComponent,
+    ErrorStateComponent,
+    SkeletonBlockComponent,
+    PasoHogarComponent,
+    PasoBancoComponent,
+  ],
   template: `
     <div class="flex min-h-[100dvh] items-center justify-center bg-canvas p-4">
       <div class="w-full max-w-[520px] rounded-xl border border-border-subtle bg-surface p-8 shadow-lg">
@@ -48,15 +55,16 @@ import { PasoHogarComponent } from './paso-hogar.component';
         } @else {
           @switch (facade.paso()) {
             @case ('hogar') { <app-paso-hogar /> }
+            @case ('banco') { <app-paso-banco /> }
             @default {
-              <!-- Los pasos 2 a 4 se construyen en las fases siguientes de esta
-                   spec. Hasta entonces el paso 1 es el único alcanzable, y el
-                   guard de /app sigue sin cablearse para que nadie quede
-                   atascado a mitad de camino. -->
+              <!-- Los pasos 3 y 4 dependen de credenciales de Google y de un
+                   edge runtime que este entorno no puede correr. Se construyen
+                   cuando existan; hasta entonces el guard de /app sigue sin
+                   cablearse para que nadie quede atascado a mitad de camino. -->
               <div class="flex flex-col items-center gap-3 py-8 text-center">
                 <app-icon name="check-circle" [size]="32" [ariaHidden]="true" />
                 <p class="m-0 text-sm text-text-secondary">
-                  Tu hogar está listo. Los pasos siguientes llegan en la próxima entrega.
+                  Tu hogar y tu cuenta están listos. Conectar el correo llega en la próxima entrega.
                 </p>
                 <a href="/app/hoy" class="btn-primary" data-llm-action="ir-a-hoy">Ir a Hoy</a>
               </div>

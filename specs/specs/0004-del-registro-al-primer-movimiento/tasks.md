@@ -33,10 +33,24 @@
 
 ## Fase 3 — Paso 2: tu banco y tu primera cuenta
 
-- [ ] **T3.1** — Migración `plantillas_parser` (catálogo global) + semilla de bancos chilenos
-- [ ] **T3.2** — `PlantillasParserRepository` y copia al hogar al elegir banco (AC14)
-- [ ] **T3.3** — `PasoBancoComponent`: elegir banco y crear la primera cuenta
-- [ ] **T3.4** — Tests + QA
+- [x] **T3.1** — Migración `plantillas_parser` (catálogo global) + 10 plantillas de bancos chilenos
+  - Tabla y no semilla de migración: RB-01 dice que los formatos cambian solos, y corregir un
+    regex no puede exigir un despliegue.
+  - Índice único `(banco, tipo)`: sin él, correr la migración dos veces duplica el catálogo y el
+    hogar termina con parsers repetidos interpretando el mismo correo.
+  - **Los patrones son un punto de partida, no una verdad verificada.** Se escribieron a partir de
+    los remitentes conocidos, sin un correo real delante. El primero que conecte su casilla va a
+    encontrar los que no calzan — y ese es el flujo previsto: la captura queda en la bandeja con
+    su motivo, se corrige el patrón y `reprocesar-capturas` la vuelve a interpretar.
+- [x] **T3.2** — `BancosRepository`: catálogo y copia al hogar (AC14) — 5 tests
+  - **Copia y no referencia:** cuando alguien corrija una plantilla global, los hogares que ya
+    funcionaban no se ven alterados por un cambio que no pidieron.
+  - Crear la cuenta y copiar los parsers van juntos: una cuenta sin parsers no captura nada, y
+    unos parsers sin cuenta dejan las capturas atascadas (AC13). Separarlos es crear el estado
+    intermedio que el propio AC describe como problema.
+- [x] **T3.3** — `PasoBancoComponent`: elegir banco y crear la primera cuenta
+- [x] **T3.4** — Tests + **QA en navegador**: 18 comprobaciones en verde, y en Postgres la cuenta
+      con su parser copiado y enganchado (`enganchados = t`)
 
 ---
 
