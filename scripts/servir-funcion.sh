@@ -27,6 +27,17 @@ export SUPABASE_URL="${SUPABASE_URL:-http://127.0.0.1:54321}"
 export SUPABASE_ANON_KEY="${SUPABASE_ANON_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0}"
 export SUPABASE_SERVICE_ROLE_KEY="${SUPABASE_SERVICE_ROLE_KEY:-eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU}"
 
+# Secretos locales (las credenciales de Google, por ahora). El archivo está en
+# supabase/.gitignore y NO se commitea. Si falta, la función que lo necesite lo
+# dice al arrancar — que es mejor que correr con credenciales a medias y fallar
+# más adelante con un error que no señala a esto.
+if [[ -f "$RAIZ/supabase/.env.local" ]]; then
+  set -a
+  # shellcheck disable=SC1091
+  source "$RAIZ/supabase/.env.local"
+  set +a
+fi
+
 # Detrás de un proxy que re-termina TLS, Deno necesita su CA explícitamente.
 if [[ -f /root/.ccr/ca-bundle.crt ]]; then
   export DENO_CERT=/root/.ccr/ca-bundle.crt
