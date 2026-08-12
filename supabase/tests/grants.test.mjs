@@ -132,6 +132,35 @@ describe('Privilegios de tabla', () => {
       `Credenciales legibles por el cliente: ${filas.join(', ')}. La app sólo necesita 'conectada'.`);
   });
 
+  test('service_role puede operar sobre todo el dominio', async (t) => {
+    if (!disponible) return t.skip();
+
+    // fix-003. Es el rol de la cadena automática: leer el correo, crear
+    // capturas, renovar el token. Sin privilegios falla en el primer paso y en
+    // silencio, porque nadie está mirando cuando corre.
+    const filas = await sql(`
+      SELECT c.relname
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = 'public'
+      WHERE c.relkind = 'r'
+        AND NOT (has_table_privilege('service_role', c.oid, 'SELECT')
+             AND has_table_privilege('service_role', c.oid, 'INSERT')
+             AND has_table_privilege('service_role', c.oid, 'UPDATE'));`);
+
+    assert.deepEqual(filas, [], `Tablas que service_role no puede operar: ${filas.join(', ')}`);
+  });
+
+  test('service_role sí lee el refresh token: es quien habla con Gmail', async (t) => {
+    if (!disponible) return t.skip();
+
+    // El contrapeso del caso anterior: ocultarle el token a la app no puede
+    // ocultárselo también a quien tiene que usarlo.
+    const [fila] = await sql(
+      `SELECT has_column_privilege('service_role','public.integraciones_email','refresh_token','SELECT')::text;`);
+
+    assert.equal(fila, 'true');
+  });
+
   test('la app puede saber si el correo está conectado sin ver el token', async (t) => {
     if (!disponible) return t.skip();
 
