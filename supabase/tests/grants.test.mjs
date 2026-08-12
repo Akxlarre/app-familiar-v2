@@ -112,4 +112,34 @@ describe('Privilegios de tabla', () => {
 
     assert.equal(fila, 'true');
   });
+
+  test('ninguna credencial de Gmail es legible por authenticated', async (t) => {
+    if (!disponible) return t.skip();
+
+    // fix-002. Un refresh token de Google no caduca solo: quien lo tenga lee el
+    // correo del hogar desde fuera de la app hasta que alguien revoque el acceso
+    // a mano. Estuvo saliendo por `GET /integraciones_email?select=refresh_token`.
+    const filas = await sql(`
+      SELECT a.attname
+      FROM pg_attribute a
+      JOIN pg_class c ON c.oid = a.attrelid
+      JOIN pg_namespace n ON n.oid = c.relnamespace AND n.nspname = 'public'
+      WHERE c.relname = 'integraciones_email'
+        AND a.attname IN ('refresh_token','access_token','expira_en')
+        AND has_column_privilege('authenticated', c.oid, a.attname, 'SELECT');`);
+
+    assert.deepEqual(filas, [],
+      `Credenciales legibles por el cliente: ${filas.join(', ')}. La app sólo necesita 'conectada'.`);
+  });
+
+  test('la app puede saber si el correo está conectado sin ver el token', async (t) => {
+    if (!disponible) return t.skip();
+
+    // El reemplazo tiene que seguir siendo utilizable: ocultar el token sin dar
+    // alternativa deja la pantalla de conectar correo sin forma de saber su estado.
+    const [fila] = await sql(`
+      SELECT has_column_privilege('authenticated','public.integraciones_email','conectada','SELECT')::text;`);
+
+    assert.equal(fila, 'true');
+  });
 });
