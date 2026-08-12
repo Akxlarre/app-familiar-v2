@@ -1,13 +1,5 @@
-import {
-  Component,
-  ChangeDetectionStrategy,
-  ElementRef,
-  computed,
-  effect,
-  inject,
-  input,
-  viewChild,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, ElementRef, computed, effect, inject, input, viewChild } from '@angular/core';
+import type gsap from 'gsap';
 import { GsapAnimationsService } from '@core/services/gsap-animations.service';
 import { IconComponent } from '../icon/icon.component';
 import { SkeletonBlockComponent } from '../skeleton-block/skeleton-block.component';
@@ -176,6 +168,13 @@ export class KpiCardComponent {
   /** Evita re-animar el contador en cada cambio de detección. */
   private hasAnimated = false;
 
+  /**
+   * El tween del contador. Se guarda para poder matarlo: anima un objeto plano
+   * interno, así que `killTweensOf(el)` no lo alcanza y navegar durante los 1.2s
+   * dejaba el tween escribiendo sobre un nodo ya destruido (AC12, spec 0002).
+   */
+  private counterTween: gsap.core.Tween | null = null;
+
   constructor() {
     // El effect se re-ejecuta cuando el span aparece al pasar de loading→cargado.
     // GsapAnimationsService.animateCounter() respeta prefers-reduced-motion.
@@ -183,7 +182,7 @@ export class KpiCardComponent {
       const el = this.valueEl();
       if (!el || this.hasAnimated) return;
       this.hasAnimated = true;
-      this.gsap.animateCounter(
+      this.counterTween = this.gsap.animateCounter(
         el.nativeElement,
         this.value(),
         // El suffix se omite aquí porque se renderiza fuera del span animado.
@@ -191,5 +190,7 @@ export class KpiCardComponent {
         ''
       );
     });
+
+    inject(DestroyRef).onDestroy(() => this.counterTween?.kill());
   }
 }

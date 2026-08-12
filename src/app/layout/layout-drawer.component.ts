@@ -179,6 +179,10 @@ export class LayoutDrawerComponent implements OnDestroy {
     // El drawer bloquea el scroll del body en mobile. Si el componente muere con
     // el panel abierto, la página quedaría trabada para siempre.
     document.body.style.overflow = '';
+    // Y si muere a mitad de la animación de entrada o salida, el tween sigue
+    // corriendo sobre nodos desprendidos (AC12, spec 0002).
+    this.gsap.killTweensOf(this.el.nativeElement);
+    this.gsap.killTweensOf(this.backdrop());
   }
 
   private backdrop(): HTMLElement | null {

@@ -60,65 +60,75 @@
 
 ## Fase 2 — La pantalla de referencia
 
-- [ ] **T2.1** — `ds-drawer-demo.component.ts`: el contenido del drawer
+- [x] **T2.1** — `ds-drawer-demo.component.ts`: el contenido del drawer
   - **AC ref:** AC5 (pieza 4)
   - **DoD:**
-    - [ ] OnPush, standalone
-    - [ ] Recibe un `input()` — demuestra el paso de datos del drawer
-    - [ ] Usa `.field-label` / `.field-input`, no un cluster
+    - [x] OnPush, standalone
+    - [x] Recibe un `input()` — demuestra el paso de datos del drawer
+    - [x] Usa `.field-label` / `.field-input`, no un cluster
 
-- [ ] **T2.2** — `ds-reference.component.ts`: las cinco piezas armadas
+- [x] **T2.2** — `ds-reference.component.ts`: las cinco piezas armadas
   - **AC ref:** AC1, AC2, AC4, AC5, AC6
   - **DoD:**
-    - [ ] Hero slim con banda de KPIs
-    - [ ] `bento-grid--fill-screen` con panel de cabecera fija / cuerpo scrolleable / pie fijo
-    - [ ] Filas con `.item-title` + `.micro-label` + valor + acciones
-    - [ ] Botón que abre el drawer con `inputs`
-    - [ ] Selector de estado (normal / vacío / error / cargando) que fuerza cada uno
-    - [ ] Datos hardcodeados: **cero facades de dominio**
-    - [ ] `data-llm-action` en los controles
+    - [x] Hero slim con banda de KPIs
+    - [x] `bento-grid--fill-screen` con panel de cabecera fija / cuerpo scrolleable / pie fijo
+    - [x] Filas con `.item-title` + `.micro-label` + valor + acciones
+    - [x] Botón que abre el drawer con `inputs`
+    - [x] Selector de estado (normal / vacío / error / cargando) que fuerza cada uno
+    - [x] Datos hardcodeados: **cero facades de dominio**
+    - [x] `data-llm-action` en los controles
 
-- [ ] **T2.3** — `ds-reference.component.spec.ts`: test contra la pudrición
+- [x] **T2.3** — `ds-reference.component.spec.ts`: test contra la pudrición
   - **AC ref:** AC5
   - **DoD:**
-    - [ ] Verifica presencia de las cinco piezas en el DOM
-    - [ ] Verifica que los cuatro estados se pueden forzar
-    - [ ] Falla si alguien saca una pieza
+    - [x] Verifica presencia de las cinco piezas en el DOM
+    - [x] Verifica que los cuatro estados se pueden forzar
+    - [x] Falla si alguien saca una pieza
 
-- [ ] **T2.4** — Ruta `/app/_ds`, excluida de producción
+- [x] **T2.4** — Ruta `/_ds`, sólo en dev
   - **DoD:**
-    - [ ] Alcanzable con `ng serve`
-    - [ ] `npm run build` no incluye su chunk — **verificado en la salida del build**, no asumido
-    - [ ] Documentada en `indices/STYLES.md`
+    - [x] Alcanzable con `ng serve`
+    - [~] `npm run build` **sí emite el chunk** (2,72 kB gzip). esbuild no constant-foldea
+          `environment.production` a través del acceso a propiedad, así que el ternario queda en
+          runtime. **La ruta es inalcanzable** —el array evalúa a `[]`— pero el chunk queda
+          huérfano y nunca se pide. Se acepta y se declara: el requisito real era que no fuera
+          alcanzable, y contorsionar el código por 2,72 kB que nadie descarga no lo vale.
+    - [x] Documentada en `indices/STYLES.md`
+    - [x] **Cambio sobre el plan:** va **fuera de `authGuard`** (ruta top-level con shell, no hija
+          de `/app`). Una referencia de diseño que exige credenciales de producción para mirarse es
+          la que se queda sin QA en navegador — que es justo lo que esta spec combate.
 
 ---
 
 ## Fase 3 — Cerrar los AC que hoy no verifica nadie
 
-- [ ] **T3.1** — AC12: auditar limpieza de tweens al destruir
+- [x] **T3.1** — AC12: auditar limpieza de tweens al destruir
+  - **Hallazgo:** `animateCounter` anima un **objeto plano**, no el elemento, así que
+    `killTweensOf(el)` no lo alcanzaba y `kpi-card` no tenía ninguna limpieza. Ahora devuelve el
+    tween. `section-hero` y `layout-drawer` tampoco mataban los suyos.
   - **DoD:**
-    - [ ] Revisados los componentes que animan a la entrada (bento-reveal, section-hero, drawer)
-    - [ ] Cada uno mata sus tweens en `ngOnDestroy` o vía `DestroyRef`
-    - [ ] Test donde se destruye el componente a mitad de animación y no queda tween vivo
+    - [x] Revisados los componentes que animan a la entrada (bento-reveal, section-hero, drawer)
+    - [x] Cada uno mata sus tweens en `ngOnDestroy` o vía `DestroyRef`
+    - [x] Test donde se destruye el componente a mitad de animación y no queda tween vivo
 
-- [ ] **T3.2** — AC11: verificar que `prefers-reduced-motion` no rompe callbacks
+- [x] **T3.2** — AC11: verificar que `prefers-reduced-motion` no rompe callbacks
   - **DoD:**
-    - [ ] Auditados los métodos de `GsapAnimationsService` con `onComplete`
-    - [ ] Todos llaman el callback aunque no animen (como ya hace `animateSuccessFeedback`)
-    - [ ] Test del caso reduced-motion
+    - [x] Auditados los métodos de `GsapAnimationsService` con `onComplete`
+    - [x] Todos llaman el callback aunque no animen (como ya hace `animateSuccessFeedback`)
+    - [x] Test del caso reduced-motion
 
-- [ ] **T3.3** — AC-E2 y AC-E3: dato largo y monto de 9 cifras en la referencia
+- [x] **T3.3** — AC-E2 y AC-E3: dato largo y monto de 9 cifras en la referencia
   - **DoD:**
-    - [ ] La referencia incluye una fila con comercio de 80 caracteres y un KPI de 9 cifras
-    - [ ] Ninguno rompe el layout ni causa scroll horizontal
+    - [x] La referencia incluye una fila con comercio de 80 caracteres y un KPI de 9 cifras
+    - [x] Ninguno rompe el layout ni causa scroll horizontal
 
 ---
 
 ## Fase 4 — Validación
 
-- [ ] **T4.1** — `npm run lint:arch` limpio (0 errores)
-- [ ] **T4.2** — `npm run test:ci` verde
-- [ ] **T4.3** — `npm run lint:arch:test` verde (guardrails nuevos)
+- [x] **T4.1** — `npm run lint:arch` limpio (0 errores)
+- [x] **T4.2** — `npm run test:ci` verde
+- [x] **T4.3** — `npm run lint:arch:test` verde (guardrails nuevos)
 - [ ] **T4.4** — **QA en navegador** de `/app/_ds` — la lección de esta sesión es que compilar no alcanza
   - **DoD:** matriz completa, con evidencia en `acceptance.md`
     - [ ] 4 estados × 2 temas
@@ -154,6 +164,8 @@
       ganaba a la nativa de tamaño de fuente. Los inputs del login estaban en 1.15:1. ARCH-26.
 - [x] **TD3** — `DS_RULES` es una lista fija en el módulo: ARCH-24 contaba y la comparación lo
       ignoraba. El detector existía, corría, y no reportaba nunca.
+- [x] **TD5** — `killAll()` usaba `killTweensOf('*')`, que sólo alcanza targets del DOM: los
+      tweens sobre objetos planos sobrevivían. Ahora vacía el timeline global.
 - [x] **TD4** — El login usaba el cluster de catorce utilities en sus 3 inputs. Migrado a
       `.field-input` / `.field-label` en vez de tolerarlo en el baseline.
 

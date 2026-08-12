@@ -1093,6 +1093,10 @@ export class SectionHeroComponent implements AfterViewInit, OnDestroy {
     document.removeEventListener('click', this.outsideListener);
     this.detachReposition();
     this.hoverCleanup?.();
+    // `animateHero` dura 0.7s. Navegar antes dejaba el tween corriendo sobre un
+    // nodo ya destruido (AC12, spec 0002).
+    this.gsap.killTweensOf(this.cardRef()?.nativeElement);
+    this.gsap.killTweensOf(this.slimRef()?.nativeElement);
   }
 
   protected toggleMenu(id: string, event: MouseEvent): void {
