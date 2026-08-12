@@ -281,7 +281,7 @@
   </div>
 
   <!-- Panel del formulario -->
-  <div class="flex items-center justify-center p-12 bg-base">
+  <div class="flex items-center justify-center p-12 bg-canvas">
     <div class="card p-8 w-full max-w-sm flex flex-col gap-6">
 
       <div>

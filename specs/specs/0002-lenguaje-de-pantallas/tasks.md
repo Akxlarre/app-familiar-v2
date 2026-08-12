@@ -149,8 +149,29 @@
 - [x] **T5.1** — `npm run indices:sync`
 - [x] **T5.2** — Marcar 0002 como `done` en `ROADMAP.md`
 - [x] **T5.3** — Limpiar `specs/.active`
-- [ ] **T5.4** — Backportear a Koa lo que sea genérico: `contrast-check.js`, ARCH-24,
+- [x] **T5.4** — Backportear a Koa lo que sea genérico: `contrast-check.js`, ARCH-24,
       `screen-contract.md` y el arreglo del path-scope. Verificar con un Full Scaffold real.
+  - **Qué viajó:** los tres guardrails (ARCH-24/25/26 + sus micro-suites), `screen-contract.md`,
+    el path-scope de `visual-system.md` y `a11y-spec.md`, `--color-canvas`, los tokens de
+    contraste AA con `.field-*` y `.row-value`, la limpieza de tweens, el wrapper de `lint:arch`,
+    los `fileReplacements` y el drawer con `inputs`. Doce archivos del boilerplate.
+  - **Qué NO viajó:** `db-error.utils.ts` y `base.facade.ts` — Koa ya tenía la versión
+    generalizada; la de acá habla de capturas y movimientos. Y `app.routes.ts`, `app.config.ts`,
+    `menu-config.service.ts`, que son de esta app.
+  - **Hallazgo:** **ARCH-26 no estaba cableado en ningún lado.** `findThemeTokenCollisions`
+    existía, tenía tests y no lo llamaba nadie — el mismo patrón exacto de TD3. Cableado en
+    `architect.js` y en el CLI standalone, **en los dos repos**. Y nueve documentos, reglas y
+    adapters seguían enseñando `bg-base`, una clase que ya no genera CSS.
+  - **DoD — Full Scaffold real:**
+    - [x] Scaffold completo: Angular + PrimeNG + Supabase + boilerplate
+    - [x] `npm run lint:arch` en el proyecto generado: 0 errores (2 advertencias ARCH-09 heredadas)
+    - [x] ARCH-25 y ARCH-26 **provocados a mano** en el proyecto generado: los dos fallan el build
+    - [x] `npm run build` OK; el bundle de producción **no** contiene `localhost:54321`
+          (los `fileReplacements` sí se aplican)
+    - [x] `npm run test:ci`: 314/314 · `npm run lint:arch:test`: 26/26
+    - [x] **Navegador** sobre el login generado, midiendo el píxel pintado: input **15.68:1**
+          (claro) y **12.49:1** (oscuro), label 10.44:1 y 11.99:1, `font-size` 16px, consola
+          limpia. Era el mismo campo que estaba en 1.15:1.
 
 ---
 
@@ -169,6 +190,15 @@
       tweens sobre objetos planos sobrevivían. Ahora vacía el timeline global.
 - [x] **TD4** — El login usaba el cluster de catorce utilities en sus 3 inputs. Migrado a
       `.field-input` / `.field-label` en vez de tolerarlo en el baseline.
+- [x] **TD6** — **ARCH-26 no lo llamaba nadie.** Se escribió el detector del bug que dejó los
+      inputs invisibles, se le escribieron tests, y nunca se cableó al linter: ni en
+      `architect.js` ni en el CLI standalone. Es TD3 otra vez, con otro número de regla. Cableado
+      en los dos repos y verificado provocando la regresión, no leyendo el diff.
+
+      El patrón ya tiene nombre propio en esta spec: **casi todo lo que falló existía, estaba
+      documentado, y no lo ejecutaba nadie.** Un detector sin llamador se ve idéntico a un
+      detector que pasa. Candidato para el harness: un test que verifique que **cada regla del
+      registro puede fallar** — si nadie logra hacerla fallar, no está conectada.
 
 ---
 

@@ -33,7 +33,7 @@ import { createRequire } from 'module';
 import { parseThemeTokens, findDeadTokenClasses, findForbiddenThemeAliases } from './lib/theme-tokens.js';
 import { kebabToPascal, collectUsedIcons, parseRegisteredIcons } from './lib/icon-registry.js';
 import { findIconOnlyButtonsWithoutLabel } from './lib/a11y-guardrails.js';
-import { findReservedTailwindClassCollisions } from './lib/tailwind-bare-utilities.js';
+import { findReservedTailwindClassCollisions, findThemeTokenCollisions } from './lib/tailwind-bare-utilities.js';
 import { findFillScreenRowViolations } from './lib/bento-fill-rows.js';
 import { extractBentoClasses, diffBentoClasses } from './check-bento-classes.js';
 import {
@@ -124,6 +124,11 @@ const RULES = {
         doc: '.claude/rules/visual-system.md',
         fix: 'Ajusta el token de texto o el de fondo hasta 4.5:1 (3.0:1 si el texto es grande). Que un token exista en los dos temas no significa que se pueda leer.',
     },
+    'ARCH-26': {
+        name: 'Theme token collides with a native Tailwind utility',
+        doc: '.claude/rules/visual-system.md',
+        fix: 'Renombra el token: un --color-X donde X es un valor de una escala nativa (base, sm, lg, xl…) genera una utilidad de COLOR que le gana a la nativa. `--color-base` hacía que `text-base` pintara texto del color del fondo.',
+    },
     'A11Y-03': {
         name: 'Icon-only button without accessible name',
         doc: '.claude/rules/a11y-spec.md',
@@ -172,7 +177,7 @@ const RULES = {
     'ARCH-08': {
         name: 'No hardcoded Tailwind colors',
         doc: 'docs/TECH-STACK-RULES.md#arch-08',
-        fix: 'Usa tokens semánticos: text-primary, text-muted, bg-surface, bg-base, var(--ds-brand).',
+        fix: 'Usa tokens semánticos: text-primary, text-muted, bg-surface, bg-canvas, var(--ds-brand).',
     },
     'ARCH-09': {
         name: 'Complexity warning (shared components)',
@@ -575,7 +580,7 @@ function analyzeTemplateContent(content, filePath) {
         reportError(
             'ARCH-08', filePath,
             `Colores Tailwind hardcodeados en template: ${[...new Set(colorMatches)].join(', ')}`,
-            'Usa tokens semánticos: text-primary, text-muted, bg-surface, bg-base.'
+            'Usa tokens semánticos: text-primary, text-muted, bg-surface, bg-canvas.'
         );
     }
 }
@@ -687,12 +692,17 @@ checkClassDiscipline();
 }
 
 // ARCH-18: alias prohibidos dentro del propio @theme.
+// ARCH-26: tokens del @theme que colisionan con una escala nativa de Tailwind.
 {
     const cssPath = path.join(process.cwd(), 'src', 'tailwind.css');
     try {
         const css = fs.readFileSync(cssPath, 'utf-8');
         for (const alias of findForbiddenThemeAliases(css)) {
             reportError('ARCH-18', cssPath, `Alias prohibido en @theme: ${alias}`);
+        }
+        for (const c of findThemeTokenCollisions(css)) {
+            reportError('ARCH-26', cssPath,
+                `${c.token} genera la utilidad de color \`${c.utilidad}\`, que le gana a la nativa de la escala \`${c.prefijo}\`.`);
         }
     } catch { /* fail-open */ }
 }

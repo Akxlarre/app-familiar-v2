@@ -20,7 +20,7 @@
 
 ## AP-004 — Colores Tailwind hardcodeados (evitar)
 - **NO** uses `text-red-500`, `bg-blue-200`, etc.
-- **Sí** usa tokens semánticos (`text-primary`, `text-muted`, `bg-surface`, `bg-base`, `var(--ds-brand)`).
+- **Sí** usa tokens semánticos (`text-primary`, `text-muted`, `bg-surface`, `bg-canvas`, `var(--ds-brand)`).
 
 ## AP-005 — `@angular/animations` (evitar)
 - **NO** uses `@angular/animations`.

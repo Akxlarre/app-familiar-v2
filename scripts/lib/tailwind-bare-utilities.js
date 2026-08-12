@@ -171,9 +171,17 @@ import { dirname, join } from 'node:path';
 const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
 if (isMain) {
   const __dirname = dirname(fileURLToPath(import.meta.url));
-  const scssPath = join(__dirname, '..', '..', 'src', 'styles', 'tokens', '_variables.scss');
-  const content = readFileSync(scssPath, 'utf8');
-  const collisions = findReservedTailwindClassCollisions(content);
+  const raiz = join(__dirname, '..', '..');
+  const scssPath = join(raiz, 'src', 'styles', 'tokens', '_variables.scss');
+  const collisions = findReservedTailwindClassCollisions(readFileSync(scssPath, 'utf8'));
+
+  // El mismo error, del otro lado: un token del @theme que pisa una escala nativa.
+  // Se revisa acá y no sólo en architect.js porque este CLI es el que corre en el
+  // pre-commit, y ARCH-26 nació de un token que estuvo semanas sin que nadie lo viera.
+  let tokenCollisions = [];
+  try {
+    tokenCollisions = findThemeTokenCollisions(readFileSync(join(raiz, 'src', 'tailwind.css'), 'utf8'));
+  } catch { /* sin tailwind.css no hay nada que revisar */ }
 
   if (collisions.length > 0) {
     console.error('🚨 Clases del DS que colisionan con una utilidad bare de Tailwind:');
@@ -181,8 +189,19 @@ if (isMain) {
     console.error(
       '\nRenombrá la clase a un nombre compuesto (ej. .micro-label en vez de .overline, fix-115-b).',
     );
+  }
+
+  if (tokenCollisions.length > 0) {
+    console.error('🚨 Tokens del @theme que generan una utilidad de color sobre una escala nativa:');
+    tokenCollisions.forEach((c) => console.error(`   ${c.token} → ${c.utilidad} (pisa la escala ${c.prefijo})`));
+    console.error(
+      '\nRenombrá el token: --color-base hacía que `text-base` pintara el texto del color del fondo.',
+    );
+  }
+
+  if (collisions.length > 0 || tokenCollisions.length > 0) {
     process.exitCode = 1;
   } else {
-    console.log('✅ tailwind-bare-utilities: sin colisiones en _variables.scss.');
+    console.log('✅ tailwind-bare-utilities: sin colisiones de clase ni de token.');
   }
 }

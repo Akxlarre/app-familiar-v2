@@ -40,7 +40,7 @@
 <a id="arch-08"></a>
 ### ARCH-08: No hardcoded Tailwind colors
 - Prohibido `text-red-500`, `bg-blue-200`, etc. en `.ts` y `.html`.
-- Solución: tokens semánticos (`text-primary`, `text-muted`, `bg-surface`, `bg-base`, `var(--ds-brand)`).
+- Solución: tokens semánticos (`text-primary`, `text-muted`, `bg-surface`, `bg-canvas`, `var(--ds-brand)`).
 
 <a id="arch-09"></a>
 ### ARCH-09: Complexity warning (shared components)

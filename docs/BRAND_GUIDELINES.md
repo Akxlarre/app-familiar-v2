@@ -41,7 +41,7 @@
 ## Regla #3 — Jerarquía de Superficies
 
 ```
-bg-base      → Fondo de la app
+bg-canvas    → Fondo de la app
 bg-surface   → Cards, modales, sidebar
 bg-elevated  → Hover de filas, áreas diferenciadas
 bg-subtle    → Inputs, chips, separadores

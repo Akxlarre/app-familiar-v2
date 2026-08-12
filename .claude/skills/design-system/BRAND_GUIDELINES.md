@@ -14,7 +14,7 @@
 
 | Token | Uso |
 |---|---|
-| `bg-base` | Fondo general (fuera del card) |
+| `bg-canvas` | Fondo general (fuera del card) |
 | `bg-surface` | Background de componentes internos |
 | `var(--ds-brand)` | Color de marca principal |
 | `var(--color-primary)` | Color primario del sistema |
@@ -102,7 +102,7 @@ Los datos numéricos siguen una jerarquía tipográfica explícita:
 ## Jerarquía de Superficies
 
 ```
-bg-base (página)
+bg-canvas (página)
   └── bg-surface (card/modal)
         └── bg-elevated (hover, filas)
               └── bg-subtle (inputs, chips)

@@ -168,7 +168,7 @@ process.stdin.on('end', () => {
       if (hardcodedColorRe.test(newContent))
         violations.push(
           'No usar colores Tailwind hardcodeados (ej: text-red-500, bg-blue-200).\n' +
-          '     Usa tokens semanticos: text-primary, text-muted, bg-surface, bg-base, var(--ds-brand).'
+          '     Usa tokens semanticos: text-primary, text-muted, bg-surface, bg-canvas, var(--ds-brand).'
         );
 
       // Dumb component con inject de Facade

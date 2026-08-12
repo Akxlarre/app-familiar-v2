@@ -19,7 +19,7 @@ paths:
 ## Tokens de color (PROHIBIDO hardcodear)
 
 - Textos: `text-primary`, `text-secondary`, `text-muted`
-- Fondos: `bg-base` (página), `bg-surface` (cards), `bg-surface-elevated`
+- Fondos: `bg-canvas` (página), `bg-surface` (cards), `bg-surface-elevated`
 - Marca: `var(--ds-brand)`, `var(--color-primary)`
 - **NUNCA**: `text-red-500`, `bg-[#ff0000]`, u otras utilities de colores arbitrarios de Tailwind. Usa siempre variables abstractas.
 
@@ -89,6 +89,64 @@ Combinar con `.card-tinted` para máximo contraste visual en KPIs.
 > La distinción que **sí** importa es `.micro-label` (uppercase, micro, `text-muted`) vs
 > `.section-eyebrow` (`text-sm`, natural, `text-secondary`): la primera etiqueta un dato, la
 > segunda da contexto legible antes de un título.
+
+## Vocabulario de campos (OBLIGATORIO) — ARCH-24
+
+Un input tiene borde, fondo, padding y radio. Escritos como utilities son catorce clases que hay
+que repetir idénticas en cada campo de la app, y no lo van a ser.
+
+| Clase | Qué es |
+|---|---|
+| `.field-label` | Label de un campo editable |
+| `.field-input` | El `<input>`, `<select>` o `<textarea>` |
+| `.field-input--invalid` | Estado de error del campo |
+
+```html
+<!-- CORRECTO -->
+<label for="email" class="field-label">Correo electrónico</label>
+<input id="email" type="email" class="field-input" />
+
+<!-- INCORRECTO — ARCH-24 -->
+<input class="w-full box-border rounded-[var(--input-radius)] border
+              border-[var(--input-border-default)] bg-[var(--input-bg)]
+              px-[var(--input-padding-x)] py-[var(--input-padding-y)] …" />
+```
+
+**ARCH-24** detecta la combinación borde + fondo + padding + radio sobre un campo. Es ratcheado
+como el resto de la disciplina de clases: la deuda existente se tolera vía baseline, una nueva es
+regresión.
+
+## El contraste no se hereda del token — ARCH-25
+
+Que un token exista en los dos temas **no significa que se pueda leer**. Un par texto/fondo
+válido en claro puede quedar en 2.1:1 en oscuro y nadie lo nota hasta que un usuario lo reporta.
+
+- Texto normal: **≥4.5:1**. Texto grande (≥18.66px bold o ≥24px): **≥3.0:1**.
+- Se miden los pares canónicos declarados en `scripts/lib/contrast-check.js`, en **los dos temas**.
+- Los fondos semi-transparentes (`--state-*-bg` en rgba) se **componen** sobre `--bg-base` antes
+  de medir: el contraste real es el del color compuesto, no el del rgba.
+- Al agregar un par texto/fondo nuevo al DS, agregarlo también a `PARES_CANONICOS`. Un par que
+  nadie mide es un par que nadie garantiza.
+
+## Nombrar tokens del `@theme` — ARCH-26
+
+La colisión con utilities bare (`.overline`) tiene un gemelo del lado del `@theme`, y es peor.
+
+Un token `--color-X` genera `text-X`, `bg-X`, `border-X`. Si `X` coincide con un valor de una
+**escala nativa** de Tailwind (`base`, `sm`, `lg`, `xl`…), la utilidad de color generada **le gana
+a la nativa**:
+
+```css
+/* ❌ --color-base hace que `text-base` sea una utilidad de COLOR.
+      Los inputs del login quedaron pintados del color del fondo: 1.15:1, invisibles. */
+--color-base: var(--bg-base);
+
+/* ✅ */
+--color-canvas: var(--bg-base);
+```
+
+**Regla:** ningún token del `@theme` puede llamarse como un valor de escala nativa. Los fondos de
+página son `bg-canvas`, no `bg-base`. ARCH-26 lo verifica en cada auditoría.
 
 ## Patrón App-like (fill-screen Desktop / scroll Mobile)
 
