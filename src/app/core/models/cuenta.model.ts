@@ -22,6 +22,21 @@ export interface CuentaCompleta {
   parsersVinculados: number;
 }
 
+/**
+ * Un parser del hogar y a qué cuenta apunta.
+ *
+ * `asuntoPatron` es lo que distingue dos cuentas del mismo banco: el correo de
+ * la tarjeta de crédito y el de la de débito llegan del mismo remitente y sólo
+ * se diferencian por el asunto (AC-E1).
+ */
+export interface ParserDelHogar {
+  id: string;
+  banco: string;
+  tipo: string;
+  asuntoPatron: string | null;
+  cuentaId: string | null;
+}
+
 /** El período de facturación en curso de una tarjeta. */
 export interface PeriodoFacturacion {
   desde: string;

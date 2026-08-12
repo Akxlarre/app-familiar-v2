@@ -12,7 +12,9 @@ import { BentoRevealDirective } from '@core/directives/bento-reveal.directive';
 import type { SectionHeroKpi } from '@core/models/section-hero.model';
 import type { CuentaCompleta } from '@core/models/cuenta.model';
 import { periodoDeFacturacion, resumenDeCupo } from '@core/models/cuenta.model';
+import { LayoutDrawerFacadeService } from '@core/services/layout-drawer.facade.service';
 import { CuentasFacade } from './cuentas.facade';
+import { EditarCuentaComponent } from './editar-cuenta.component';
 
 /**
  * CuentasComponent — de dónde sale cada gasto.
@@ -57,14 +59,24 @@ import { CuentasFacade } from './cuentas.facade';
       <div class="bento-banner bento-fill card flex min-h-0 flex-col p-0">
         <div class="flex flex-wrap items-center justify-between gap-3 border-b border-border-subtle px-4 py-3">
           <span class="micro-label">Tus cuentas</span>
-          <button
-            type="button"
-            class="btn-ghost"
-            (click)="alternarArchivadas()"
-            data-llm-action="alternar-archivadas"
-          >
-            @if (facade.verArchivadas()) { Ocultar archivadas } @else { Ver archivadas }
-          </button>
+          <div class="flex items-center gap-2">
+            <button
+              type="button"
+              class="btn-ghost"
+              (click)="alternarArchivadas()"
+              data-llm-action="alternar-archivadas"
+            >
+              @if (facade.verArchivadas()) { Ocultar archivadas } @else { Ver archivadas }
+            </button>
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="nuevaCuenta()"
+              data-llm-action="nueva-cuenta"
+            >
+              Agregar cuenta
+            </button>
+          </div>
         </div>
 
         <div class="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto px-4 py-3">
@@ -106,6 +118,14 @@ import { CuentasFacade } from './cuentas.facade';
               message="Todavía no hay cuentas"
               subtitle="Sin una cuenta, los cargos que manda el banco quedan atascados en la bandeja: el sistema lee el monto pero no sabe a qué tarjeta cargarlo."
             />
+            <button
+              type="button"
+              class="btn-primary self-center"
+              (click)="nuevaCuenta()"
+              data-llm-action="crear-primera-cuenta-desde-vacio"
+            >
+              Agregar mi primera cuenta
+            </button>
           }
 
           @for (cuenta of facade.cuentas(); track cuenta.id) {
@@ -124,6 +144,14 @@ import { CuentasFacade } from './cuentas.facade';
                 </div>
 
                 <div class="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    class="btn-ghost"
+                    (click)="editar(cuenta)"
+                    [attr.data-llm-action]="'editar-cuenta'"
+                  >
+                    Editar
+                  </button>
                   @if (cuenta.estado !== 'activa') {
                     <span class="micro-label">Archivada</span>
                     <button type="button" class="btn-ghost" (click)="reactivar(cuenta)">
@@ -188,6 +216,7 @@ import { CuentasFacade } from './cuentas.facade';
 })
 export class CuentasComponent implements OnInit {
   protected readonly facade = inject(CuentasFacade);
+  private readonly drawer = inject(LayoutDrawerFacadeService);
 
   private static readonly PESOS = new Intl.NumberFormat('es-CL', { maximumFractionDigits: 0 });
 
@@ -244,6 +273,15 @@ export class CuentasComponent implements OnInit {
 
   protected alternarArchivadas(): void {
     void this.facade.alternarArchivadas();
+  }
+
+  /** Alta: sin cuenta previa, el drawer arranca eligiendo el tipo. */
+  protected nuevaCuenta(): void {
+    this.drawer.open(EditarCuentaComponent, 'Nueva cuenta', 'credit-card', [], { cuenta: null });
+  }
+
+  protected editar(cuenta: CuentaCompleta): void {
+    this.drawer.open(EditarCuentaComponent, cuenta.nombre, 'credit-card', [], { cuenta });
   }
 
   protected archivar(cuenta: CuentaCompleta): void {

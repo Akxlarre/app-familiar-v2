@@ -39,12 +39,27 @@
 
 ---
 
-## Fase 2 — Crear y editar desde la app
+## Fase 2 — Crear y editar desde la app  ✅
 
-- [ ] **T2.1** — Drawer de alta/edición; el tipo se elige primero y define los campos (AC2, AC3)
-- [ ] **T2.2** — Vincular cuenta ↔ parser del banco (AC10)
-- [ ] **T2.3** — "Reintentar" tras vincular, usando `reprocesar-capturas` (AC12)
-- [ ] **T2.4** — AC-E1: dos cuentas del mismo banco distinguidas por patrón de asunto
+- [x] **T2.1** — Drawer de alta/edición (AC1, AC2, AC3)
+  - **El tipo se elige primero y define qué campos siguen.** En efectivo, cupo y fechas **no
+    existen**: no están apagados. Un formulario con la mitad de los campos deshabilitados le pide
+    al usuario que ignore lo que ve, y lo que se ignora se completa mal.
+  - Al editar, el tipo **no** se cambia: dejaría un `detalle_credito` huérfano o una tarjeta sin
+    él, y ninguna de las dos cosas se arregla sola.
+- [x] **T2.2** — Vincular cuenta ↔ parser (AC10)
+- [x] **T2.4** — AC-E1: el patrón de asunto se muestra en cada parser
+  - Es lo que distingue dos cuentas del mismo banco: los correos de la tarjeta de crédito y la de
+    débito llegan del mismo remitente y sólo se diferencian por el asunto. Verlo es lo que
+    permite elegir bien.
+- [~] **T2.3** — "Reintentar" con `reprocesar-capturas` → **no verificable en este entorno**
+  - Es una edge function, y el edge runtime no arranca acá: baja paquetes de npm y el proxy TLS
+    le da `UnknownIssuer`. Se construye cuando haya dónde probarlo, junto con los pasos 3 y 4 del
+    onboarding, que están bloqueados por lo mismo.
+
+---
+
+## Fase 3 — Cierre
 
 ---
 

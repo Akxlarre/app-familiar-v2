@@ -3,8 +3,10 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { BancosRepository } from '@core/repositories/bancos.repository';
 import { ToastService } from '@core/services/toast.service';
 import { mensajeSeguroDeBd } from '@core/utils/db-error.utils';
-import type { CuentaCompleta } from '@core/models/cuenta.model';
+import type { CuentaCompleta, DetalleCredito, ParserDelHogar } from '@core/models/cuenta.model';
 import { resumenDeCupo } from '@core/models/cuenta.model';
+import type { NuevaCuenta } from '@core/models/banco.model';
+import { HogaresRepository } from '@core/repositories/hogares.repository';
 
 /**
  * CuentasFacade — las cuentas del hogar y su cupo.
@@ -19,6 +21,7 @@ import { resumenDeCupo } from '@core/models/cuenta.model';
 export class CuentasFacade {
   private readonly repo = inject(BancosRepository);
   private readonly toast = inject(ToastService);
+  private readonly hogares = inject(HogaresRepository);
 
   private readonly _cuentas = signal<readonly CuentaCompleta[]>([]);
   private readonly _parsersSinCuenta = signal(0);
@@ -26,12 +29,16 @@ export class CuentasFacade {
   private readonly _cargado = signal(false);
   private readonly _error = signal<string | null>(null);
   private readonly _verArchivadas = signal(false);
+  private readonly _parsers = signal<readonly ParserDelHogar[]>([]);
+  private readonly _bancos = signal<readonly string[]>([]);
 
   readonly cuentas = this._cuentas.asReadonly();
   readonly parsersSinCuenta = this._parsersSinCuenta.asReadonly();
   readonly cargando = this._cargando.asReadonly();
   readonly error = this._error.asReadonly();
   readonly verArchivadas = this._verArchivadas.asReadonly();
+  readonly parsers = this._parsers.asReadonly();
+  readonly bancos = this._bancos.asReadonly();
 
   readonly vacio = computed(() => this._cargado() && this._cuentas().length === 0);
 
@@ -103,6 +110,83 @@ export class CuentasFacade {
       return null;
     } catch (e) {
       return mensajeSeguroDeBd(e, 'No se pudo reactivar la cuenta.');
+    }
+  }
+
+  // ── Crear, editar y vincular (AC1–AC3, AC10) ──────────────────────────────
+
+  /** Parsers y catálogo de bancos, para los selectores del formulario. */
+  async cargarAuxiliares(): Promise<void> {
+    const [parsers, catalogo] = await Promise.allSettled([
+      this.repo.parsers(),
+      this.repo.catalogo(),
+    ]);
+    this._parsers.set(parsers.status === 'fulfilled' ? parsers.value : []);
+    this._bancos.set(
+      catalogo.status === 'fulfilled' ? catalogo.value.map((b) => b.banco) : [],
+    );
+  }
+
+  /** Los parsers de un banco, que son los candidatos a vincular a una cuenta suya. */
+  parsersDe(banco: string | null): ParserDelHogar[] {
+    if (!banco) return [];
+    return this._parsers().filter((p) => p.banco === banco);
+  }
+
+  /**
+   * Crea la cuenta y, si es de crédito, su detalle.
+   *
+   * Las dos escrituras van juntas porque una tarjeta sin cupo ni fechas no
+   * puede mostrar nada de lo que esta pantalla promete, y dejarla a medias
+   * obliga al usuario a volver a un formulario que creía terminado.
+   */
+  async crear(cuenta: NuevaCuenta, credito: DetalleCredito | null): Promise<string | null> {
+    try {
+      const hogar = await this.hogares.miHogar();
+      if (!hogar) return 'No se encontró tu hogar.';
+
+      const creada = await this.repo.crearCuenta(hogar.id, cuenta);
+      if (cuenta.tipo === 'credito' && credito) {
+        await this.repo.guardarCredito(creada.id, credito);
+      }
+      this.toast.success('Cuenta creada');
+      await this.cargar();
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo crear la cuenta.');
+    }
+  }
+
+  async editar(
+    cuentaId: string,
+    cambios: { nombre: string; banco: string; last4: string | null },
+    credito: DetalleCredito | null,
+  ): Promise<string | null> {
+    try {
+      await this.repo.editarCuenta(cuentaId, cambios);
+      if (credito) await this.repo.guardarCredito(cuentaId, credito);
+      this.toast.success('Cuenta actualizada');
+      await this.cargar();
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo guardar la cuenta.');
+    }
+  }
+
+  /** Apunta un parser a una cuenta: es lo que hace que sus cargos entren solos. */
+  async vincular(parserId: string, cuentaId: string | null): Promise<string | null> {
+    try {
+      await this.repo.vincularParser(parserId, cuentaId);
+      this.toast.success(
+        cuentaId
+          ? 'Vinculado. Los próximos cargos de ese correo entran con esta cuenta.'
+          : 'Desvinculado',
+      );
+      await this.cargar();
+      await this.cargarAuxiliares();
+      return null;
+    } catch (e) {
+      return mensajeSeguroDeBd(e, 'No se pudo vincular el parser.');
     }
   }
 }

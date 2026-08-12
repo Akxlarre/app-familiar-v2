@@ -3,7 +3,12 @@ import { Injectable, inject } from '@angular/core';
 import { SupabaseService } from '@core/services/supabase.service';
 import { ErrorDeBd } from '@core/utils/db-error.utils';
 import type { BancoDelCatalogo, Cuenta, NuevaCuenta, TipoDeCuenta } from '@core/models/banco.model';
-import type { CuentaCompleta, DetalleCredito, EstadoDeCuenta } from '@core/models/cuenta.model';
+import type {
+  CuentaCompleta,
+  DetalleCredito,
+  EstadoDeCuenta,
+  ParserDelHogar,
+} from '@core/models/cuenta.model';
 import { periodoDeFacturacion } from '@core/models/cuenta.model';
 
 interface PlantillaRow {
@@ -263,6 +268,75 @@ export class BancosRepository {
     const { error } = await this.client
       .from('cuentas')
       .update({ estado: 'activa' })
+      .eq('id', cuentaId);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+
+  /** Los parsers del hogar, para poder vincularlos a una cuenta (AC10). */
+  async parsers(): Promise<ParserDelHogar[]> {
+    const { data, error } = await this.client
+      .from('parsers_email')
+      .select('id, banco, tipo, asunto_patron, cuenta_id')
+      .order('banco');
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    return ((data ?? []) as Array<Record<string, unknown>>).map((r) => ({
+      id: r['id'] as string,
+      banco: r['banco'] as string,
+      tipo: r['tipo'] as string,
+      asuntoPatron: (r['asunto_patron'] as string | null) ?? null,
+      cuentaId: (r['cuenta_id'] as string | null) ?? null,
+    }));
+  }
+
+  /**
+   * Apunta un parser a una cuenta.
+   *
+   * Es lo que hace que los cargos de ese correo entren solos. Un parser puede
+   * cambiar de cuenta —alguien cambió de tarjeta— así que se sobrescribe sin
+   * más; lo que **no** se toca son sus regex.
+   */
+  async vincularParser(parserId: string, cuentaId: string | null): Promise<void> {
+    const { error } = await this.client
+      .from('parsers_email')
+      .update({ cuenta_id: cuentaId })
+      .eq('id', parserId);
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+  }
+
+  /** Crea una cuenta sin copiar plantillas: el vínculo con el parser se elige aparte. */
+  async crearCuenta(hogarId: string, cuenta: NuevaCuenta): Promise<Cuenta> {
+    const { data, error } = await this.client
+      .from('cuentas')
+      .insert({
+        household_id: hogarId,
+        nombre: cuenta.nombre,
+        tipo: cuenta.tipo,
+        banco: cuenta.banco,
+        last4: cuenta.last4,
+      })
+      .select('id, nombre, tipo, banco, last4, activa')
+      .single();
+
+    if (error) throw new ErrorDeBd(error.message, error.code);
+    const r = data as Record<string, unknown>;
+    return {
+      id: r['id'] as string,
+      nombre: r['nombre'] as string,
+      tipo: r['tipo'] as TipoDeCuenta,
+      banco: (r['banco'] as string | null) ?? null,
+      last4: (r['last4'] as string | null) ?? null,
+      activa: r['activa'] as boolean,
+    };
+  }
+
+  /** Edita los datos básicos. El tipo no se cambia: define qué otros campos existen. */
+  async editarCuenta(cuentaId: string, cambios: { nombre: string; banco: string; last4: string | null }): Promise<void> {
+    const { error } = await this.client
+      .from('cuentas')
+      .update({ nombre: cambios.nombre, banco: cambios.banco, last4: cambios.last4 })
       .eq('id', cuentaId);
 
     if (error) throw new ErrorDeBd(error.message, error.code);
