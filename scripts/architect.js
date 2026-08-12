@@ -44,6 +44,7 @@ import { kebabToPascal, collectUsedIcons, parseRegisteredIcons } from './lib/ico
 import { findIconOnlyButtonsWithoutLabel } from './lib/a11y-guardrails.js';
 import { findReservedTailwindClassCollisions, findThemeTokenCollisions } from './lib/tailwind-bare-utilities.js';
 import { findFillScreenRowViolations } from './lib/bento-fill-rows.js';
+import { findDestinosHuerfanos } from './lib/nav-integrity.js';
 import { extractBentoClasses, diffBentoClasses } from './check-bento-classes.js';
 import {
     isPillWhitelisted, isTypographyWhitelisted,
@@ -137,6 +138,11 @@ const RULES = {
         name: 'Theme token collides with a native Tailwind utility',
         doc: '.claude/rules/visual-system.md',
         fix: 'Renombra el token: un --color-X donde X es un valor de una escala nativa (base, sm, lg, xl…) genera una utilidad de COLOR que le gana a la nativa. `--color-base` hacía que `text-base` pintara texto del color del fondo.',
+    },
+    'NAV-01': {
+        name: 'Menu entry without a declared route',
+        doc: '.claude/rules/screen-contract.md',
+        fix: 'Toda entrada del menú tiene que resolver a una ruta de app.routes.ts. Si el módulo todavía no existe, la entrada NO va (spec 0003, AC4): un menú de promesas es lo que hace que el usuario entre a pantallas vacías y deje de abrir la app.',
     },
     'A11Y-03': {
         name: 'Icon-only button without accessible name',
@@ -712,6 +718,22 @@ checkClassDiscipline();
         for (const c of findThemeTokenCollisions(css)) {
             reportError('ARCH-26', cssPath,
                 `${c.token} genera la utilidad de color \`${c.utilidad}\`, que le gana a la nativa de la escala \`${c.prefijo}\`.`);
+        }
+    } catch { /* fail-open */ }
+}
+
+// NAV-01: entradas del menú que no resuelven a ninguna ruta declarada.
+// El usuario hace clic y cae en el not-found; nada en el build lo delata.
+{
+    const rutasPath = path.join(process.cwd(), 'src', 'app', 'app.routes.ts');
+    const menuPath = path.join(process.cwd(), 'src', 'app', 'core', 'services', 'menu-config.service.ts');
+    try {
+        const huerfanos = findDestinosHuerfanos(
+            fs.readFileSync(rutasPath, 'utf-8'),
+            fs.readFileSync(menuPath, 'utf-8'),
+        );
+        for (const destino of huerfanos) {
+            reportError('NAV-01', menuPath, `El menú apunta a ${destino}, que no existe en app.routes.ts.`);
         }
     } catch { /* fail-open */ }
 }
