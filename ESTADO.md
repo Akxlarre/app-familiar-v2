@@ -131,7 +131,15 @@ npm run test:functions   # 40 tests de las edge functions (Deno)
 npm run check:functions  # tipos de las edge functions
 node --test supabase/tests/grants.test.mjs   # 12 casos de privilegios
 node qa/qa-guard.mjs     # QA en navegador — ver qa/README.md
+
+npm run smoke:scripts        # ¿cada script comprueba algo, o sólo pasa?
+npm run lint:arch:provocar   # ¿cada regla del linter dispara ante su violación?
 ```
+
+Los dos últimos tardan y van al cerrar una sesión, no en cada guardado. No
+preguntan si los chequeos pasan: preguntan si **pueden fallar**. Ver
+[`docs/CHEQUEOS-QUE-NO-CHEQUEAN.md`](docs/CHEQUEOS-QUE-NO-CHEQUEAN.md) —
+nacieron de los dos comandos muertos que encontramos hoy.
 
 > **No uses `npx tsc --noEmit -p tsconfig.json`.** El tsconfig raíz es
 > *solution-style*: compila cero archivos y sale con código 0. Da verde sin haber
