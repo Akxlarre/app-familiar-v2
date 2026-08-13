@@ -1,0 +1,26 @@
+{
+  "_comentario": "Reglas sin fixture de provocación. Esta lista sólo puede achicarse: agregar una regla nueva sin fixture hace fallar el chequeo.",
+  "sinFixture": [
+    "ARCH-11",
+    "ARCH-18",
+    "ARCH-21",
+    "ARCH-22",
+    "ARCH-15",
+    "ARCH-16",
+    "ARCH-17",
+    "ARCH-19",
+    "ARCH-24",
+    "ARCH-23",
+    "ARCH-25",
+    "ARCH-26",
+    "NAV-01",
+    "A11Y-03",
+    "ICON-01",
+    "ARCH-02",
+    "ARCH-06",
+    "ARCH-07",
+    "ARCH-08",
+    "ARCH-09",
+    "ARCH-10"
+  ]
+}
