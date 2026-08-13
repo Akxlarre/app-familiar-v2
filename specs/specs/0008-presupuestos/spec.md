@@ -48,6 +48,7 @@ toque y el aviso de "vas a pasarte" llega a tiempo.
 ### El presupuesto se propone solo
 
 - **AC1**: Given tres meses de movimientos categorizados, When empieza un mes nuevo, Then el sistema **propone** un presupuesto por categoría basado en la mediana de esos meses.
+- **AC1-bis**: Given la categoría de sistema `Deudas`, When se propone el presupuesto, Then **queda excluida**. Una cuota es un compromiso fijo que no se puede bajar: presupuestarla hace que la app diga "te pasaste" cuando no había nada que elegir, y el mes que empieza un crédito rompe el presupuesto entero (spec 0025, D5).
 - **AC2**: Given esa propuesta, When el usuario la revisa, Then puede aceptarla entera de un toque o ajustar categoría por categoría.
 - **AC3**: Given menos de dos meses de historial, When se abre presupuestos, Then se dice que todavía no hay con qué proponer y se ofrece escribirlo a mano, sin fingir una propuesta.
 - **AC4**: Given un presupuesto vigente, When empieza el mes siguiente, Then se arrastra el del mes anterior — no se vuelve a cero ni se pide llenarlo de nuevo.

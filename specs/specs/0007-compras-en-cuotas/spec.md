@@ -49,8 +49,8 @@ parte, obtenida sin escribir nada. Es de las cosas que hacen que la app valga la
 
 ### Mostrar
 
-- **AC5**: Given compras en cuotas activas, When se abre la sección, Then se ve el total comprometido y lo que falta por pagar.
-- **AC6**: Given el mes siguiente, When se calcula, Then se ve cuánto de la próxima facturación son cuotas ya comprometidas.
+- **AC5**: ~~Total comprometido de las cuotas~~ → **absorbido por AC1 de la spec 0025.** Las cuotas son una deuda: su total no puede vivir aparte del total de deudas, o son dos copias del mismo número esperando a divergir.
+- **AC6**: ~~Cuánto de la próxima facturación son cuotas~~ → **absorbido por AC3 de la spec 0025**, que muestra cuánto sale este mes sumando todas las fuentes.
 - **AC7**: Given una compra terminada (última cuota pagada), When se listan, Then no aparece entre las activas pero queda en el historial.
 - **AC8**: Given una compra en cuotas, When se mira un movimiento suyo en Plata, Then dice "cuota 3 de 12" y enlaza a la compra.
 
@@ -105,7 +105,7 @@ parte, obtenida sin escribir nada. Es de las cosas que hacen que la app valga la
 
 ## 7. UX y flujos
 
-- **Pantalla:** `/app/plata/cuotas`.
+- **Pantalla:** ya no es una subsección propia. Es la **vista de cuotas dentro de `/app/plata/deudas`** (spec 0025, D1). Se decidió antes de construir nada: los tabs de Plata todavía no existen.
 - **Forma:** hero con comprometido total, pendiente y cuánto cae el mes que viene + panel con una fila por compra activa, ordenadas por cuánto falta.
 - **Fila:** comercio, monto de cuota, progreso ("3 de 12"), total pendiente. El progreso se ve sin leer números.
 - **Detalle:** drawer con la línea de tiempo de las cuotas — pagadas, la actual, las que vienen, y las que no se capturaron.

@@ -48,3 +48,6 @@ supabase/.temp/
 supabase/.branches/
 .env
 .env.local
+
+# Capturas de los QA en navegador: se regeneran solas.
+qa/capturas/

@@ -55,8 +55,14 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 | 0004 | Del registro al primer movimiento | 🟡 una vez | P0 | `done` | REQ-001, REQ-010 |
 | 0005 | La pantalla de la plata | 🟢 | P0 | `done` | REQ-011, REQ-013 |
 | 0006 | Cuentas y tarjetas de crédito | 🟡 una vez | P1 | `draft` | REQ-030 |
+| 0025 | Deudas | 🟡 una vez por crédito | P1 | `draft` | REQ-031 |
 | 0007 | Compras en cuotas | 🟢 | P1 | `draft` | REQ-031 |
 | 0008 | Presupuestos | 🟡 mensual | P2 | `draft` | REQ-032 |
+
+> **La 0025 va antes que la 0007**, aunque tenga número más alto. Las cuotas **son** una deuda:
+> construir Cuotas como subsección propia y después agregar Deudas dejaría el total de "cuánto
+> debo" viviendo en una de las dos pantallas, o duplicado. La 0007 pasa a ser la vista de cuotas
+> dentro de Deudas. Se decidió a tiempo: los tabs de Plata todavía no existen.
 
 ---
 
@@ -147,7 +153,7 @@ Cada spec declara su **costo de entrada**, igual que los requerimientos:
 | REQ-020 | 0009 | | REQ-053 | 0020 |
 | REQ-021 | 0016 | | REQ-060 | 0015 |
 | REQ-030 | 0006 | | REQ-070 | 0021 |
-| REQ-031 | 0007 | | RNF-01 | 0022 |
+| REQ-031 | 0007, 0025 | | RNF-01 | 0022 |
 | REQ-032 | 0008 | | RNF-02 | 0003 |
 | REQ-033 | ~~0023~~ archivada | | RNF-03 | 0001, 0022 |
 | REQ-040 | 0011 | | RNF-04 | 0001 |
