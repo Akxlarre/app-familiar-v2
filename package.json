@@ -24,6 +24,7 @@
     "lint:arch": "node scripts/lint-arch-wrapper.js",
     "lint:arch:test": "node --test scripts/lib/*.test.mjs",
     "lint:arch:provocar": "node scripts/provocar-reglas.mjs",
+    "lint:specs": "node scripts/verificar-specs.mjs",
     "smoke:scripts": "node scripts/smoke-scripts.mjs",
     "indices:sync": "node scripts/indices-sync.js",
     "check:bento": "node scripts/check-bento-classes.js",

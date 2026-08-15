@@ -7,6 +7,7 @@
 > **Costo de entrada:** 🟡 manual, una vez por crédito — las cuotas son 🟢
 > **Hito:** 1 — que la plata se pueda mirar
 > **Decisiones:** [decisiones.md](./decisiones.md) — 6 cerradas en interrogatorio
+> **Modifica:** 0007, 0008
 
 ---
 
